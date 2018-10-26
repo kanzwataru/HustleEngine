@@ -33,5 +33,7 @@ CXX			 = g++
 $(TARGET): $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
 
+build: $(TARGET)
+
 clean: preclean
 	rm -f $(OBJS) $(TARGET)

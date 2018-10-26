@@ -28,10 +28,9 @@ $(TARGET): $(OBJS)
 	# clean up unnecessary crud that OpenWatcom leaves behind
 	rm -f *.err
 
-enginelib:
-	echo "Building HustleEngine"
+build: $(TARGET)
 
-buildnrun: postbuild
+buildnrun: all
 	dosbox -c "cd C:\DEV\BALLOON" -c "balloon.exe"
 
 run:

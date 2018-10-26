@@ -1,4 +1,5 @@
 .PHONY: prebuild postbuild cleanhook preclean engine game
+.DEFAULT_GOAL := all
 
 ifeq ($(ENGINE_DIR),)
 $(error ENGINE_DIR not set)
@@ -26,6 +27,7 @@ preclean: cleanhook
 	rm -f $(COMMON_OBJS)
 	find . -type f -name '._*' -delete
 
-engine: prebuild enginelib
-game: engine $(TARGET)
+mainbuild: prebuild
+	@$(MAKE) --no-print-directory build
+
 all: postbuild
