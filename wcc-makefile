@@ -1,0 +1,38 @@
+.PHONY: buildnrun run
+
+# Cross-compile for DOS with OpenWatcom
+OBJS		= $(COMMON_OBJS) src/HustleEngine/platform/dos/vga.o src/HustleEngine/platform/dos/kb.o
+SRCS		= $(OBJS:.o=.c)
+HEADERS		= $(COMMON_HEADERS)
+LIBS		= mathc.lib
+TARGET		= BALLOON.EXE
+
+CFLAGS 		= -3 -bt=dos -ml -w4 -zq
+ifeq ($(DEBUG_BUILD), 1)
+CFLAGS	   += -od -d2 -dDEBUG
+else
+CFLAGS	   += -otexan -d0
+endif
+CFLAGS	   += $(addprefix -i,$(HEADERS))
+LDFLAGS		= -fe=$(TARGET)
+
+CC			= wcl
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $*.c -fo=$@
+
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
+	
+	# clean up unnecessary crud that OpenWatcom leaves behind
+	rm -f *.err
+
+buildnrun: $(TARGET)
+	dosbox -c "cd C:\DEV\BALLOON" -c "balloon.exe"
+
+run:
+	dosbox -c "cd C:\DEV\BALLOON" -c "balloon.exe"
+
+clean: preclean
+	rm -f $(OBJS) $(TARGET)
+	rm -f *.obj *.err
