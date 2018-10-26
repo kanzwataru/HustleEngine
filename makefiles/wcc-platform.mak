@@ -1,11 +1,12 @@
 .PHONY: buildnrun run
 
 # Cross-compile for DOS with OpenWatcom
-OBJS		= $(COMMON_OBJS) src/HustleEngine/platform/dos/vga.o src/HustleEngine/platform/dos/kb.o
+ENGINE_OBJS = $(COMMON_ENGINE_OBJS) platform/dos/vga.o platform/dos/kb.o
+OBJS		= $(GAME_OBJS) $(addprefix $(ENGINE_DIR)/src,$(ENGINE_OBJS))
 SRCS		= $(OBJS:.o=.c)
-HEADERS		= $(COMMON_HEADERS)
+HEADERS		= $(COMMON_INCLUDE) $(GAME_INCLUDE)
 LIBS		= mathc.lib
-TARGET		= BALLOON.EXE
+TARGET		= $(GAME_NAME).EXE
 
 CFLAGS 		= -3 -bt=dos -ml -w4 -zq
 ifeq ($(DEBUG_BUILD), 1)
@@ -27,7 +28,10 @@ $(TARGET): $(OBJS)
 	# clean up unnecessary crud that OpenWatcom leaves behind
 	rm -f *.err
 
-buildnrun: $(TARGET)
+enginelib:
+	echo "Building HustleEngine"
+
+buildnrun: postbuild
 	dosbox -c "cd C:\DEV\BALLOON" -c "balloon.exe"
 
 run:
