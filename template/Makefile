@@ -15,7 +15,7 @@ ENGINE_DIR		:= HustleEngine
 BUILD_DIR       := build
 
 # *** include the engine's makefile *** #
-include $(ENGINE_DIR)/hustle-engine.inc #
+include $(ENGINE_DIR)/hustle-build.mak  #
 # ************************************* #
 
 prebuild:

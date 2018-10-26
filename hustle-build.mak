@@ -11,11 +11,11 @@ COMMON_ENGINE_OBJS = engine/core.o engine/event.o engine/render.o platform/files
 ############################
 # Include platform makefile #
 ifeq ($(TARGET_PLATFORM), unix)
-include unix-makefile
+include $(ENGINE_DIR)/makefiles/unix-platform.mak
 else ifeq ($(TARGET_PLATFORM), dos)
-include dos-makefile
+include $(ENGINE_DIR)/makefiles/dos-platform.mak
 else ifeq ($(TARGET_PLATFORM), doswcc)
-include wcc-makefile
+include $(ENGINE_DIR)/makefiles/wcc-platform.mak
 else
 $(error Unsupported platform or TARGET_PLATFORM not specified)
 endif
