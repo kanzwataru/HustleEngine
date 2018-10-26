@@ -15,8 +15,6 @@ ifeq ($(TARGET_PLATFORM), unix)
 include $(ENGINE_DIR)/makefiles/unix-platform.mak
 else ifeq ($(TARGET_PLATFORM), dos)
 include $(ENGINE_DIR)/makefiles/dos-platform.mak
-else ifeq ($(TARGET_PLATFORM), doswcc)
-include $(ENGINE_DIR)/makefiles/wcc-platform.mak
 else
 $(error Unsupported platform or TARGET_PLATFORM not specified)
 endif
