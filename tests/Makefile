@@ -8,10 +8,12 @@
 # in the engine's makefiles.
 #
 
-GAME_NAME		:= EXAMPLE
-GAME_INCLUDE	:= src/game
-GAME_OBJS		:= src/game/foo.o src/main.o
-ENGINE_DIR		:= HustleEngine
+GAME_NAME		:= htest
+GAME_INCLUDE	:= .
+GAME_OBJS		:= test.o simplet.o main.o
+DOS_ENV_DIR		:= "C:\\DEV\\BALLOON\\ENGINE\\TESTS"
+DOS_ENGINE_DIR  := "C:\\DEV\\BALLOON\\ENGINE"
+ENGINE_DIR		:= ..
 BUILD_DIR       := build
 
 # *** include the engine's makefile *** #
@@ -22,7 +24,7 @@ prebuild:
 	# things that should happen before the compilation
 	echo "** Prebuild **"
 
-postbuild:　mainbuild
+postbuild: mainbuild
 	# things that should happen after the compilation
 	echo "** Postbuild **"
 
