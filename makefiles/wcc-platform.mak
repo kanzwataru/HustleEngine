@@ -4,7 +4,7 @@
 ENGINE_OBJS = $(COMMON_ENGINE_OBJS) platform/dos/vga.o platform/dos/kb.o
 OBJS		= $(GAME_OBJS) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_OBJS))
 SRCS		= $(OBJS:.o=.c)
-INCLUDE		= $(COMMON_INCLUDE) $(GAME_INCLUDE)
+HEADERS		= $(COMMON_INCLUDE) $(GAME_INCLUDE)
 LIBS		= mathc.lib
 TARGET		= $(GAME_NAME).exe
 
@@ -14,7 +14,7 @@ CFLAGS	   += -od -d2 -dDEBUG
 else
 CFLAGS	   += -otexan -d0
 endif
-CFLAGS	   += $(addprefix -i,$(INCLUDE))
+CFLAGS	   += $(addprefix -i,$(HEADERS))
 LDFLAGS		= -fe=$(TARGET)
 
 CC			= wcl
