@@ -2,11 +2,11 @@
 
 # Cross-compile for DOS with OpenWatcom
 ENGINE_OBJS = $(COMMON_ENGINE_OBJS) platform/dos/vga.o platform/dos/kb.o
-OBJS		= $(GAME_OBJS) $(addprefix $(ENGINE_DIR)/src,$(ENGINE_OBJS))
+OBJS		= $(GAME_OBJS) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_OBJS))
 SRCS		= $(OBJS:.o=.c)
-HEADERS		= $(COMMON_INCLUDE) $(GAME_INCLUDE)
+INCLUDE		= $(COMMON_INCLUDE) $(GAME_INCLUDE)
 LIBS		= mathc.lib
-TARGET		= $(GAME_NAME).EXE
+TARGET		= $(GAME_NAME).exe
 
 CFLAGS 		= -3 -bt=dos -ml -w4 -zq
 ifeq ($(DEBUG_BUILD), 1)
@@ -14,7 +14,7 @@ CFLAGS	   += -od -d2 -dDEBUG
 else
 CFLAGS	   += -otexan -d0
 endif
-CFLAGS	   += $(addprefix -i,$(HEADERS))
+CFLAGS	   += $(addprefix -i,$(INCLUDE))
 LDFLAGS		= -fe=$(TARGET)
 
 CC			= wcl
