@@ -83,9 +83,16 @@ static void init_all_sprites(Sprite **sprites, const uint16 count)
 
 static void free_all_sprites(Sprite **sprites, uint16 *count)
 {
+    int i;
+
     if(*sprites) {
         free(*sprites);
         *sprites = NULL;
+
+        for(i = 0; i < *count; ++i) {
+            if(dirty_tiles[i].image)
+                farfree(dirty_tiles[i].image);
+        }
 
         free(dirty_tiles);
         dirty_tiles = NULL;
