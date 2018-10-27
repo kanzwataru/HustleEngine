@@ -13,5 +13,6 @@ typedef struct {
 } CoreData;
 
 void engine_start(CoreData cd);
+void engine_release(void);
 
 #endif
