@@ -249,8 +249,10 @@ void draw_rect_clipped(buffer_t *buf, const Rect *rect, byte colour)
     Rect screen_clip = {0,0,SCREEN_WIDTH, SCREEN_HEIGHT};
     Point _;
 
-    clip_rect(&c, &_, rect, &screen_clip);
-    draw_rect(buf, &c, colour);
+    if(clip_rect(&c, &_, rect, &screen_clip))
+        draw_rect(buf, &c, colour);
+    else
+        return;
 }
 
 void draw_dot(buffer_t *buf, Point p, byte colour)
