@@ -295,7 +295,11 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
 
             px += sdx;
             offset = CALC_OFFSET(px, py);
-
+            
+            /* clip to screen boundary */
+            if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
+                continue;
+                
             undopix[count].x = px;
             undopix[count].y = py;
             undopix[count].col = buf[offset];
@@ -312,6 +316,10 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
 
             py += sdy;
             offset = CALC_OFFSET(px, py);
+            
+            /* clip to screen boundary */
+            if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
+                continue;
             
             undopix[count].x = px;
             undopix[count].y = py;
