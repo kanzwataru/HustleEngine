@@ -8,8 +8,8 @@ struct Event {
 };
 
 static struct Event event_stack[MAX_EVENTS];
-static EventID top;
-static EventID last_freed;
+static EventID top = 0;
+static EventID last_freed = 0;
 
 EventID event_add(EventCallback callback, void *arg, uint16 time_amount)
 {
@@ -25,7 +25,7 @@ EventID event_add(EventCallback callback, void *arg, uint16 time_amount)
         last_freed = 0;
     }
     else {
-        event_stack[++top] = e;
+        event_stack[top++] = e;
         assert(top < MAX_EVENTS);
 
         ret_id = top;
