@@ -39,7 +39,7 @@ static void vga_modeset(byte mode)
 /*
  * Video API flip buffer
 */
-void video_flip(buffer_t *backbuf)
+void video_flip(const buffer_t *backbuf)
 {
     assert(current_mode != 0);
     assert(screen_size != 0);
@@ -86,7 +86,7 @@ void video_wait_vsync(void)
  * Sets mode 13h
  * 256 colour palette
 */
-void video_set_palette(buffer_t *palette)
+void video_set_palette(const buffer_t *palette)
 {
     int i;
 

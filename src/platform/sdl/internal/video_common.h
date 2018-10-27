@@ -19,7 +19,7 @@
 static byte video_mode;
 static SDL_Color fbpalette[PALETTE_SIZE];
 
-static void internal_set_palette(buffer_t *palette)
+static void internal_set_palette(const buffer_t *palette)
 {
     printf("palette set\n");
     switch(video_mode) {

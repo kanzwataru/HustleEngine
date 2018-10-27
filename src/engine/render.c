@@ -25,6 +25,8 @@ struct LineUndo {
 
 static struct SimpleSprite *dirty_tiles;
 static const Rect EMPTY_RECT = {0,0,0,0};
+static bool video_initialized = false;
+static buffer_t *temp_palette;
 
 /*
  * Calculates the offset into the buffer (y * SCREEN_WIDTH + x)
@@ -38,11 +40,15 @@ static const Rect EMPTY_RECT = {0,0,0,0};
  * Creates a buffer the size of the screen
 */
 static buffer_t *make_framebuffer() {
-    return farmalloc(SCREEN_SIZE);
+    return create_image(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 buffer_t *create_image(uint16 w, uint16 h) {
     return farmalloc(w * h);
+}
+
+buffer_t *create_palette(void) {
+    return farmalloc(PALETTE_SIZE);
 }
 
 void destroy_image(buffer_t **image) {
@@ -85,7 +91,7 @@ static void free_all_sprites(Sprite **sprites, uint16 *count)
 {
     int i;
 
-    if(*sprites) {
+    if(*sprites && *count > 0) {
         free(*sprites);
         *sprites = NULL;
 
@@ -99,6 +105,24 @@ static void free_all_sprites(Sprite **sprites, uint16 *count)
     }
 
     *count = 0;
+}
+
+void palette_set(const buffer_t *palette)
+{
+    video_set_palette(palette);
+}
+
+void palette_fade(const buffer_t *start, const buffer_t *end, float percent)
+{
+    int i;
+    
+    for(i = 0; i < PALETTE_SIZE; i += 3) {
+        temp_palette[i + 0] = LERP(start[i + 0], end[i + 0], percent);
+        temp_palette[i + 1] = LERP(start[i + 1], end[i + 1], percent);
+        temp_palette[i + 2] = LERP(start[i + 2], end[i + 2], percent);
+    }
+    
+    video_set_palette(temp_palette);
 }
 
 static bool clip_rect(Rect *clipped, Point *offset, const Rect *orig, const Rect *clip)
@@ -466,13 +490,17 @@ void finish_frame(RenderData *rd)
 
 int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
 {
-    rd->bg_layer = make_framebuffer();
     rd->screen = make_framebuffer();
     rd->sprite_count = sprite_count;
 
-    if(rd->bg_layer && rd->screen) {
-        video_init_mode(VIDEO_MODE_LOW256, 1);
-        _fmemset(rd->bg_layer, 0, SCREEN_SIZE);
+    if(rd->screen) {
+        if(!video_initialized) {
+            temp_palette = create_palette();
+            
+            video_init_mode(VIDEO_MODE_LOW256, 1);
+            video_initialized = true;
+        }
+
         init_all_sprites(&rd->sprites, sprite_count);
 
         rd->screen_clipping.x = 0;
@@ -492,9 +520,16 @@ int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
     }
 }
 
-void quit_renderer(RenderData *rd)
+void destroy_renderdata(RenderData *rd)
 {
     free_all_sprites(&rd->sprites, &rd->sprite_count);
-    farfree(rd->bg_layer);
+    farfree(rd->screen);
+}
+
+void quit_renderer(RenderData *rd)
+{
+    destroy_renderdata(rd);
+    destroy_image(&temp_palette);
+    
     video_exit();
 }

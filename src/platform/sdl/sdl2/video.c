@@ -91,7 +91,7 @@ void video_exit(void)
 
 void video_wait_vsync(void) {}
 
-void video_flip(buffer_t *backbuf)
+void video_flip(const buffer_t *backbuf)
 {
     int i;
     uint32_t *dst = converted;
@@ -105,7 +105,7 @@ void video_flip(buffer_t *backbuf)
     SDL_RenderPresent(renderer);
 }
 
-void video_set_palette(buffer_t *palette)
+void video_set_palette(const buffer_t *palette)
 {
     internal_set_palette(palette);
 }

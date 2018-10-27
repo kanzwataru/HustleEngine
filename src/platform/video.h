@@ -12,7 +12,7 @@ enum VIDEO_MODES {
 void video_wait_vsync(void);
 void video_init_mode(byte mode, byte scaling);
 void video_exit(void);
-void video_flip(buffer_t *backbuf);
-void video_set_palette(buffer_t *palette);
+void video_flip(const buffer_t *backbuf);
+void video_set_palette(const buffer_t *palette);
 
 #endif

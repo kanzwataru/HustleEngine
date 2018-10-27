@@ -11,6 +11,7 @@
 #define SCREEN_WIDTH 320   /* Mode 13h uses 320 x 200 res */
 #define SCREEN_HEIGHT 200
 #define SCREEN_SIZE 64000u /* Amount of pixels (320 x 200) */
+#define PALETTE_SIZE 256 * 3
 #define MAX_SPRITE_SIZE 128
 #define MAX_LINE_LENGTH 512
 #define TRANSPARENT 0
@@ -92,12 +93,16 @@ LineUndoList create_line_undo_list();
 void destroy_line_undo_list(LineUndoList *lul);
 
 int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette);
-int init_line_render(byte line_count);
+void destroy_renderdata(RenderData *rd);
 void quit_renderer(RenderData *rd);
 
 void start_frame(RenderData *rd);
 void refresh_sprites(RenderData *rd);
 void finish_frame(RenderData *rd);
+
+buffer_t *create_palette(void);
+void palette_set(const buffer_t *palette);
+void palette_fade(const buffer_t *start, const buffer_t *end, float percent);
 
 void reset_sprite(Sprite *sprite);
 

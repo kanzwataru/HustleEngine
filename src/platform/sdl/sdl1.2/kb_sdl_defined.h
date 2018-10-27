@@ -31,7 +31,7 @@
 #define KEY_P            SDLK_p
 #define KEY_LEFTBRACKET  SDLK_LEFTBRACKET
 #define KEY_RIGHTBRACKET SDLK_RIGHTBRACKET
-#define KEY_ENTER        SDLK_ENTER
+#define KEY_ENTER        SDLK_RETURN
 #define KEY_CTRL         SDLK_CTRL
 #define KEY_A            SDLK_a
 #define KEY_S            SDLK_s

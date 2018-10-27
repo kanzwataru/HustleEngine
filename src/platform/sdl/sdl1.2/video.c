@@ -139,12 +139,12 @@ void video_wait_vsync(void)
  *
  * We have to do a bit o' finangling to get the VGA mode 13h stuff to draw on an SDL surface
 */
-void video_flip(buffer_t *backbuf)
+void video_flip(const buffer_t *backbuf)
 {
     int doubling = 0, lines = 0, pixels = 0;
     
     byte *linehead = framebuffer->pixels;
-    byte *src = backbuf;
+    const byte *src = backbuf;
     
     /* we ONLY support Mode 13h for now!! */
     if(video_mode != VIDEO_MODE_LOW256)
@@ -188,7 +188,7 @@ void video_flip(buffer_t *backbuf)
  *
  * Depending on the video mode it may be 16 or 256 colours
 */
-void video_set_palette(buffer_t *palette)
+void video_set_palette(const buffer_t *palette)
 {
     internal_set_palette(palette);
 
