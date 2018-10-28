@@ -37,8 +37,7 @@ build: $(TARGET)
 	chmod +x $(TARGET)
 
 run: all
-	cd $(BUILD_DIR)
-	./$(GAME_NAME)
+	cd $(BUILD_DIR) && ./$(GAME_NAME)
 
 clean: preclean
 	rm -f $(OBJS) $(TARGET)
