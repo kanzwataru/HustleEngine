@@ -1,19 +1,20 @@
-ENGINE_OBJS  = $(COMMON_ENGINE_OBJS) platform/sdl/kb.o
+ENGINE_SRC   = $(COMMON_ENGINE_SRC) platform/sdl/kb.c
 INCLUDE      = $(COMMON_INCLUDE) $(GAME_INCLUDE)
 DEFINES		 = -DUNIX
 LIBS         = -lm
-TARGET       = $(GAME_NAME)
+TARGET       = $(BUILD_DIR)/$(GAME_NAME)
 
 ifeq ($(SDL_VER), 2)
 DEFINES     += -DSDL2
-ENGINE_OBJS += platform/sdl/sdl2/video.o
+ENGINE_SRC  += platform/sdl/sdl2/video.c
 LIBS        += -lSDL2
 else
-ENGINE_OBJS += platform/sdl/sdl1.2/video.o
+ENGINE_SRC  += platform/sdl/sdl1.2/video.c
 LIBS        += -lSDL
 endif
 
-OBJS         = $(GAME_OBJS) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_OBJS))
+SRC          = $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
+OBJS		 = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS       = -g3 -DDEBUG -Wpedantic -Wall -Werror
@@ -27,10 +28,12 @@ LDFLAGS      = -o $(TARGET)
 CC			 = gcc
 CXX			 = g++
 
-%.o: %.c
+$(OBJ_DIR)/%.o: %.c
+	mkdir -p `dirname $@`
 	$(CC) -c $(CFLAGS) $(DEFINES) $*.c -o $@
 
 $(TARGET): $(OBJS)
+	mkdir -p `dirname $@`
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
 
 build: $(TARGET)

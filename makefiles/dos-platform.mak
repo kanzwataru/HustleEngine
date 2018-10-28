@@ -1,12 +1,13 @@
 .PHONY: buildnrun run
 
 # Cross-compile for DOS with OpenWatcom
-ENGINE_OBJS = $(COMMON_ENGINE_OBJS) platform/dos/vga.o platform/dos/kb.o
-OBJS		= $(GAME_OBJS) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_OBJS))
-SRCS		= $(OBJS:.o=.c)
+ENGINE_SRC  = $(COMMON_ENGINE_SRC) platform/dos/vga.c platform/dos/kb.c
+SRC 		= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
+OBJS		= $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 HEADERS		= $(COMMON_INCLUDE) $(GAME_INCLUDE)
 LIBS		= mathc.lib
-TARGET		= $(GAME_NAME).exe
+TARGET		= $(BUILD_DIR)/$(GAME_NAME).exe
+DOS_ROOT    = $(shell pwd)/$(BUILD_DIR)
 
 CFLAGS 		= -3 -bt=dos -ml -w4 -zq
 ifeq ($(DEBUG_BUILD), 1)
@@ -19,10 +20,12 @@ LDFLAGS		= -fe=$(TARGET)
 
 CC			= wcl
 
-%.o: %.c
-	$(CC) -c $(CFLAGS) $*.c -fo=$@
+$(OBJ_DIR)/%.o: %.c
+	mkdir -p `dirname $@`
+	$(CC) -c $(CFLAGS) $^ -fo=$@
 
 $(TARGET): $(OBJS)
+	mkdir -p `dirname $@`
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
 	
 	# clean up unnecessary crud that OpenWatcom leaves behind
@@ -30,12 +33,8 @@ $(TARGET): $(OBJS)
 
 build: $(TARGET)
 
-buildnrun: all
-	dosbox -c "cd C:\DEV\BALLOON" -c "balloon.exe"
-
-run:
-	dosbox -c "cd C:\DEV\BALLOON" -c "balloon.exe"
+run: all
+	dosbox -c "Z:" -c "mount F $(DOS_ROOT)" -c "F:" -c "cd $(DOS_BUILD)" -c "$(GAME_NAME).exe"
 
 clean: preclean
-	rm -f $(OBJS) $(TARGET)
-	rm -f *.obj *.err
+	@rm -f *.err

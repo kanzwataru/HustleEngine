@@ -1,14 +1,20 @@
+SHELL := /bin/bash
+
 .PHONY: prebuild postbuild cleanhook preclean engine game
 .DEFAULT_GOAL := all
 
 ifeq ($(ENGINE_DIR),)
 $(error ENGINE_DIR not set)
 endif
+ifeq ($(BUILD_DIR),)
+$(error BUILD_DIR not set)
+endif
 
 COMMON_INCLUDE     = $(ENGINE_DIR)/src
-COMMON_ENGINE_OBJS = engine/core.o engine/event.o engine/render.o platform/filesys.o
-#COMMON_OBJS 	   = $(addprefix $(ENGINE_DIR)/src,$(COMMON_ENGINE_OBJS))
+COMMON_ENGINE_SRC  = engine/core.c engine/event.c engine/render.c platform/filesys.c
 
+BUILD_DIR         := $(BUILD_DIR)/$(TARGET_PLATFORM)
+OBJ_DIR 		   = $(BUILD_DIR)/tmp/objs
 ############################
 # Include platform makefile #
 ifeq ($(TARGET_PLATFORM), unix)
@@ -22,10 +28,11 @@ endif
 ############################
 
 preclean: cleanhook
-	rm -f $(COMMON_OBJS)
-	find . -type f -name '._*' -delete
+	@[[ $(BUILD_DIR) == /* ]] || rm -Rf $(BUILD_DIR)
+	@find . -type f -name '._*' -delete
 
 mainbuild: prebuild
+	@echo "*** Build ***"
 	@$(MAKE) --no-print-directory build
 
 all: postbuild

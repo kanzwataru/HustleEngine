@@ -10,7 +10,7 @@
 
 GAME_NAME		:= EXAMPLE
 GAME_INCLUDE	:= src/game
-GAME_OBJS		:= src/game/foo.o src/main.o
+GAME_SRC		:= src/game/foo.c src/main.c
 ENGINE_DIR		:= HustleEngine
 BUILD_DIR       := build
 
@@ -19,13 +19,13 @@ include $(ENGINE_DIR)/hustle-build.mak  #
 # ************************************* #
 
 prebuild:
-	# things that should happen before the compilation
-	echo "** Prebuild **"
+	@# things that should happen before the compilation
+	@echo "** Prebuild **"
 
 postbuild:　mainbuild
-	# things that should happen after the compilation
-	echo "** Postbuild **"
+	@# things that should happen after the compilation
+	@echo "** Postbuild **"
 
 cleanhook:
-	# add to the `make clean` target
-	echo "** Clean **"
+	@# add to the `make clean` target
+	@echo "** Clean **"
