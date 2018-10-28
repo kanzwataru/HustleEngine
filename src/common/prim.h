@@ -9,6 +9,10 @@ typedef struct {
     int x, y, w, h;
 } Rect;
 
+typedef struct {
+    byte r, g, b;
+} Color;
+
 #define rect_collision(a, b) \
     ((a).x >= (b).x && (a).x <= (b).x + (b).w && \
      (a).y >= (b).y && (a).y <= (b).y + (b).h)    

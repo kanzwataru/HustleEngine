@@ -78,6 +78,10 @@ void video_init_mode(byte mode, byte scaling)
     }
     
     pixel_format_get();
+    
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(300); /* give the screen a chance to initialize */
 }
 
 void video_exit(void) 
@@ -108,4 +112,11 @@ void video_flip(const buffer_t *backbuf)
 void video_set_palette(const buffer_t *palette)
 {
     internal_set_palette(palette);
+}
+
+void video_set_color_at(byte id, byte red, byte green, byte blue)
+{
+    fbpalette[id].r = red << 2;
+    fbpalette[id].g = green << 2;
+    fbpalette[id].b = blue << 2;
 }

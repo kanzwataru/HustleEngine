@@ -95,3 +95,11 @@ void video_set_palette(const buffer_t *palette)
     for(i = 0; i < 256 * 3; ++i)
         outp(PALETTE_DATA, palette[i]);
 }
+
+void video_set_color_at(byte id, byte red, byte green, byte blue)
+{
+    outp(PALETTE_INDEX, id);
+    outp(PALETTE_DATA, red);
+    outp(PALETTE_DATA, green);
+    outp(PALETTE_DATA, blue);
+}

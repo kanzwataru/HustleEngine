@@ -21,6 +21,14 @@ static int to_prev_pow2(int n) {
     return p2 >> 1;
 }
 
+static void update_sdl_palette(void)
+{
+    if(0 == SDL_SetPalette(framebuffer, SDL_LOGPAL | SDL_PHYSPAL, fbpalette, 0, 256)) {
+        printf("%s\n", SDL_GetError());
+        PANIC("Set palette failed");
+    }
+}
+
 static SDL_Rect get_native_resolution(void)
 {
     SDL_Rect **modes;
@@ -112,6 +120,10 @@ void video_init_mode(byte mode, byte scaling)
         fprintf(stderr, "Failed to create framebuffer (%d x %d)\n%s\n", original_resolution.w, original_resolution.h, SDL_GetError());
         exit(1);
     }
+    
+    SDL_FillRect(screen, 0, 0);
+    SDL_Flip(screen);
+    SDL_Delay(500); /* give the screen a chance to initialize */
 }
 
 /*
@@ -192,8 +204,14 @@ void video_set_palette(const buffer_t *palette)
 {
     internal_set_palette(palette);
 
-    if(0 == SDL_SetPalette(framebuffer, SDL_LOGPAL | SDL_PHYSPAL, fbpalette, 0, 256)) {
-        printf("%s\n", SDL_GetError());
-        PANIC("Set palette failed");
-    }
+    update_sdl_palette();
+}
+
+void video_set_color_at(byte id, byte red, byte green, byte blue)
+{
+    fbpalette[id].r = red << 2;
+    fbpalette[id].g = green << 2;
+    fbpalette[id].b = blue << 2;
+    
+    update_sdl_palette();
 }

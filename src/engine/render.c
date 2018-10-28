@@ -26,7 +26,6 @@ struct LineUndo {
 static struct SimpleSprite *dirty_tiles;
 static const Rect EMPTY_RECT = {0,0,0,0};
 static bool video_initialized = false;
-static buffer_t *temp_palette;
 
 /*
  * Calculates the offset into the buffer (y * SCREEN_WIDTH + x)
@@ -116,13 +115,32 @@ void palette_fade(const buffer_t *start, const buffer_t *end, float percent)
 {
     int i;
     
-    for(i = 0; i < PALETTE_SIZE; i += 3) {
-        temp_palette[i + 0] = LERP(start[i + 0], end[i + 0], percent);
-        temp_palette[i + 1] = LERP(start[i + 1], end[i + 1], percent);
-        temp_palette[i + 2] = LERP(start[i + 2], end[i + 2], percent);
+    for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
+        video_set_color_at(i, LERP(start[i * 3 + 0], end[i * 3 + 0], percent),
+                              LERP(start[i * 3 + 1], end[i * 3 + 1], percent),
+                              LERP(start[i * 3 + 2], end[i * 3 + 2], percent));
     }
+}
+
+void palette_fade_to_color(const buffer_t *start, Color end, float percent)
+{
+    int i;
     
-    video_set_palette(temp_palette);
+    for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
+        video_set_color_at(i, LERP(start[i * 3 + 0], end.r, percent),
+                              LERP(start[i * 3 + 1], end.g, percent),
+                              LERP(start[i * 3 + 2], end.b, percent));
+    }
+}
+void palette_fade_from_color(Color start, const buffer_t *end, float percent)
+{
+    int i;
+    
+    for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
+        video_set_color_at(i, LERP(start.r, end[i * 3 + 0], percent),
+                              LERP(start.g, end[i * 3 + 1], percent),
+                              LERP(start.b, end[i * 3 + 2], percent));
+    }
 }
 
 static bool clip_rect(Rect *clipped, Point *offset, const Rect *orig, const Rect *clip)
@@ -495,8 +513,6 @@ int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
 
     if(rd->screen) {
         if(!video_initialized) {
-            temp_palette = create_palette();
-            
             video_init_mode(VIDEO_MODE_LOW256, 1);
             video_initialized = true;
         }
@@ -528,8 +544,6 @@ void destroy_renderdata(RenderData *rd)
 
 void quit_renderer(RenderData *rd)
 {
-    destroy_renderdata(rd);
-    destroy_image(&temp_palette);
-    
+    destroy_renderdata(rd);   
     video_exit();
 }

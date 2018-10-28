@@ -14,5 +14,6 @@ void video_init_mode(byte mode, byte scaling);
 void video_exit(void);
 void video_flip(const buffer_t *backbuf);
 void video_set_palette(const buffer_t *palette);
+void video_set_color_at(byte id, byte red, byte green, byte blue);
 
 #endif
