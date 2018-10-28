@@ -6,6 +6,10 @@ typedef struct {
 } Point;
 
 typedef struct {
+    float x, y;
+} Vec2D;
+
+typedef struct {
     int x, y, w, h;
 } Rect;
 
