@@ -10,11 +10,13 @@ ifeq ($(BUILD_DIR),)
 $(error BUILD_DIR not set)
 endif
 
-COMMON_INCLUDE     = $(ENGINE_DIR)/src
-COMMON_ENGINE_SRC  = engine/core.c engine/event.c engine/render.c platform/filesys.c
+HEADERS     = $(ENGINE_DIR)/src
+ENGINE_SRC  = engine/core.c engine/event.c engine/render.c platform/filesys.c
 
 BUILD_DIR         := $(BUILD_DIR)/$(TARGET_PLATFORM)
 OBJ_DIR 		   = $(BUILD_DIR)/tmp/objs
+SRC          	   = $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
+OBJS		       = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 ############################
 # Include platform makefile #
 ifeq ($(TARGET_PLATFORM), unix)

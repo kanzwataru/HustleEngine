@@ -1,5 +1,5 @@
-ENGINE_SRC   = $(COMMON_ENGINE_SRC) platform/sdl/kb.c
-INCLUDE      = $(COMMON_INCLUDE) $(GAME_INCLUDE)
+ENGINE_SRC  += platform/sdl/kb.c
+HEADERS     += $(GAME_INCLUDE)
 DEFINES		 = -DUNIX
 LIBS         = -lm
 TARGET       = $(BUILD_DIR)/$(GAME_NAME)
@@ -13,15 +13,12 @@ ENGINE_SRC  += platform/sdl/sdl1.2/video.c
 LIBS        += -lSDL
 endif
 
-SRC          = $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
-OBJS		 = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
-
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS       = -g3 -DDEBUG -Wpedantic -Wall -Werror
 else
 CFLAGS       = -O2 -Wall
 endif
-CFLAGS      += $(addprefix -I,$(INCLUDE))
+CFLAGS      += $(addprefix -I,$(HEADERS))
 CXXFLAGS     = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS      = -o $(TARGET)
 
@@ -37,6 +34,11 @@ $(TARGET): $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
 
 build: $(TARGET)
+	chmod +x $(TARGET)
+
+run: all
+	cd $(BUILD_DIR)
+	./$(GAME_NAME)
 
 clean: preclean
 	rm -f $(OBJS) $(TARGET)
