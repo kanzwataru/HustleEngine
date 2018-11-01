@@ -10,9 +10,7 @@
 
 GAME_NAME		:= htest
 GAME_INCLUDE	:= .
-GAME_OBJS		:= test.o simplet.o main.o
-DOS_ENV_DIR		:= "C:\\DEV\\BALLOON\\ENGINE\\TESTS"
-DOS_ENGINE_DIR  := "C:\\DEV\\BALLOON\\ENGINE"
+GAME_SRC		:= main.c simplet.c test.c
 ENGINE_DIR		:= ..
 BUILD_DIR       := build
 
@@ -21,13 +19,13 @@ include $(ENGINE_DIR)/hustle-build.mak  #
 # ************************************* #
 
 prebuild:
-	# things that should happen before the compilation
-	echo "** Prebuild **"
+	@# things that should happen before the compilation
+	@echo "** Prebuild **"
 
 postbuild: mainbuild
-	# things that should happen after the compilation
-	echo "** Postbuild **"
+	@# things that should happen after the compilation
+	@echo "** Postbuild **"
 
 cleanhook:
-	# add to the `make clean` target
-	echo "** Clean **"
+	@# add to the `make clean` target
+	@echo "** Clean **"
