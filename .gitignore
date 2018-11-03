@@ -1,3 +1,5 @@
+build/*
+tests/build/*
 *.DS_Store
 *.CFG
 *.EXE
