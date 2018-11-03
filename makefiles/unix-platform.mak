@@ -1,4 +1,4 @@
-ENGINE_SRC  += platform/sdl/kb.c
+ENGINE_SRC  += platform/sdl/kb.c platform/sdl/mem.c
 HEADERS     += $(GAME_INCLUDE)
 DEFINES		 = -DUNIX
 LIBS         = -lm
