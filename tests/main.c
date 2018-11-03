@@ -1,12 +1,13 @@
 #include "test.h"
 #include "simplet.h"
+#include "tmem.h"
 
 #include <string.h>
 #include <stdlib.h>
 
 void help(void)
 {
-    printf("Here is the list of tests: test\n test-keyboard\n simpletest\n benchmark\n \n");
+    printf("Here is the list of tests: test\n test-keyboard\n simpletest\n benchmark\n mem\n");
 }
 
 int main(int argc, char **argv)
@@ -18,6 +19,8 @@ int main(int argc, char **argv)
             test_keyboard();
         if(0 == strcmp(argv[1], "simpletest"))
             simpletest_start();
+        if(0 == strcmp(argv[1], "mem"))
+            test_mem();
     }
     else if(argc == 3) {
         if(0 == strcmp(argv[1], "benchmark"))
