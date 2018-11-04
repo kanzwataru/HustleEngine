@@ -7,4 +7,6 @@
 #define SGN(a) ((a) > 0) - ((a) < 0)
 #define LERP(a, b, t) ((a) + ((t) * ((b) - (a))))
 
+#define TO_EVEN(x) (((x) + 1) & ~1)
+
 #endif

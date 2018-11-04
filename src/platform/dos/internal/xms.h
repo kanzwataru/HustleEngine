@@ -1,5 +1,6 @@
 #ifndef XMS_H
 #define XMS_H
+#include "common/platform.h"
 
 typedef uint16 xmsid_t;
 

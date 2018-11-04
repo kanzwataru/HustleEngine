@@ -1,5 +1,7 @@
 #include "platform/mem.h"
 #include "platform/common/memcmn.h"
+#include "platform/dos/internal/xms.h"
+#include "platform/dos/internal/biosmem.h"
 
 static bool      xmspresent;
 static uint32    extram_avail_kb;
@@ -54,11 +56,6 @@ void mem_free_slot(slotid_t slot)
     farfree(slots[slot]);
 }
 
-void mem_slot_get(slotid_t slot)
-{
-    return slots[slot];
-}
-
 void far *mem_slot_get(slotid_t slot)
 {
     return slots[slot];
@@ -66,13 +63,14 @@ void far *mem_slot_get(slotid_t slot)
 
 memid_t mem_alloc_block(slotid_t slot)
 {
+    memid_t new_block;
     assert(block);
     
     /* evict whatever is in the slot if anything */
     evict_slot(slot);
     
     /* get a new block and slot it */
-    memid_t new_block = find_empty_block();
+    new_block = find_empty_block();
     if(!new_block)
         PANIC("Mem Manager: Ran out of blocks\n");
     
@@ -105,10 +103,10 @@ void mem_stash_block(memid_t block)
     
     /* copy slotted memory to stash */
     if(xmspresent) {
-        xms_copy_to_ext(stash_id, block * MEM_BLOCK_SIZE, slots[slot], MEM_BLOCK_SIZE);
+        xms_copy_to_ext(stash_id, block * MEM_BLOCK_SIZE, slots[blocks[block].slot], MEM_BLOCK_SIZE);
     }
     else {
-        bios_copy_to_ext(block * MEM_BLOCK_SIZE, slots[slot], MEM_BLOCK_SIZE);
+        bios_copy_to_ext(block * MEM_BLOCK_SIZE, slots[blocks[block].slot], MEM_BLOCK_SIZE);
     }
     
     if(blocks[block].status == BLOCK_ACTIVE)
@@ -128,10 +126,10 @@ void mem_restore_block(memid_t block, slotid_t slot)
     evict_slot(slot);
     
     if(xmspresent) {
-        xms_copy_from_ext(slots[slot], stash_id, block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
+        xms_copy_from_ext(slots[blocks[block].slot], stash_id, block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
     }
     else {
-        bios_copy_from_ext(slots[slot], stash_id, block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
+        bios_copy_from_ext(slots[blocks[block].slot], block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
     }
     
     blocks[block].slot = slot;
