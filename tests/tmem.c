@@ -14,9 +14,8 @@
 
 int test_mem_simple(void)
 {
-#ifdef PLATFORM_DOS
     char     *str = ";; This is the example data ;;\n";
-    buffer_t *slotptr;
+    char far *slotptr;
     memid_t   block;
     
     printf("initialize memory manager\n");
@@ -60,10 +59,12 @@ int test_mem_simple(void)
     
     printf("quit the memory manager\n");
     mem_quit();
-    
+
+    printf("* MEM MANAGER SIMPLE TEST SUCCESS *\n");
+
+#ifdef PLATFORM_DOS
     printf("\nPress any key to continue...\n");
     getch();
-    
 #endif
     
     return 0;
