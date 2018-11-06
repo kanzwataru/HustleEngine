@@ -5,17 +5,77 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #define BLOCK_C_VAL     80
 #define ASSERT_SLOTS_MATCH(x, y) \
     for(i = 0; i < MEM_BLOCK_SIZE; ++i) \
     { assert(((buffer_t *)mem_slot_get(x))[i] == ((buffer_t *)mem_slot_get(y))[i]) }
 
+int test_mem_simple(void)
+{
+#ifdef PLATFORM_DOS
+    char     *str = ";; This is the example data ;;\n";
+    buffer_t *slotptr;
+    memid_t   block;
+    
+    printf("initialize memory manager\n");
+    mem_init();
+    
+    printf("allocate a slot\n");
+    mem_alloc_slot(0);
+    slotptr = mem_slot_get(0);
+    printf("    slot: %p\n", slotptr);
+    
+    printf("allocate a block\n");
+    block = mem_alloc_block(0);
+    printf("    block: %d\n", block);
+    
+    printf("write this string to the slot: %s\n", str);
+    strcpy(slotptr, str);
+    puts(str);
+    puts(slotptr);
+    assert(strcmp(slotptr, str) == 0);
+    
+    printf("stash block\n");
+    mem_stash_block(block);
+    
+    printf("overwrite slot\n");
+    _fmemset(slotptr, 'x', 8);
+    puts(slotptr);
+    
+    printf("restore block\n");
+    mem_restore_block(block, 0);
+
+    printf("check the data\n");
+    puts(str);
+    puts(slotptr);
+    assert(strcmp(slotptr, str) == 0);
+    
+    printf("free the block\n");
+    mem_free_block(block);
+    
+    printf("free the slot\n");
+    mem_free_slot(0);
+    
+    printf("quit the memory manager\n");
+    mem_quit();
+    
+    printf("\nPress any key to continue...\n");
+    getch();
+    
+#endif
+    
+    return 0;
+}
+
 int test_mem(void)
 {
-    int i;
+    unsigned int i;
     memid_t block_a, block_b, block_c;
     buffer_t *slot_0_p, *slot_1_p;
+    
+    test_mem_simple();
     
     srand(clock());
     
@@ -50,6 +110,12 @@ int test_mem(void)
     assert(block_c);
     
     _fmemset(slot_1_p, BLOCK_C_VAL, MEM_BLOCK_SIZE);
+    for(i = 0; i < MEM_BLOCK_SIZE; ++i) {
+        if(slot_1_p[i] != BLOCK_C_VAL) {
+            printf("[%d] Non-matching value: %02X !%02X! %02X\n", i, slot_1_p[i - 1], slot_1_p[i], slot_1_p[i + 1]);
+            return 1;
+        }
+    }
     
     printf("stow away Block C\n");
     mem_stash_block(block_c);
@@ -61,7 +127,11 @@ int test_mem(void)
     printf("replace Block A with Block C and make sure it has the same contents as before\n");
     mem_restore_block(block_c, 0);
     for(i = 0; i < MEM_BLOCK_SIZE; ++i) {
-        assert(slot_0_p[i] == BLOCK_C_VAL);
+        //assert(slot_0_p[i] == BLOCK_C_VAL);
+        if(slot_0_p[i] != BLOCK_C_VAL) {
+            printf("[%d] Non-matching value: %02X !%02X! %02X\n", i, slot_0_p[i - 1], slot_0_p[i], slot_0_p[i + 1]);
+            return 1;
+        }
     }
     
     printf("free the slots\n");

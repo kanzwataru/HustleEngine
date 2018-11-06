@@ -11,6 +11,7 @@ void mem_init(void)
 {
     uint32 kb_required = (MEM_BLOCK_SIZE / 1024) * MEM_BLOCK_MAX;
     memset(slots, 0, MEM_SLOT_MAX); /* start out with NULL pointers */
+    DEBUG_DO(printf("DOS Memory Management Init\n"));
 
     /* see whether to use XMS or the BIOS services */
     xmspresent = xms_query_installed();
@@ -29,13 +30,16 @@ void mem_init(void)
             PANIC("Not enough Extended Memory available! Try disabling EMS.");
         }
     }
+    
+    DEBUG_DO(printf("    Using XMS?: %d\n", xmspresent));
+    DEBUG_DO(printf("    Free memory: %lu\n", extram_avail_kb));
 }
 
 void mem_quit(void)
 {
     int i;
     for(i = 0; i < MEM_BLOCK_MAX; ++i) {
-        farfree(slots[i]);
+        //farfree(slots[i]);
     }
     
     if(xmspresent) {
@@ -54,6 +58,7 @@ void mem_alloc_slot(slotid_t slot)
 void mem_free_slot(slotid_t slot)
 {
     farfree(slots[slot]);
+    slots[slot] = 0;
 }
 
 void far *mem_slot_get(slotid_t slot)
@@ -64,7 +69,6 @@ void far *mem_slot_get(slotid_t slot)
 memid_t mem_alloc_block(slotid_t slot)
 {
     memid_t new_block;
-    assert(block);
     
     /* evict whatever is in the slot if anything */
     evict_slot(slot);
@@ -101,6 +105,8 @@ void mem_stash_block(memid_t block)
         PANIC("MEMORY ERROR");
     }
     
+    DEBUG_DO(printf("Mem Manager: stashing block %d in slot %d to extended memory...", block, blocks[block].slot));
+    
     /* copy slotted memory to stash */
     if(xmspresent) {
         xms_copy_to_ext(stash_id, block * MEM_BLOCK_SIZE, slots[blocks[block].slot], MEM_BLOCK_SIZE);
@@ -111,6 +117,8 @@ void mem_stash_block(memid_t block)
     
     if(blocks[block].status == BLOCK_ACTIVE)
         blocks[block].status = BLOCK_ACTIVE_STASHED;
+        
+    DEBUG_DO(printf("done.\n"));
 }
 
 void mem_restore_block(memid_t block, slotid_t slot)
@@ -125,14 +133,18 @@ void mem_restore_block(memid_t block, slotid_t slot)
     
     evict_slot(slot);
     
+    DEBUG_DO(printf("Mem Manager: restoring block %d in slot %d from extended memory...", block, slot));
+    
     if(xmspresent) {
-        xms_copy_from_ext(slots[blocks[block].slot], stash_id, block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
+        xms_copy_from_ext(slots[slot], stash_id, block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
     }
     else {
-        bios_copy_from_ext(slots[blocks[block].slot], block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
+        bios_copy_from_ext(slots[slot], block * MEM_BLOCK_SIZE, MEM_BLOCK_SIZE);
     }
     
     blocks[block].slot = slot;
     blocks[block].status = BLOCK_ACTIVE_STASHED;
+    
+    DEBUG_DO(printf("done.\n"));
 }
 

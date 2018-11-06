@@ -75,7 +75,7 @@ static void evict_slot(slotid_t slot)
 {
     memid_t slot_contents = find_memblock_in_slot(slot);
     if(slot_contents) {
-        mem_stash_block(slot_contents);
+        //mem_stash_block(slot_contents);
 
         if(blocks[slot_contents].status == BLOCK_ACTIVE_STASHED)
             blocks[slot_contents].status = BLOCK_STASHED;
