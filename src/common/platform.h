@@ -87,9 +87,12 @@ typedef unsigned char bool;
 
     #define assert(expr) \
         if(expr) {} else PANIC_DO(printf("Assert fail %s, %d\n", __FILE__, __LINE__))
+
+    #define DEBUG_DO(x) x;
 #else /* if not debug */
     #define NOT_IMPLEMENTED /* disabled */
     #define assert(expr)    /* disabled */
+    #define DEBUG_DO(x)     /* disabled */
 #endif
 
 #endif /* PLATFORM_H */
