@@ -42,7 +42,7 @@ static int extcpy(uint32 dst, uint32 src, uint16 count)
     union REGS r;
     struct SREGS s;
     
-    if(count <= 0)
+    if(count = 0)
         return -1;
     
     if(count >= extsize)

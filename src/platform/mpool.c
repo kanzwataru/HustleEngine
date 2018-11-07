@@ -1,5 +1,5 @@
 #include "platform/mem.h"
-#include <math.h> /* ceil() */
+#include "common/math.h"
 
 #define CHUNK_SIZE      512 /* bytes maximum size of chunk */
 #define CHUNK_MAX       124 /* MEM_BLOCK_MAX / CHUNK_SIZE minus one which is needed for the pool header */
@@ -73,7 +73,6 @@ void mem_pool_init(slotid_t slot)
         PANIC("Pool Manager: Double initialization!");
     
     /* get us some memory */
-    mem_alloc_slot(slot);
     pool = (struct PoolHeader *)((unsigned char far *)mem_slot_get(slot) + CHUNK_SIZE);
     assert(pool);
     
@@ -97,7 +96,7 @@ void far *mem_pool_alloc(size_t size)
 {
     chunkid_t i, head, tail, num_chunks;
     
-    num_chunks = ceil((float)size / 512.0);
+    num_chunks = DIV_CEIL(size, 512);
     if(!find_free(num_chunks, &head, &tail)) {
         DEBUG_DO(fprintf(stderr, "Pool Manager: Couldn't allocate %zu bytes\n", size));
         return NULL;

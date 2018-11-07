@@ -8,5 +8,6 @@
 #define LERP(a, b, t) ((a) + ((t) * ((b) - (a))))
 
 #define TO_EVEN(x) (((x) + 1) & ~1)
+#define DIV_CEIL(x, y) ((x) % (y)) ? (x) / (y) + 1 : (x) / (y);
 
 #endif

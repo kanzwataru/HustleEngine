@@ -29,18 +29,6 @@ void mem_quit(void)
     }
 }
 
-void mem_alloc_slot(slotid_t slot)
-{
-    /* nothing to do on this platform,
-     * it's all pre-allocated */
-}
-
-void mem_free_slot(slotid_t slot)
-{
-    /* nothing to do on this platform,
-     * it's all pre-allocated */
-}
-
 memid_t mem_alloc_block(slotid_t slot)
 {
     /* evict whatever is in the slot if anything */

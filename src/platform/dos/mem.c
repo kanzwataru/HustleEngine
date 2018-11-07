@@ -1,11 +1,39 @@
 #include "platform/mem.h"
 #include "platform/common/memcmn.h"
-#include "platform/dos/internal/xms.h"
-#include "platform/dos/internal/biosmem.h"
+#include "internal/xms.h"
+#include "internal/biosmem.h"
+#include "dosalloc.h"
+#include <math.h>
 
 static bool      xmspresent;
 static uint32    extram_avail_kb;
 static xmsid_t   stash_id;
+static buffer_t *slotsraw; /* memory originally allocated */
+
+static void init_segs(void)
+{
+    uint16 i;
+    uint16 seg;
+    
+    DEBUG_DO(printf("Mem Manager: Initializing slot segments\n"));
+    
+    /* allocate enough for all slots */
+    slotsraw = doscalloc(MEM_SLOT_MAX, MEM_BLOCK_SIZE);
+    DEBUG_DO(printf("Slots base mem: %p\n", slotsraw));
+    if(slotsraw == NULL) {
+        PANIC("Not enough conventional memory available!");
+    }
+    
+    seg = FP_SEG(slotsraw);
+    
+    /* assign slot variables */
+    for(i = 0; i < MEM_SLOT_MAX; ++i) {
+        slots[i] = MK_FP(seg, 0);
+        DEBUG_DO(printf("   [%d] -> %p\n", i, slots[i]));
+        
+        seg += MEM_BLOCK_SIZE / 16;
+    }
+}
 
 void mem_init(void)
 {
@@ -32,31 +60,18 @@ void mem_init(void)
     }
     
     DEBUG_DO(printf("    Using XMS?: %d\n", xmspresent));
-    DEBUG_DO(printf("    Free memory: %lu\n", extram_avail_kb));
+    DEBUG_DO(printf("    Free extended memory: %lu\n", extram_avail_kb));
+    
+    init_segs();
 }
 
 void mem_quit(void)
 {
-    int i;
-    for(i = 0; i < MEM_BLOCK_MAX; ++i) {
-        //farfree(slots[i]);
-    }
+    dosfree(slotsraw);
     
     if(xmspresent) {
         xms_free(stash_id);
     }
-}
-
-void mem_alloc_slot(slotid_t slot)
-{
-    if(!slots[slot])
-        slots[slot] = farmalloc(MEM_BLOCK_SIZE);
-}
-
-void mem_free_slot(slotid_t slot)
-{
-    farfree(slots[slot]);
-    slots[slot] = 0;
 }
 
 void far *mem_slot_get(slotid_t slot)

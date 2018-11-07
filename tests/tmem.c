@@ -23,8 +23,7 @@ int test_mem_simple(void)
     printf("initialize memory manager\n");
     mem_init();
     
-    printf("allocate a slot\n");
-    mem_alloc_slot(0);
+    printf("get a slot\n");
     slotptr = mem_slot_get(0);
     printf("    slot: %p\n", slotptr);
     
@@ -52,12 +51,6 @@ int test_mem_simple(void)
     puts(str);
     puts(slotptr);
     assert(strcmp(slotptr, str) == 0);
-    
-    printf("free the block\n");
-    mem_free_block(block);
-    
-    printf("free the slot\n");
-    mem_free_slot(0);
     
     printf("quit the memory manager\n");
     mem_quit();
@@ -157,12 +150,10 @@ int test_mem(void)
     
     srand(clock());
     
-    printf("initialize the memory manager\n");
+    printf("\ninitialize the memory manager\n");
     mem_init();
     
-    printf("allocate two slots\n");
-    mem_alloc_slot(0);
-    mem_alloc_slot(1);
+    printf("get two slots\n");
     slot_0_p = mem_slot_get(0);
     slot_1_p = mem_slot_get(1);
     
@@ -211,10 +202,6 @@ int test_mem(void)
             return 1;
         }
     }
-    
-    printf("free the slots\n");
-    mem_free_slot(0);
-    mem_free_slot(1);
     
     printf("quit the memory manager\n");
     mem_quit();

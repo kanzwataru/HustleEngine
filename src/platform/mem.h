@@ -12,8 +12,6 @@ typedef byte slotid_t;
 void mem_init(void);
 void mem_quit(void);
 
-void mem_alloc_slot(slotid_t slot);
-void mem_free_slot(slotid_t slot);
 void far *mem_slot_get(slotid_t slot);
 
 memid_t mem_alloc_block(slotid_t slot);
