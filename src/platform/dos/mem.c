@@ -49,10 +49,8 @@ void mem_quit(void)
 
 void mem_alloc_slot(slotid_t slot)
 {
-    if(slots[slot])
-        PANIC("Mem Manager: Tried to alloc slot that is already alloc'd!");
-    
-    slots[slot] = farmalloc(MEM_BLOCK_SIZE);
+    if(!slots[slot])
+        slots[slot] = farmalloc(MEM_BLOCK_SIZE);
 }
 
 void mem_free_slot(slotid_t slot)

@@ -12,6 +12,8 @@
     for(i = 0; i < MEM_BLOCK_SIZE; ++i) \
     { assert(((buffer_t *)mem_slot_get(x))[i] == ((buffer_t *)mem_slot_get(y))[i]) }
 
+#define PTROUT(x) printf(" -> %p\n", (x));
+
 int test_mem_simple(void)
 {
     char     *str = ";; This is the example data ;;\n";
@@ -62,6 +64,81 @@ int test_mem_simple(void)
 
     printf("* MEM MANAGER SIMPLE TEST SUCCESS *\n");
 
+#ifdef PLATFORM_DOS
+    printf("\nPress any key to continue...\n");
+    getch();
+#endif
+    
+    return 0;
+}
+
+int test_mem_pool(void)
+{
+    void far *a, *b, *c, *d;
+    
+    printf("\n Memory Pool Test\n");
+    
+    printf("initialize the memory manager\n");
+    mem_init();
+    
+    printf("initialize the memory pool manager\n");
+    mem_pool_init(0);
+    
+    printf("alloc three 512-byte arrays\n");
+    a = mem_pool_alloc(512);
+    b = mem_pool_alloc(512);
+    c = mem_pool_alloc(512);
+    PTROUT(a);
+    PTROUT(b);
+    PTROUT(c);
+    assert(a && b && c);
+    assert(a != b && b != c && a != c);
+    
+    printf("alloc a 16k array\n");
+    d = mem_pool_alloc(16 * 1024);
+    PTROUT(d);
+    assert(d);
+    
+    printf("free a 512-byte array\n");
+    mem_pool_free(b);
+    b = NULL;
+    
+    printf("alloc a 4k array\n");
+    b = mem_pool_alloc(4 * 1024);
+    PTROUT(b);
+    assert(b);
+    
+    printf("free the 16k array\n");
+    mem_pool_free(d);
+    d = NULL;
+    
+    printf("alloc a 4k array\n");
+    d = mem_pool_alloc(4 * 1024);
+    PTROUT(d);
+    assert(d);
+    
+    printf("free a 512-byte array\n");
+    mem_pool_free(a);
+    a = NULL;
+    
+    printf("alloc a 2k array\n");
+    a = mem_pool_alloc(2 * 1024);
+    PTROUT(a);
+    assert(a);
+    
+    printf("free a 512-byte array\n");
+    mem_pool_free(c);
+    c = NULL;
+    
+    printf("alloc a 712-byte array (odd-sized)\n");
+    c = mem_pool_alloc(712);
+    PTROUT(c);
+    assert(c);
+    
+    printf("quit the memory pool manager\n");
+    mem_pool_quit();
+    
+    printf("* MEM POOL MANAGER TEST SUCCESS\n");
 #ifdef PLATFORM_DOS
     printf("\nPress any key to continue...\n");
     getch();
@@ -142,7 +219,9 @@ int test_mem(void)
     printf("quit the memory manager\n");
     mem_quit();
     
-    printf("* MEM MANAGER TEST SUCCESS *\n");
+    printf("* MEM MANAGER TEST SUCCESS *\n\n");
+    
+    test_mem_pool();
     
     return 0;
 }
