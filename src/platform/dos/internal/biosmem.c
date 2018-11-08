@@ -5,7 +5,7 @@
 #define EXTQUERY_SERVICE    0x88
 #define EXT_MEM_START       0x100000L
 
-#define PHYSADDR(x)         (((long)FP_SEG((x)) << 4) + FP_OFF((x)))
+#define PHYSADDR(x)         (((unsigned long)FP_SEG((x)) << 4) + FP_OFF((x)))
 
 struct Desc {
     uint16  len;
@@ -30,7 +30,7 @@ uint16 bios_query_avail_extram(void)
     r.h.ah = EXTQUERY_SERVICE;
     int86(BIOS_ISR, &r, &r);
     
-    printf("EXTSIZE(): %d\n", r.x.ax);
+    DEBUG_DO(printf("EXTSIZE(): %d\n", r.x.ax));
     extsize = (r.x.ax + 1024L) * 1024; /* stored in bytes */
     
     return r.x.ax; /* KB */
@@ -77,10 +77,22 @@ static int extcpy(uint32 dst, uint32 src, uint16 count)
 
 void bios_copy_to_ext(uint32 offset, void far *memaddr, uint16 count)
 {
-    extcpy(EXT_MEM_START + offset, PHYSADDR(memaddr), count);
+    int err;
+    err = extcpy(EXT_MEM_START + offset, PHYSADDR(memaddr), count);
+#ifdef DEBUG
+    if(err) {
+        PANIC_DO(fprintf(stderr, "BIOS EXTCPY: Copy to extended failed with error %d", err));
+    }
+#endif
 }
 
 void bios_copy_from_ext(void far *memaddr, uint32 offset, uint16 count)
 {
-    extcpy(PHYSADDR(memaddr), EXT_MEM_START + offset, count);
+    int err;
+    err = extcpy(PHYSADDR(memaddr), EXT_MEM_START + offset, count);
+#ifdef DEBUG
+    if(err) {
+        PANIC_DO(fprintf(stderr, "BIOS EXTCPY: Copy from extended failed with error %d", err));
+    }
+#endif
 }
