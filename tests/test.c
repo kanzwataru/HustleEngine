@@ -208,7 +208,7 @@ void done_eventing(void *self)
 
 void should_not_fire(void *self)
 {
-    printf("This should not happen\n");
+    printf("Test: This should not happen\n");
 }
 
 void test_start(bool do_benchmark, int benchmark_times)

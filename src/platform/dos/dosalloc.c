@@ -14,8 +14,6 @@ void far *dosalloc(unsigned long size)
     r.h.ah = DOS_ALLOC;
     int86(DOS_ISR, &r, &r);
     
-    printf("-> %004X\n", r.x.ax);
-    
 	if(r.x.cflag)
         return 0;
     else

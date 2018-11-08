@@ -103,7 +103,7 @@ void far *mem_pool_alloc(size_t size)
     chunkid_t i, head, tail, num_chunks;
     
     num_chunks = DIV_CEIL(size, 512);
-    printf("Chunks to alloc: %d\n", num_chunks);
+    DEBUG_DO(printf("Pool Manager: Chunks to alloc: %d (%zu bytes)\n", num_chunks, size));
     if(!find_free(num_chunks, &head, &tail)) {
         DEBUG_DO(fprintf(stderr, "Pool Manager: Couldn't allocate %zu bytes\n", size));
         return NULL;

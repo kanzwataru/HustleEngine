@@ -13,13 +13,14 @@ static bool initialized = false;
 void engine_init(void)
 {
     if(initialized)
-        PANIC("HUSTLE ENGINE: Double core initialization");
+        PANIC("HustleEngine: Double core initialization");
     
     mem_init();
     mem_pool_init(MEMSLOT_MEMORY_POOL);
     keyboard_init();
     
     initialized = true;
+    DEBUG_DO(printf("HustleEngine: Core initialized\n"));
 }
 
 void engine_gameloop(CoreData cd)
@@ -53,4 +54,5 @@ void engine_quit(void)
     keyboard_quit();
     mem_pool_quit();
     mem_quit();
+    DEBUG_DO(printf("HustleEngine: Done quitting\n"));
 }
