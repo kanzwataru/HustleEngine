@@ -12,6 +12,8 @@ static SDL_Rect     original_resolution;
 static SDL_Rect     logical_screen;
 static int scale;
 
+static bool initialized = false;
+
 static int to_prev_pow2(int n) {
     /* convert to previous power of two */
     int p2 = 1;
@@ -124,6 +126,8 @@ void video_init_mode(byte mode, byte scaling)
     SDL_FillRect(screen, 0, 0);
     SDL_Flip(screen);
     SDL_Delay(500); /* give the screen a chance to initialize */
+    
+    initialized = true;
 }
 
 /*
@@ -131,8 +135,11 @@ void video_init_mode(byte mode, byte scaling)
 */
 void video_exit(void)
 {
-    SDL_FreeSurface(framebuffer);
-    SDL_Quit();
+    if(!initialized) {
+        SDL_FreeSurface(framebuffer);
+        SDL_Quit();
+        initialized = false;
+    }
 }
 
 /*

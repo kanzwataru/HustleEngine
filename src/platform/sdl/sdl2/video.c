@@ -11,6 +11,8 @@ static SDL_Rect      original_resolution;
 static uint32_t     *converted; /* a temp buffer for converting from indexed to rgba */
 static SDL_PixelFormat *pixel_format;
 
+static bool initialized = false;
+
 static void pixel_format_get(void) 
 {
     uint32_t format_id;
@@ -82,15 +84,21 @@ void video_init_mode(byte mode, byte scaling)
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
     SDL_Delay(300); /* give the screen a chance to initialize */
+    
+    initialized = true;
 }
 
 void video_exit(void) 
 {
-    free(converted);
-    
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    if(initialized) {
+        free(converted);
+        
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        
+        initialized = false;
+    }
 }
 
 void video_wait_vsync(void) {}
