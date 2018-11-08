@@ -80,7 +80,6 @@ typedef struct {
 typedef struct {
     Rect         screen_clipping;
     buffer_t    *screen;
-    buffer_t    *bg_layer;
     Sprite      *sprites;
     uint16         sprite_count;
     byte         flags;
