@@ -27,7 +27,9 @@ struct LineUndo {
 static struct SimpleSprite *dirty_tiles;
 static const Rect EMPTY_RECT = {0,0,0,0};
 static bool video_initialized = false;
-memid_t tblock = 0;
+
+memid_t   tblock = 0;
+void far *transientmem = NULL;
 
 /*
  * Calculates the offset into the buffer (y * SCREEN_WIDTH + x)
@@ -69,13 +71,10 @@ void destroy_line_undo_list(LineUndoList *lul) {
 
 static void init_all_sprites(Sprite **sprites, const uint16 count) 
 {
-    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
-    assert(tblock);
-    
     if(count > 0) {
-        *sprites = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
+        *sprites = transientmem;
         
-        dirty_tiles = (struct SimpleSprite *)(*sprites + count); /* dirty tiles go right after the sprites */
+        dirty_tiles = (char *)transientmem + (sizeof(Sprite) * count); /* dirty tiles go right after the sprites */
     }
     else {
         *sprites = NULL;
@@ -84,10 +83,6 @@ static void init_all_sprites(Sprite **sprites, const uint16 count)
 
 static void free_all_sprites(Sprite **sprites, uint16 *count)
 {
-    assert(tblock);
-    mem_free_block(tblock);
-    tblock = 0;
-    
     if(*sprites && *count > 0) {
         *sprites = NULL;
         dirty_tiles = NULL;
@@ -393,7 +388,7 @@ void erase_line(buffer_t *buf, LineUndoList undo)
 }
 
 void reset_sprite(Sprite *sprite) {
-    memset(sprite, 0, sizeof(Sprite));
+    _fmemset(sprite, 0, sizeof(Sprite));
 }
 
 void start_frame(RenderData *rd)
@@ -498,6 +493,12 @@ void finish_frame(RenderData *rd)
 
 int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
 {
+    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
+    transientmem = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
+    assert(tblock && transientmem);
+    
+    _fmemset(transientmem, 0, 64000);
+    
     rd->screen = make_framebuffer(MEMSLOT_RENDERER_BACKBUFFER);
     rd->sprite_count = sprite_count;
 
@@ -530,6 +531,11 @@ void destroy_renderdata(RenderData *rd)
 {
     free_all_sprites(&rd->sprites, &rd->sprite_count);
     rd->screen = NULL;
+    
+    assert(tblock);
+    mem_free_block(tblock);
+    tblock = 0;
+    transientmem = NULL;
 }
 
 void quit_renderer(RenderData *rd)
