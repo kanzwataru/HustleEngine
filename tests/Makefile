@@ -25,6 +25,7 @@ prebuild:
 postbuild: mainbuild
 	@# things that should happen after the compilation
 	@echo "** Postbuild **"
+	rsync -av RES/ $(BUILD_DIR)/RES/
 
 cleanhook:
 	@# add to the `make clean` target
