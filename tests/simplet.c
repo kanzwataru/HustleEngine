@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-static RenderData rd;
+static RenderData *rd;
 
 static bool input(void)
 {
@@ -28,21 +28,21 @@ static void update(void)
 static void render(void)
 {
     int i;
-    start_frame(&rd);
+    renderer_start_frame(rd);
     
     for(i = 0; i < 320 * 200; ++i) {
-        rd.screen[i] = rand();
+        rd->screen[i] = rand();
     }
 }
 
 static void quit(void)
 {
-    quit_renderer(&rd);
+    renderer_quit(rd, true);
 }
 
 static void render_flip(void)
 {
-    finish_frame(&rd);
+    renderer_finish_frame(rd);
 }
 
 void simpletest_start(void)
@@ -50,20 +50,22 @@ void simpletest_start(void)
     int i;
     byte palette[256];
     
+    engine_init();
+    
     srand(time(NULL));
     for(i = 0; i < 256; ++i) {
         palette[i] = rand();
     }
     
-    rd.flags |= RENDER_DOUBLE_BUFFER;
-    if(!init_renderer(&rd, 0, &palette[0]))
-        PANIC("Could not initialize renderer");
+    rd = renderer_init(0, &palette[0]);
     
     while(input()) {
         update();
         render();
         render_flip();
     }
+    
+    engine_quit();
     
     quit();
 }

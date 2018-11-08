@@ -31,14 +31,6 @@ enum SPRITEFLAGS {
 };
 
 /*
- * Renderer Configuration flags
- * 
-*/
-enum RENDERFLAG {
-     RENDER_DOUBLE_BUFFER = 0x01 /* (0000 0001) */
-};
-
-/*
  * Animation playback type
 */
 enum ANIMTYPE {
@@ -78,11 +70,10 @@ typedef struct {
 } Sprite;
 
 typedef struct {
-    Rect         screen_clipping;
     buffer_t    *screen;
+    Rect         screen_clipping;
     Sprite      *sprites;
-    uint16         sprite_count;
-    byte         flags;
+    uint16       sprite_count;
 } RenderData;
 
 /**** Renderer functions ****/
@@ -92,13 +83,11 @@ void destroy_image(buffer_t **image);
 LineUndoList create_line_undo_list();
 void destroy_line_undo_list(LineUndoList *lul);
 
-int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette);
-void destroy_renderdata(RenderData *rd);
-void quit_renderer(RenderData *rd);
-
-void start_frame(RenderData *rd);
-void refresh_sprites(RenderData *rd);
-void finish_frame(RenderData *rd);
+RenderData *renderer_init(int sprite_count, buffer_t *palette);
+void renderer_quit(RenderData *rd, bool quit_video);
+void renderer_start_frame(RenderData *rd);
+void renderer_refresh_sprites(RenderData *rd);
+void renderer_finish_frame(RenderData *rd);
 
 buffer_t *create_palette(void);
 void palette_set(const buffer_t *palette);
@@ -106,7 +95,7 @@ void palette_fade(const buffer_t *start, const buffer_t *end, float percent);
 void palette_fade_to_color(const buffer_t *start, Color end, float percent);
 void palette_fade_from_color(Color start, const buffer_t *end, float percent);
 
-void reset_sprite(Sprite *sprite);
+void sprite_reset(Sprite *sprite);
 
 /**** Drawing functions ****/
 

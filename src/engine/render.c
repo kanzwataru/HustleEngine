@@ -74,7 +74,7 @@ static void init_all_sprites(Sprite **sprites, const uint16 count)
     if(count > 0) {
         *sprites = transientmem;
         
-        dirty_tiles = (char *)transientmem + (sizeof(Sprite) * count); /* dirty tiles go right after the sprites */
+        dirty_tiles = (struct SimpleSprite *)((char *)transientmem + (sizeof(Sprite) * count)); /* dirty tiles go right after the sprites */
     }
     else {
         *sprites = NULL;
@@ -391,7 +391,7 @@ void reset_sprite(Sprite *sprite) {
     _fmemset(sprite, 0, sizeof(Sprite));
 }
 
-void start_frame(RenderData *rd)
+void renderer_start_frame(RenderData *rd)
 {
     int i;
 
@@ -431,7 +431,7 @@ static void anim_update(AnimInstance *anim, byte *sprite_flags)
     }
 }
 
-void refresh_sprites(RenderData *rd)
+void renderer_refresh_sprites(RenderData *rd)
 {
     Point image_offset;
     Rect orig;
@@ -486,13 +486,15 @@ void refresh_sprites(RenderData *rd)
     }
 }
 
-void finish_frame(RenderData *rd)
+void renderer_finish_frame(RenderData *rd)
 {
     video_flip(rd->screen);
 }
 
-int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
+RenderData *renderer_init(int sprite_count, buffer_t *palette)
 {
+    RenderData *rd = mem_pool_alloc(sizeof(RenderData));
+    
     tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
     transientmem = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
     assert(tblock && transientmem);
@@ -517,17 +519,15 @@ int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
 
         if(palette)
             video_set_palette(palette);
-
-        return 1;
     }
     else {
-        video_exit();
-        printf("out of mem\n");
-        return 0;
+        PANIC("out of mem\n");
     }
+
+    return rd;
 }
 
-void destroy_renderdata(RenderData *rd)
+void renderer_quit(RenderData *rd, bool quit_video)
 {
     free_all_sprites(&rd->sprites, &rd->sprite_count);
     rd->screen = NULL;
@@ -536,10 +536,7 @@ void destroy_renderdata(RenderData *rd)
     mem_free_block(tblock);
     tblock = 0;
     transientmem = NULL;
-}
-
-void quit_renderer(RenderData *rd)
-{
-    destroy_renderdata(rd);   
-    video_exit();
+    
+    if(quit_video)
+        video_exit();
 }
