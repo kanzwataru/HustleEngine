@@ -2,6 +2,8 @@
 #include "platform.h"
 #include "platform/video.h"
 
+#include <stdlib.h>
+
 void debug_panic(void)
 {
     printf("########### HUSTLE ENGINE PANIC ############\n");
