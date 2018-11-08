@@ -529,7 +529,7 @@ int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
 void destroy_renderdata(RenderData *rd)
 {
     free_all_sprites(&rd->sprites, &rd->sprite_count);
-    farfree(rd->screen);
+    rd->screen = NULL;
 }
 
 void quit_renderer(RenderData *rd)
