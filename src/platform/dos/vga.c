@@ -39,6 +39,8 @@ static void vga_modeset(byte mode)
     in.h.ah = 0;
     in.h.al = mode;
     int86(0x10, &in, &out);
+    
+    current_mode = mode;
 }
 
 /*
@@ -64,8 +66,7 @@ void video_init_mode(byte mode, byte scaling)
     /* we ONLY support Mode 13h for now!! */
     if(mode != VIDEO_MODE_LOW256)
         NOT_IMPLEMENTED;
-    
-    current_mode = VGA_CHUNKY256;
+
     screen_size  = VGA_CHUNKY256_SIZE;
     vga_modeset(VGA_CHUNKY256);
 }
