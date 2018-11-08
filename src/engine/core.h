@@ -12,7 +12,9 @@ typedef struct {
     int frame_skip;
 } CoreData;
 
-void engine_start(CoreData cd);
-void engine_release(void);
+void engine_init(void);
+void engine_gameloop(CoreData cd);
+void engine_gameloop_break(void);
+void engine_quit(void);
 
 #endif

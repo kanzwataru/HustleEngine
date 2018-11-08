@@ -1,15 +1,12 @@
 #include "engine/render.h"
 #include "platform/video.h"
-#include "platform/mem.h"
+#include "engine/mem.h"
 #include "common/platform.h"
 #include "common/math.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
-
-#define BACKBUFFER_MEMSLOT    0 /* screen back buffer segment */
-#define TRANSIENT_MEMSLOT     1 /* renderer scratch data segment */
 
 struct SimpleSprite {
     buffer_t  image[MAX_SPRITE_SIZE * MAX_SPRITE_SIZE];

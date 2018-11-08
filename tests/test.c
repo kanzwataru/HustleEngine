@@ -7,7 +7,7 @@
 #include "engine/core.h"
 #include "engine/event.h"
 #include "platform/filesys.h"
-#include "platform/mem.h"
+#include "engine/mem.h"
 #include "common/platform.h"
 #include "platform/kb.h"
 
@@ -162,9 +162,8 @@ static bool input(void) {
 }
 
 static void quit(void) {
-    mem_pool_quit();
-    mem_quit();
     quit_renderer(&rd);
+    engine_quit();
 
     exit(1);
 }
@@ -220,8 +219,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     buffer_t *balloon_img;
     buffer_t *pal;
 
-    mem_init();
-    mem_pool_init(5);
+    engine_init();
 
     cd.update_callback = &update;
     cd.render_callback = &render;
@@ -293,5 +291,5 @@ void test_start(bool do_benchmark, int benchmark_times)
     if(do_benchmark)
         engine_benchmark(cd, benchmark_times);
     else
-        engine_start(cd);
+        engine_gameloop(cd);
 }

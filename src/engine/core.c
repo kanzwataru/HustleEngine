@@ -4,8 +4,21 @@
 #include "platform/video.h"
 
 static bool stop;
+static bool initialized = false;
 
-void engine_start(CoreData cd)
+void engine_init(void)
+{
+    if(initialized)
+        PANIC("HUSTLE ENGINE: Double core initialization");
+    
+    mem_init();
+    mem_pool_init(MEMORY_POOL_MEMSLOT);
+    keyboard_init();
+    
+    initialized = true;
+}
+
+void engine_gameloop(CoreData cd)
 {
     stop = false;
     
@@ -26,7 +39,14 @@ void engine_start(CoreData cd)
     cd.exit_handler();
 }
 
-void engine_release(void)
+void engine_gameloop_break(void)
 {
     stop = true;
+}
+
+void engine_quit(void)
+{
+    keyboard_quit();
+    mem_pool_quit();
+    mem_quit();
 }
