@@ -19,7 +19,7 @@ enum VGA_VIDEO_MODES {
 
 static buffer_t *vga_mem = MK_FP(0xa000, 0); /* VGA DMA memory */
 
-static byte current_mode = 0;
+static byte current_mode = VGA_TEXT80COL;
 static uint16 screen_size = 0;
 
 /*
@@ -31,6 +31,11 @@ static void vga_modeset(byte mode)
 {
     union REGS in, out;
 
+    /* don't switch modes if we're already there, 
+     * so if we've panic'd we don't accidentally clear the screen */
+    if(mode == current_mode)
+        return;
+
     in.h.ah = 0;
     in.h.al = mode;
     int86(0x10, &in, &out);
@@ -41,7 +46,7 @@ static void vga_modeset(byte mode)
 */
 void video_flip(const buffer_t *backbuf)
 {
-    assert(current_mode != 0);
+    assert(current_mode != VGA_TEXT80COL);
     assert(screen_size != 0);
     
     /* we ONLY support Mode 13h for now!! */

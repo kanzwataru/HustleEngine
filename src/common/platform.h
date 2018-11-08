@@ -2,6 +2,7 @@
 #define PLATFORM_H
 
 #include <stdio.h>
+#include "debug.h"
 
 typedef unsigned char bool;
 #define true 1
@@ -56,9 +57,6 @@ typedef unsigned char bool;
     typedef uint32_t uint32;
     typedef int16_t  int16;
     typedef int32_t  int32;
-
-    #define PANIC_DO(x)     do { x; exit(1); break; } while(0);
-    #define PANIC(msg)      PANIC_DO(fprintf(stderr, "!! %s (%s %d)\n", (msg), __FILE__, __LINE__));
 #else           
     /* 16-bit DOS
      *
@@ -76,23 +74,7 @@ typedef unsigned char bool;
     typedef unsigned long uint32;
     typedef int           int16;
     typedef long          int32;
-    
-    #define PANIC_DO(x)     while(1) { x; }
-    #define PANIC(msg)      PANIC_DO(printf("!! %s (%s %d)\n", (msg), __FILE__, __LINE__));
 #endif /* platform */
 /******************************************************/
-#ifdef DEBUG
-    #define NOT_IMPLEMENTED \
-        PANIC("Not implemented");    
-
-    #define assert(expr) \
-        if(expr) {} else PANIC_DO(printf("Assert fail %s, %d\n", __FILE__, __LINE__))
-
-    #define DEBUG_DO(x) x;
-#else /* if not debug */
-    #define NOT_IMPLEMENTED /* disabled */
-    #define assert(expr)    /* disabled */
-    #define DEBUG_DO(x)     /* disabled */
-#endif
 
 #endif /* PLATFORM_H */
