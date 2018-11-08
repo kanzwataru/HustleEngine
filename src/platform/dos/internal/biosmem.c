@@ -36,13 +36,13 @@ uint16 bios_query_avail_extram(void)
     return r.x.ax; /* KB */
 }
 
-static int extcpy(uint32 dst, uint32 src, uint16 count)
+static int extcpy(uint32 dst, uint32 src, long count)
 {
     struct GdTable gdt;
     union REGS r;
     struct SREGS s;
     
-    if(count = 0)
+    if(count <= 0)
         return -1;
     
     if(count >= extsize)
