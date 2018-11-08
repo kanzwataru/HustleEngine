@@ -131,6 +131,9 @@ int test_mem_pool(void)
     printf("quit the memory pool manager\n");
     mem_pool_quit();
     
+    printf("quit the memory manager\n");
+    mem_quit();
+    
     printf("* MEM POOL MANAGER TEST SUCCESS\n");
 #ifdef PLATFORM_DOS
     printf("\nPress any key to continue...\n");
