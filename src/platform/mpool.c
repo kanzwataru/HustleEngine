@@ -69,10 +69,12 @@ both:
 
 void mem_pool_init(slotid_t slot)
 {
+    memid_t block;
     if(poolraw)
         PANIC("Pool Manager: Double initialization!");
     
     /* get us some memory */
+    block = mem_alloc_block(slot);
     pool = (struct PoolHeader *)((unsigned char far *)mem_slot_get(slot) + CHUNK_SIZE);
     assert(pool);
     
@@ -82,6 +84,7 @@ void mem_pool_init(slotid_t slot)
     /* initialize the pool */
     _fmemset(pool->chunks, CHNK_FREE, CHUNK_MAX);
     pool->chunks[0] = CHNK_TOP | CHNK_FREE;
+    pool->blockid = block;
 }
 
 void mem_pool_quit(void)
