@@ -27,6 +27,9 @@ static bool find_free(chunkid_t num, chunkid_t *ret_head, chunkid_t *ret_tail)
 {
     chunkid_t i, t;
     
+    if(num > CHUNK_MAX)
+        return false;
+    
     for(i = 0; i < CHUNK_MAX; ++i) 
     {
         if((pool->chunks[i] & CHNK_TOP) &&
@@ -100,6 +103,7 @@ void far *mem_pool_alloc(size_t size)
     chunkid_t i, head, tail, num_chunks;
     
     num_chunks = DIV_CEIL(size, 512);
+    printf("Chunks to alloc: %d\n", num_chunks);
     if(!find_free(num_chunks, &head, &tail)) {
         DEBUG_DO(fprintf(stderr, "Pool Manager: Couldn't allocate %zu bytes\n", size));
         return NULL;
