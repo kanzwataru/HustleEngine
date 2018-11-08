@@ -1,5 +1,6 @@
 #include "engine/render.h"
 #include "platform/video.h"
+#include "platform/mem.h"
 #include "common/platform.h"
 #include "common/math.h"
 #include <stdio.h>
@@ -7,8 +8,11 @@
 #include <limits.h>
 #include <math.h>
 
+#define BACKBUFFER_MEMSLOT    0 /* screen back buffer segment */
+#define TRANSIENT_MEMSLOT     1 /* renderer scratch data segment */
+
 struct SimpleSprite {
-    buffer_t *image;
+    buffer_t  image[MAX_SPRITE_SIZE * MAX_SPRITE_SIZE];
     Rect      rect;
 };
 
@@ -26,6 +30,7 @@ struct LineUndo {
 static struct SimpleSprite *dirty_tiles;
 static const Rect EMPTY_RECT = {0,0,0,0};
 static bool video_initialized = false;
+memid_t tblock = 0;
 
 /*
  * Calculates the offset into the buffer (y * SCREEN_WIDTH + x)
@@ -36,50 +41,44 @@ static bool video_initialized = false;
 #define CALC_OFFSET(x, y)             (((y) << 8) + ((y) << 6) + (x))
 
 /*
- * Creates a buffer the size of the screen
+ * Use a memory slot as a framebuffer
 */
-static buffer_t *make_framebuffer() {
-    return create_image(SCREEN_WIDTH, SCREEN_HEIGHT);
+static buffer_t *make_framebuffer(slotid_t memslot) {
+    mem_alloc_block(memslot);
+    return mem_slot_get(memslot);
 }
 
 buffer_t *create_image(uint16 w, uint16 h) {
-    return farmalloc(w * h);
+    return mem_pool_alloc(w * h);
 }
 
 buffer_t *create_palette(void) {
-    return farmalloc(PALETTE_SIZE);
+    return mem_pool_alloc(PALETTE_SIZE);
 }
 
 void destroy_image(buffer_t **image) {
-    farfree(*image);
+    mem_pool_free(*image);
     *image = NULL;
 }
 
 LineUndoList create_line_undo_list() {
-    return farcalloc(1, sizeof(struct LineUndo));
+    return mem_pool_alloc(sizeof(struct LineUndo));
 }
 
 void destroy_line_undo_list(LineUndoList *lul) {
-    farfree(*lul);
+    mem_pool_free(*lul);
     *lul = NULL;
 }
 
 static void init_all_sprites(Sprite **sprites, const uint16 count) 
 {
-    int i;
-
+    tblock = mem_alloc_block(TRANSIENT_MEMSLOT);
+    assert(tblock);
+    
     if(count > 0) {
-        *sprites = calloc(count, sizeof(Sprite));
-        dirty_tiles = calloc(count, sizeof(struct SimpleSprite));
-        if(!dirty_tiles)
-            while(1) printf("OUT OF MEM: dirty_tiles\n");
-        for(i = 0; i < count; ++i) {
-            dirty_tiles[i].image = farcalloc(MAX_SPRITE_SIZE * MAX_SPRITE_SIZE, sizeof(byte));
-            if(!dirty_tiles[i].image)
-                while(1) printf("OUT OF MEM: dirty_tiles (%d)\n", i);
-
-            (*(*sprites + i)).anim.playback_direction = 1;
-        }
+        *sprites = mem_slot_get(TRANSIENT_MEMSLOT);
+        
+        dirty_tiles = (struct SimpleSprite *)(*sprites + count); /* dirty tiles go right after the sprites */
     }
     else {
         *sprites = NULL;
@@ -88,18 +87,12 @@ static void init_all_sprites(Sprite **sprites, const uint16 count)
 
 static void free_all_sprites(Sprite **sprites, uint16 *count)
 {
-    int i;
-
+    assert(tblock);
+    mem_free_block(tblock);
+    tblock = 0;
+    
     if(*sprites && *count > 0) {
-        free(*sprites);
         *sprites = NULL;
-
-        for(i = 0; i < *count; ++i) {
-            if(dirty_tiles[i].image)
-                farfree(dirty_tiles[i].image);
-        }
-
-        free(dirty_tiles);
         dirty_tiles = NULL;
     }
 
@@ -508,7 +501,7 @@ void finish_frame(RenderData *rd)
 
 int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
 {
-    rd->screen = make_framebuffer();
+    rd->screen = make_framebuffer(BACKBUFFER_MEMSLOT);
     rd->sprite_count = sprite_count;
 
     if(rd->screen) {

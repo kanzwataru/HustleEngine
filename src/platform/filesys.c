@@ -1,4 +1,5 @@
 #include "platform/filesys.h"
+#include "platform/mem.h"
 #include "common/platform.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +51,7 @@ buffer_t *load_bmp_image(const char *file)
     int x;
     struct FileLoadData d = open_bmp_file(file);
 
-    buffer_t *buf = farcalloc(d.width * d.height, sizeof(byte));
+    buffer_t *buf = mem_pool_alloc(d.width * d.height);
     if(!buf)
         while(1) printf("Out of mem: load_bmp_image %s\n", file);
 
@@ -71,7 +72,7 @@ buffer_t *load_bmp_palette(const char *file)
     int i;
     struct FileLoadData d = open_bmp_file(file);
 
-    buffer_t *palette = farcalloc(256 * 3, sizeof(buffer_t));
+    buffer_t *palette = mem_pool_alloc(256 * 3);
     if(!palette)
         while(1) printf("Out of mem: load_bmp_palette %s\n", file);
 

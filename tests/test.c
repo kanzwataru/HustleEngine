@@ -7,6 +7,7 @@
 #include "engine/core.h"
 #include "engine/event.h"
 #include "platform/filesys.h"
+#include "platform/mem.h"
 #include "common/platform.h"
 #include "platform/kb.h"
 
@@ -161,6 +162,8 @@ static bool input(void) {
 }
 
 static void quit(void) {
+    mem_pool_quit();
+    mem_quit();
     quit_renderer(&rd);
 
     exit(1);
@@ -217,6 +220,9 @@ void test_start(bool do_benchmark, int benchmark_times)
     buffer_t *balloon_img;
     buffer_t *pal;
 
+    mem_init();
+    mem_pool_init(5);
+
     cd.update_callback = &update;
     cd.render_callback = &render;
     cd.flip_callback = &render_flip;
@@ -272,7 +278,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     //animation_frames_init();
     bouncing_sprites_init();
     FILL_BUFFER(rd.screen, 3);
-    FILL_BUFFER(rd.bg_layer, 3);
+    //FILL_BUFFER(rd.bg_layer, 3);
     add_bricks();
     add_border();
 
