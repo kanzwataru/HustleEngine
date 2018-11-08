@@ -11,7 +11,7 @@ $(error BUILD_DIR not set)
 endif
 
 HEADERS     = $(ENGINE_DIR)/src
-ENGINE_SRC  = common/debug.c engine/core.c engine/event.c engine/render.c platform/filesys.c platform/mpool.c
+ENGINE_SRC  = common/debug.c engine/core.c engine/event.c engine/render.c platform/filesys.c engine/mpool.c
 
 BUILD_DIR         := $(BUILD_DIR)/$(TARGET_PLATFORM)
 OBJ_DIR 		   = $(BUILD_DIR)/tmp/objs

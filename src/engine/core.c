@@ -1,7 +1,11 @@
 #include "engine/core.h"
-#include "common/platform.h"
 #include "engine/event.h"
+#include "engine/mem.h"
+
+#include "common/platform.h"
+
 #include "platform/video.h"
+#include "platform/kb.h"
 
 static bool stop;
 static bool initialized = false;
@@ -12,7 +16,7 @@ void engine_init(void)
         PANIC("HUSTLE ENGINE: Double core initialization");
     
     mem_init();
-    mem_pool_init(MEMORY_POOL_MEMSLOT);
+    mem_pool_init(MEMSLOT_MEMORY_POOL);
     keyboard_init();
     
     initialized = true;

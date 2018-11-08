@@ -69,11 +69,11 @@ void destroy_line_undo_list(LineUndoList *lul) {
 
 static void init_all_sprites(Sprite **sprites, const uint16 count) 
 {
-    tblock = mem_alloc_block(TRANSIENT_MEMSLOT);
+    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
     assert(tblock);
     
     if(count > 0) {
-        *sprites = mem_slot_get(TRANSIENT_MEMSLOT);
+        *sprites = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
         
         dirty_tiles = (struct SimpleSprite *)(*sprites + count); /* dirty tiles go right after the sprites */
     }
@@ -498,7 +498,7 @@ void finish_frame(RenderData *rd)
 
 int init_renderer(RenderData *rd, int sprite_count, buffer_t *palette)
 {
-    rd->screen = make_framebuffer(BACKBUFFER_MEMSLOT);
+    rd->screen = make_framebuffer(MEMSLOT_RENDERER_BACKBUFFER);
     rd->sprite_count = sprite_count;
 
     if(rd->screen) {
