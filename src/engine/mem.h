@@ -1,6 +1,7 @@
 #ifndef MEM_H
 #define MEM_H
 #include "common/platform.h"
+#include "common/layout.h"
 
 #define MEM_BLOCK_SIZE      64000
 #define MEM_BLOCK_MAX       128     /* temporarily hard-coded */
