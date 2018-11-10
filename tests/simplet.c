@@ -1,8 +1,6 @@
 #include "simplet.h"
-#include "common/platform.h"
-#include "engine/render.h"
 #include "engine/core.h"
-#include "platform/kb.h"
+#include "engine/render.h"
 
 #include <stdio.h>
 #include <stdlib.h>

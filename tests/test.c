@@ -7,9 +7,6 @@
 #include "engine/core.h"
 #include "engine/event.h"
 #include "platform/filesys.h"
-#include "engine/mem.h"
-#include "common/platform.h"
-#include "platform/kb.h"
 
 #define SPRITE_COUNT   8
 #define BG_BRICK_SIZE 10

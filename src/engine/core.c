@@ -1,11 +1,9 @@
 #include "engine/core.h"
 #include "engine/event.h"
-#include "engine/mem.h"
 
 #include "common/platform.h"
 
 #include "platform/video.h"
-#include "platform/kb.h"
 
 static bool stop;
 static bool initialized = false;

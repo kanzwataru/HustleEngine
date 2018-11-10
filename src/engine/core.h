@@ -2,6 +2,8 @@
 #define ENGINE_CORE_H
 
 #include "common/platform.h"
+#include "platform/kb.h"
+#include "platform/mem.h"
 
 typedef struct {
     void (*update_callback)(void);
