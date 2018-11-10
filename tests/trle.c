@@ -4,8 +4,8 @@
 
 static RenderData *rd;
 static RLEImageMono *cloud;
-//static Rect prev_cloud_rect;
-//static Rect cloud_rect;
+static Rect prev_cloud_rect;
+static Rect cloud_rect;
 
 #define CLOUD_SPRITE_W      128
 #define CLOUD_SPRITE_H      48
@@ -17,34 +17,6 @@ static void load_stuff(void)
     buffer_t *cloud_raw = load_bmp_image("RES/CLOUD.BMP");
     cloud = mem_pool_alloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
     monochrome_buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
-}
-/*
-static void update(void)
-{
-    
-}
-
-static void render(void)
-{
-}
-
-static void render_flip(void)
-{
-}
-
-static bool input(void)
-{
-    keyboard_per_frame_update();
-    if(keyboard_os_quit_event())
-        return false;
-    
-    return true;
-}
-*/
-static void quit(void)
-{
-    mem_pool_free(cloud);
-    engine_quit();
 }
 
 static void monorle_dump(RLEImageMono *rle, int width, int height)
@@ -67,23 +39,74 @@ static void monorle_dump(RLEImageMono *rle, int width, int height)
     printf("\n");
 }
 
+static void update(void)
+{
+    prev_cloud_rect = cloud_rect;
+
+    cloud_rect.y += 1;
+    if(cloud_rect.y + cloud_rect.h >= SCREEN_HEIGHT + (cloud_rect.h * 3))
+        cloud_rect.y = -cloud_rect.h * 3;
+}
+
+static void render(void)
+{
+    renderer_start_frame(rd);
+    
+    draw_rect_clipped(rd->screen, &prev_cloud_rect, SKY_COL);
+    draw_mono_masked_rle(rd->screen, cloud, &cloud_rect, CLOUD_COL);
+}
+
+static void render_flip(void)
+{
+    renderer_finish_frame(rd);
+}
+
+static bool input(void)
+{
+    keyboard_per_frame_update();
+    if(keyboard_os_quit_event())
+        return false;
+    
+    return true;
+}
+
+static void quit(void)
+{
+    mem_pool_free(cloud);
+    engine_quit();
+}
+
 int rletest_start(void)
 {
-    //CoreData cd;
+    CoreData cd;
+    buffer_t *pal;
     
     engine_init();
     load_stuff();
-    
+
+#ifdef DEBUG
+    monorle_dump(cloud, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
+#endif
+
     rd = 0;
-    /*
     cd.update_callback = &update;
     cd.render_callback = &render;
     cd.flip_callback = &render_flip;
     cd.input_handler = &input;
     cd.exit_handler = &quit;
-    */
-    monorle_dump(cloud, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
-    quit();
+    
+    pal = load_bmp_palette("RES/CLOUD.BMP");
+    rd  = renderer_init(3, pal);
+    destroy_image(&pal);
+    
+    FILL_BUFFER(rd->screen, SKY_COL);
+    cloud_rect.x = 0;
+    cloud_rect.y = 0;
+    cloud_rect.w = CLOUD_SPRITE_W;
+    cloud_rect.h = CLOUD_SPRITE_H;
+    prev_cloud_rect = cloud_rect;
+    
+    engine_gameloop(cd);
     
     return 0;
 }

@@ -1,3 +1,4 @@
+#include "internal.h"
 #include "engine/render.h"
 #include "platform/video.h"
 #include "platform/mem.h"
@@ -30,14 +31,6 @@ static bool video_initialized = false;
 
 memid_t   tblock = 0;
 void far *transientmem = NULL;
-
-/*
- * Calculates the offset into the buffer (y * SCREEN_WIDTH + x)
- * Using bit shifting instead of mults for a bit of optimization
- *
- * (assumes mode 13h 320x200)
-*/
-#define CALC_OFFSET(x, y)             (((y) << 8) + ((y) << 6) + (x))
 
 /*
  * Use a memory slot as a framebuffer
