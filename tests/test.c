@@ -1,8 +1,7 @@
-#include "test.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "common/platform.h"
 #include "engine/render.h"
 #include "engine/core.h"
 #include "engine/event.h"

@@ -7,6 +7,7 @@
 
 #include "common/platform.h"
 #include "common/prim.h"
+#include "render/rle.h"
 
 #define SCREEN_WIDTH        320   /* Mode 13h uses 320 x 200 res */
 #define SCREEN_HEIGHT       200
