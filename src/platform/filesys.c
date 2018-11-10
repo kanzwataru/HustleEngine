@@ -1,5 +1,5 @@
 #include "platform/filesys.h"
-#include "engine/mem.h"
+#include "platform/mem.h"
 #include "common/platform.h"
 #include <stdio.h>
 #include <stdlib.h>
