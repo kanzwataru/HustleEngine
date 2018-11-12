@@ -1,11 +1,10 @@
 #include "platform/dos/internal/biosmem.h"
+#include "platform/mem.h"
 
 #define BIOS_ISR            0x15
 #define EXTCPY_SERVICE      0x87
 #define EXTQUERY_SERVICE    0x88
 #define EXT_MEM_START       0x100000L
-
-#define PHYSADDR(x)         (((unsigned long)FP_SEG((x)) << 4) + FP_OFF((x)))
 
 struct Desc {
     uint16  len;

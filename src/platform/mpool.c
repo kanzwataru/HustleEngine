@@ -4,7 +4,8 @@
 #define CHUNK_SIZE      512 /* bytes maximum size of chunk */
 #define CHUNK_MAX       124 /* MEM_BLOCK_MAX / CHUNK_SIZE minus one which is needed for the pool header */
 #define POOL_PTR(i)     (poolraw + ((i) * CHUNK_SIZE))
-#define PTR_TO_ID(i)    (((unsigned char far *)(i)) - poolraw) / CHUNK_SIZE
+
+#define PTR_TO_ID(i)    ((PHYSADDR((i)) - PHYSADDR((poolraw))) / CHUNK_SIZE)
 
 #define USED_BLOCK      0
 enum MCHUNK_FLAGS {
@@ -171,6 +172,6 @@ void mem_pool_free(void far *ptr)
         }
         
         /* we've gone to the end without finding a tail */
-        PANIC("POOL MANAGER: Couldn't find tail to free!");
+        PANIC_DO(fprintf(stderr, "POOL MANAGER: Couldn't find tail to free!\n ptr: %p head: %d\n", ptr, head));
     }
 }

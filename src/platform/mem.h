@@ -3,6 +3,12 @@
 #include "common/platform.h"
 #include "common/layout.h"
 
+#ifdef PLATFORM_DOS
+#define PHYSADDR(x)         (((unsigned long)FP_SEG((x)) << 4) + FP_OFF((x)))
+#else
+#define PHYSADDR(x)         ((size_t)(x))
+#endif
+
 #define MEM_BLOCK_SIZE      64000
 #define MEM_BLOCK_MAX       128     /* temporarily hard-coded */
 #define MEM_SLOT_MAX        6
