@@ -53,7 +53,7 @@ size_t monochrome_buffer_to_rle(RLEImageMono *rle, buffer_t *buf, int width, int
 
 void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * const rect, const byte col)
 {
-    int pcount, leftskip, rightlen;
+    int pcount, left, right;
     byte lines, lineskip;
     
     if(OFFSCREEN(*rect)) return;
@@ -119,5 +119,8 @@ void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * 
                 ++rle;
             }
         }
+        
+        dest += SCREEN_WIDTH;
+        --lines;
     }
 }
