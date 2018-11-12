@@ -48,10 +48,17 @@ void video_init_mode(byte mode, byte scaling)
         exit(1);
     }
     
+#ifdef DEBUG
+    window = SDL_CreateWindow("HustleEngine", SDL_WINDOWPOS_UNDEFINED, 
+                                              SDL_WINDOWPOS_UNDEFINED, 
+                                              1280, 720,
+                                              0);
+#else
     window = SDL_CreateWindow("HustleEngine", SDL_WINDOWPOS_UNDEFINED, 
                                               SDL_WINDOWPOS_UNDEFINED,
                                               0, 0,
                                               SDL_WINDOW_FULLSCREEN_DESKTOP);
+#endif
     if(!window) {
         fprintf(stderr, "Failed to create SDL_Window: %s\n", SDL_GetError());
         exit(1);

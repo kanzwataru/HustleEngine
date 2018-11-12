@@ -4,8 +4,11 @@
 
 static RenderData *rd;
 static RLEImageMono *cloud;
-static Rect prev_cloud_rect;
-static Rect cloud_rect;
+static RLEImageMono *clipper;
+static Rect prev_cloud_rect, cloud_rect;
+static Rect prev_clipper_rect, clipper_rect;
+
+#define CLIPPER_SPRITE_D    48
 
 #define CLOUD_SPRITE_W      128
 #define CLOUD_SPRITE_H      48
@@ -14,9 +17,16 @@ static Rect cloud_rect;
 
 static void load_stuff(void)
 {
-    buffer_t *cloud_raw = load_bmp_image("RES/CLOUD.BMP");
+    buffer_t *clipper_raw, *cloud_raw;
+    cloud_raw = load_bmp_image("RES/CLOUD.BMP");
     cloud = mem_pool_alloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
     monochrome_buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
+    destroy_image(&cloud_raw);
+    
+    clipper_raw = load_bmp_image("RES/CLIPPER.BMP");
+    clipper = mem_pool_alloc(4024);
+    monochrome_buffer_to_rle(clipper, clipper_raw, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D, 0, 1);
+    destroy_image(&clipper_raw);
 }
 
 static void monorle_dump(RLEImageMono *rle, int width, int height)
@@ -43,17 +53,20 @@ static void update(void)
 {
     prev_cloud_rect = cloud_rect;
 
-    cloud_rect.y += 1;
-    if(cloud_rect.y + cloud_rect.h >= SCREEN_HEIGHT + (cloud_rect.h * 3))
-        cloud_rect.y = -cloud_rect.h * 3;
+    cloud_rect.x -= 1;
+    if(cloud_rect.x + cloud_rect.w <= 0)
+        cloud_rect.x = SCREEN_WIDTH - cloud_rect.w;
 }
 
 static void render(void)
 {
     renderer_start_frame(rd);
     
-    draw_rect_clipped(rd->screen, &prev_cloud_rect, SKY_COL);
-    draw_mono_masked_rle(rd->screen, cloud, &cloud_rect, CLOUD_COL);
+    //draw_rect_clipped(rd->screen, &prev_cloud_rect, SKY_COL);
+    //draw_mono_masked_rle(rd->screen, cloud, &cloud_rect, CLOUD_COL);
+    
+    draw_rect_clipped(rd->screen, &prev_clipper_rect, SKY_COL);
+    draw_mono_masked_rle(rd->screen, clipper, &clipper_rect, 23);
 }
 
 static void render_flip(void)
@@ -66,6 +79,13 @@ static bool input(void)
     keyboard_per_frame_update();
     if(keyboard_os_quit_event())
         return false;
+    
+    prev_clipper_rect = clipper_rect;
+    
+    if(keyboard_keys[KEY_LEFT])   clipper_rect.x -= 1;
+    if(keyboard_keys[KEY_RIGHT])  clipper_rect.x += 1;
+    if(keyboard_keys[KEY_DOWN])   clipper_rect.y += 1;
+    if(keyboard_keys[KEY_UP])     clipper_rect.y -= 1;
     
     return true;
 }
@@ -95,16 +115,22 @@ int rletest_start(void)
     cd.input_handler = &input;
     cd.exit_handler = &quit;
     
-    pal = load_bmp_palette("RES/CLOUD.BMP");
+    pal = load_bmp_palette("RES/VGAPAL.BMP");
     rd  = renderer_init(3, pal);
     destroy_image(&pal);
     
     FILL_BUFFER(rd->screen, SKY_COL);
-    cloud_rect.x = 0;
+    cloud_rect.x = SCREEN_WIDTH - CLOUD_SPRITE_W;
     cloud_rect.y = 0;
     cloud_rect.w = CLOUD_SPRITE_W;
     cloud_rect.h = CLOUD_SPRITE_H;
     prev_cloud_rect = cloud_rect;
+    
+    //clipper_rect.x = SCREEN_WIDTH - CLIPPER_SPRITE_D / 2;
+    clipper_rect.x = 0;
+    clipper_rect.y = 100;
+    clipper_rect.w = CLIPPER_SPRITE_D;
+    clipper_rect.h = CLIPPER_SPRITE_D;
     
     engine_gameloop(cd);
     
