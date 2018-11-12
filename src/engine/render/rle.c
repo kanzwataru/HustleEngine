@@ -2,6 +2,10 @@
 #include "platform/mem.h"
 #include "engine/render.h"
 #include "engine/render/rle.h"
+#include "common/math.h"
+#include <math.h>
+
+static buffer_t linebuf[MAX_SPRITE_SIZE];
 
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf)
 {
@@ -51,21 +55,14 @@ size_t monochrome_buffer_to_rle(RLEImageMono *rle, buffer_t *buf, int width, int
 
 void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * const rect, const byte col)
 {
-    int pcount, left, right;
+    int pcount, leftskip, rightlen;
     byte lines, lineskip;
-    byte dbgcol = 3;
     
     if(OFFSCREEN(*rect)) return;
     
-    dest += CALC_OFFSET(rect->x, rect->y);
+    dest += CALC_OFFSET(MAX(rect->x, 0), rect->y);
     lines = (rect->y + rect->h) > SCREEN_HEIGHT ? SCREEN_HEIGHT - rect->y : rect->h;
     lineskip = rect->y < 0 ? abs(rect->y) : 0;
-    
-    right = (rect->x + rect->w) > SCREEN_WIDTH ? SCREEN_WIDTH - rect->x : rect->w;
-    left = rect->x < 0 ? rect->x : 0; /* this is negative! */
-    right += left; /* either does nothing, or subtracts */
-
-    assert(right >= 0);
 
     /* fast-forward RLE to skip the clipped lines */
     while(lineskip != 0) {
@@ -79,80 +76,39 @@ void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * 
         dest += SCREEN_WIDTH;
     }
 
-    /* draw */
-    while(lines != 0) {
-        pcount = left; /* 0 if no clip, negative if clipping */
-
-/*
-        while(1) {
-            pcount += rle->bglen + rle->fglen;
-            if(pcount >= 0) {
-                
-            }
-        }
-*/
-
-        while(pcount < 0) {
-            pcount += rle->bglen;
-            if(pcount > 1) {
-                _fmemset(dest + pcount + 1, 7, rle->fglen);
-                pcount += rle->fglen;
-                ++rle;
-                break;
-            }
-            
-            pcount += rle->fglen;
-            if(pcount > 1) {
-                _fmemset(dest, 9, pcount);
-                ++rle;
-                break;
-            }
-            
-            ++rle;
-        }
-
-/*
-        while(pcount < 0) {
-            pcount += rle->bglen + rle->fglen;
-            
-            if(pcount > 0) {
-                if(pcount - rle->fglen > 0) { // BG caused overflow 
-                    _fmemset(dest + pcount - rle->fglen, 7, rle->fglen);
-                }
-                else { // FG caused overflow
-                    _fmemset(dest, 9, pcount);
-                }
-            }
-            
-            ++rle;
-        }
-*/
-        
-        DEBUG_DO(printf("[%04d] left: %04d pcount: %04d right: %04d\n", rect->h - lines, left, pcount, right));
-        assert(pcount <= right);
-        assert(pcount >= 0);
-        while(pcount < right) {
-            pcount += rle->bglen; /* skip BG */
-            
-            if(pcount > right) {
-                ++rle;
-                break;
-            }
-            
-            if(pcount + rle->fglen > right) {
-                if(!(right - pcount > 0)) printf("right (%d) - pcount (%d) = %d\n", right, pcount, right - pcount);
-                _fmemset(dest + pcount, dbgcol++, right - pcount);
-                ++rle;
-                break;
-            }
-            else {
-                _fmemset(dest + pcount, dbgcol++, rle->fglen);
-                pcount += rle->fglen;
-                ++rle;
-            }
-        }
-        
-        dest += SCREEN_WIDTH;
-        --lines;
+#define UNCOMPRESS_RLE(destbuf) \
+    pcount = 0;                                        \
+    while(pcount < rect->w) {                          \
+        pcount += rle->bglen; /* skip BG */            \
+        _fmemset((destbuf) + pcount, col, rle->fglen); \
+                                                       \
+        pcount += rle->fglen;                          \
+        ++rle;                                         \
     }
+
+    /* fall back to a slower drawing method if we need to clip horizontally */
+    if(rect->x > 0 && rect->x + rect->w < SCREEN_WIDTH) {
+        /* draw RLE directly */
+        while(lines != 0) {
+            UNCOMPRESS_RLE(dest);
+            
+            dest += SCREEN_WIDTH;
+            --lines;
+        }
+    }
+    else {
+        leftskip = rect->x < 0 ? abs(rect->x) : 0;
+        rightlen = (rect->x + rect->w) > SCREEN_WIDTH ? SCREEN_WIDTH - rect->x : rect->w;
+        
+        /* uncompress RLE then blit */
+        while(lines != 0) {
+            _fmemcpy(linebuf, dest, rightlen); /* can't rely on BG skip transparency :( */
+            UNCOMPRESS_RLE(linebuf);           /* drop our RLE in the buffer */
+            _fmemcpy(dest, linebuf + leftskip, rightlen); /* blit the buffer */
+            
+            dest += SCREEN_WIDTH;
+            --lines;
+        }
+    }
+#undef UNCOMPRESS_RLE
 }
