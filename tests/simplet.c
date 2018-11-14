@@ -55,7 +55,7 @@ void simpletest_start(void)
         palette[i] = rand();
     }
     
-    rd = renderer_init(0, &palette[0]);
+    rd = renderer_init(0, 0, &palette[0]);
     
     while(input()) {
         update();

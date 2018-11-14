@@ -116,10 +116,11 @@ int rletest_start(void)
     cd.exit_handler = &quit;
     
     pal = load_bmp_palette("RES/VGAPAL.BMP");
-    rd  = renderer_init(3, pal);
+    rd  = renderer_init(3, RENDER_BG_SOLID, pal);
     destroy_image(&pal);
     
     FILL_BUFFER(rd->screen, SKY_COL);
+    rd->bg.colour = SKY_COL;
     cloud_rect.x = SCREEN_WIDTH - CLOUD_SPRITE_W;
     cloud_rect.y = 0;
     cloud_rect.w = CLOUD_SPRITE_W;

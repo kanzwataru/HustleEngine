@@ -32,6 +32,13 @@ enum SPRITEFLAGS {
 };
 
 /*
+ * Renderer Flags
+*/
+enum RENDERFLAGS {
+     RENDER_BG_SOLID  = 0x01, /* (0001) If set, the BG layer is a solid image */
+};
+
+/*
  * Animation playback type
 */
 enum ANIMTYPE {
@@ -63,15 +70,20 @@ typedef struct {
         buffer_t    *image;   /* not freed, reference only */
         byte         colour;
     } vis;
+    byte         flags;
     Rect         rect;
     Rect         hitbox;
     Rect        *parent;      /* NULL by default, reference only */
-    byte         flags;
     AnimInstance anim;        /* NULL by default, reference only */
 } Sprite;
 
 typedef struct {
     buffer_t    *screen;
+    union {
+        buffer_t *image;
+        byte      colour;
+    } bg;
+    byte         flags;
     Rect         screen_clipping;
     Sprite      *sprites;
     uint16       sprite_count;
@@ -84,9 +96,10 @@ void destroy_image(buffer_t **image);
 LineUndoList create_line_undo_list();
 void destroy_line_undo_list(LineUndoList *lul);
 
-RenderData *renderer_init(int sprite_count, buffer_t *palette);
+RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette);
 void renderer_quit(RenderData *rd, bool quit_video);
 void renderer_start_frame(RenderData *rd);
+void renderer_draw_bg(RenderData *rd);
 void renderer_refresh_sprites(RenderData *rd);
 void renderer_finish_frame(RenderData *rd);
 

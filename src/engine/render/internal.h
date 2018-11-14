@@ -18,3 +18,4 @@
      (r).x + (r).w <= 0 || (r).x >= SCREEN_WIDTH)
 
 #endif
+

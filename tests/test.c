@@ -67,7 +67,7 @@ void add_bricks(void)
     
     while(r.y < (SCREEN_HEIGHT - BG_BRICK_SIZE)) {
         while(r.x < (SCREEN_WIDTH - BG_BRICK_SIZE)) {
-            draw_rect(rd->screen, &r, ++col);
+            draw_rect(rd->bg.image, &r, ++col);
             r.x += BG_BRICK_SIZE * 2;
         }
         r.x = 0;
@@ -226,7 +226,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     balloon_img = load_bmp_image("RES/BALLOON.BMP");
     pal = load_bmp_palette("RES/BALLOON.BMP");
 
-    rd = renderer_init(SPRITE_COUNT, pal);
+    rd = renderer_init(SPRITE_COUNT, 0, pal);
 
     //rd->sprites[0].anim = &test_anim;
     rd->sprites[0].vis.colour = 4;
@@ -265,10 +265,11 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_REFRESH | SPRITE_CLIP | SPRITE_MASKED;
 
     //animation_frames_init();
-    bouncing_sprites_init();
-    FILL_BUFFER(rd->screen, 3);
-    //FILL_BUFFER(rd->bg_layer, 3);
+    
+    FILL_BUFFER(rd->bg.image, 3);
     add_bricks();
+    renderer_draw_bg(rd);
+    bouncing_sprites_init();
     add_border();
 
     e = event_add(should_not_fire, NULL, 700);

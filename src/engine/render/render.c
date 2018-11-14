@@ -9,11 +9,6 @@
 #include <limits.h>
 #include <math.h>
 
-struct SimpleSprite {
-    buffer_t  image[MAX_SPRITE_SIZE * MAX_SPRITE_SIZE];
-    Rect      rect;
-};
-
 struct Pixel {
     int  x;
     int  y;
@@ -25,7 +20,7 @@ struct LineUndo {
     struct Pixel segs[MAX_LINE_LENGTH];
 };
 
-static struct SimpleSprite *dirty_tiles;
+static Rect far *dirty_rects;
 static const Rect EMPTY_RECT = {0,0,0,0};
 static bool video_initialized = false;
 
@@ -67,7 +62,7 @@ static void init_all_sprites(Sprite **sprites, const uint16 count)
     if(count > 0) {
         *sprites = transientmem;
         
-        dirty_tiles = (struct SimpleSprite *)((char *)transientmem + (sizeof(Sprite) * count)); /* dirty tiles go right after the sprites */
+        dirty_rects = (Rect far *)((char far *)transientmem + (sizeof(Sprite) * count)); /* dirty tiles go right after the sprites */
     }
     else {
         *sprites = NULL;
@@ -78,7 +73,7 @@ static void free_all_sprites(Sprite **sprites, uint16 *count)
 {
     if(*sprites && *count > 0) {
         *sprites = NULL;
-        dirty_tiles = NULL;
+        dirty_rects = NULL;
     }
 
     *count = 0;
@@ -205,7 +200,7 @@ static void blit_offset(buffer_t *dest, const buffer_t *src, const Rect *rect, i
         src += orig_w;
     }
 }
-
+/*
 static void tile_to_screen(buffer_t *dest, const buffer_t *src, const Rect *rect)
 {
     register int y = rect->h;
@@ -231,6 +226,20 @@ static void screen_to_tile(buffer_t *dest, const buffer_t *src, const Rect *rect
 
         dest += rect->w;
         src += SCREEN_WIDTH;
+    }
+}
+*/
+static void screen_to_screen(buffer_t *dest, const buffer_t *src, const Rect *rect)
+{
+    register int y = rect->h;
+    const int stride = SCREEN_WIDTH - rect->x;
+
+    src += CALC_OFFSET(rect->x, rect->y);
+
+    for(; y > 0; --y) {
+        _fmemcpy(dest, src, rect->w);
+        dest += SCREEN_WIDTH;
+        src  += stride;
     }
 }
 
@@ -384,13 +393,30 @@ void reset_sprite(Sprite *sprite) {
     _fmemset(sprite, 0, sizeof(Sprite));
 }
 
+void renderer_draw_bg(RenderData *rd)
+{
+    if(rd->flags & RENDER_BG_SOLID) {
+        FILL_BUFFER(rd->screen, rd->bg.colour);
+    }
+    else {
+        _fmemcpy(rd->screen, rd->bg.image, SCREEN_SIZE);
+    }
+}
+
 void renderer_start_frame(RenderData *rd)
 {
     int i;
 
-    for(i = rd->sprite_count - 1; i >= 0; --i) {
-        tile_to_screen(rd->screen, dirty_tiles[i].image, &dirty_tiles[i].rect);
+    if(rd->flags & RENDER_BG_SOLID) {
+        for(i = rd->sprite_count - 1; i >= 0; --i) {
+            draw_rect(rd->screen, &dirty_rects[i], rd->bg.colour);
+        }
     }
+    else {
+        for(i = rd->sprite_count - 1; i >= 0; --i) {
+            screen_to_screen(rd->screen, rd->bg.image, &dirty_rects[i]);
+        }
+   }
 }
 
 static void anim_update(AnimInstance *anim, byte *sprite_flags)
@@ -432,14 +458,12 @@ void renderer_refresh_sprites(RenderData *rd)
 
     size_t i;
     Sprite *sprite;
-    struct SimpleSprite *d_tile;
     for(i = 0; i < rd->sprite_count; ++i) {
         sprite = rd->sprites + i;
-        d_tile = dirty_tiles + i;
 
         /* skip sprites that aren't active */
         if(!(sprite->flags & SPRITE_REFRESH)) {
-            d_tile->rect = EMPTY_RECT;
+            dirty_rects[i] = EMPTY_RECT;
             continue;
         }
 
@@ -449,10 +473,9 @@ void renderer_refresh_sprites(RenderData *rd)
             orig.y += sprite->parent->y;
         }
 
-        /* check if we need to clip the sprite
-         * or let it overflow */
+        /* clip sprite, skip if offscreen */
         if(!clip_rect(&r, &image_offset, &orig, &rd->screen_clipping)) {
-            d_tile->rect = EMPTY_RECT;
+            dirty_rects[i] = EMPTY_RECT;
             continue;
         }
 
@@ -463,8 +486,8 @@ void renderer_refresh_sprites(RenderData *rd)
             anim_update(&sprite->anim, &sprite->flags);
         }
 
-        screen_to_tile(d_tile->image, rd->screen, &r);
-        d_tile->rect = r;
+        //screen_to_tile(d_tile->image, rd->screen, &r);
+        dirty_rects[i] = r;
 
         /* draw the sprite */
         if(sprite->flags & SPRITE_FILL) {
@@ -484,18 +507,20 @@ void renderer_finish_frame(RenderData *rd)
     video_flip(rd->screen);
 }
 
-RenderData *renderer_init(int sprite_count, buffer_t *palette)
+RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
 {
     RenderData *rd = mem_pool_alloc(sizeof(RenderData));
-    
     tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
     transientmem = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
-    assert(tblock && transientmem);
+    assert(rd && tblock && transientmem);
     
     _fmemset(transientmem, 0, 64000);
     
     rd->screen = make_framebuffer(MEMSLOT_RENDERER_BACKBUFFER);
     rd->sprite_count = sprite_count;
+    rd->flags = flags;
+    if(!(flags & RENDER_BG_SOLID))
+        rd->bg.image = make_framebuffer(MEMSLOT_RENDERER_BG);
 
     if(rd->screen) {
         if(!video_initialized) {
