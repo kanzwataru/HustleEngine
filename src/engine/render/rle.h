@@ -5,12 +5,12 @@
 
 struct RLEChunk {
     byte col;
-    uint16 length;
+    byte length;
 };
 
 struct MonoRLEChunk {
-    uint16 bglen;
-    uint16 fglen;  
+    byte bglen;
+    byte fglen;  
 };
 
 typedef struct RLEChunk     far RLEImage;

@@ -4,6 +4,7 @@
 #include "engine/render/rle.h"
 #include "common/math.h"
 #include <math.h>
+#include <limits.h>
 
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf)
 {
@@ -26,12 +27,18 @@ size_t monochrome_buffer_to_rle(RLEImageMono *rle, buffer_t *buf, int width, int
                 ++rle[count].bglen;
                 ++line;
 
+                if(line == UCHAR_MAX)
+                    ++count;
+
                 if(line == width)
                     goto next;
             }
             while(buf[offset + line] == fgcol) {
                 ++rle[count].fglen;
                 ++line;
+
+                if(line == UCHAR_MAX)
+                    ++count;
 
                 if(line == width)
                     goto next;
