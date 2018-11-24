@@ -6,6 +6,8 @@
 #include <math.h>
 #include <limits.h>
 
+#define SET_SIZE(rleptr, rlesize) (GET_RLE_SIZE(rleptr) = (rlesize))
+
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf)
 {
     NOT_IMPLEMENTED
@@ -15,7 +17,7 @@ size_t buffer_to_rle(RLEImage *rle, buffer_t *buf)
 size_t monochrome_buffer_to_rle(RLEImageMono *rle, buffer_t *buf, int width, int height, byte bgcol, byte fgcol)
 {
     uint16 offset = 0, line = 0;
-    size_t count = 0;
+    size_t count = 1;
 
     DEBUG_DO(printf("* MonoRLE Conversion *\n  buf: %p\n  size: (%d %d)\n  fg: %d\n  bg:%d\n", buf, width, height, fgcol, bgcol));
 
@@ -54,8 +56,9 @@ size_t monochrome_buffer_to_rle(RLEImageMono *rle, buffer_t *buf, int width, int
     }
 
     DEBUG_DO(printf("* MonoRLE done (%zu bytes)\n", count * sizeof(struct MonoRLEChunk)));
-
-    return count * sizeof(struct MonoRLEChunk);
+    
+    SET_SIZE(rle, count * sizeof(struct MonoRLEChunk));
+    return GET_RLE_SIZE(rle);
 }
 
 void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * const rect, const byte col)
@@ -65,6 +68,7 @@ void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * 
     
     if(OFFSCREEN(*rect)) return;
     
+    ++rle; /* skip size header */
     dest += CALC_OFFSET(MAX(rect->x, 0), rect->y);
     lines = (rect->y + rect->h) > SCREEN_HEIGHT ? SCREEN_HEIGHT - rect->y : rect->h;
     lineskip = rect->y < 0 ? abs(rect->y) : 0;

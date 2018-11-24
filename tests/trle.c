@@ -30,6 +30,8 @@ static void convert_bw(buffer_t *buf, size_t size, byte bgcol, byte fgcol)
 static void load_stuff(void)
 {
     buffer_t *clipper_raw, *cloud_raw, *wclouds_raw;
+    uint16 size;
+    
     cloud_raw = load_bmp_image("RES/CLOUD.BMP");
     cloud = mem_pool_alloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
     monochrome_buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
@@ -43,8 +45,11 @@ static void load_stuff(void)
     wclouds_raw = load_bmp_image("RES/CLOUDS.BMP");
     convert_bw(wclouds_raw, WCLOUDS_SPRITE_W * CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
     wclouds = mem_pool_alloc(4096 * 2);
-    monochrome_buffer_to_rle(wclouds, wclouds_raw, WCLOUDS_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
+    size = monochrome_buffer_to_rle(wclouds, wclouds_raw, WCLOUDS_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
     destroy_image(&wclouds_raw);
+    
+    printf("size: %d\n", size);
+    assert(size == GET_RLE_SIZE(wclouds));
 }
 
 static void monorle_dump(RLEImageMono *rle, int width, int height)
