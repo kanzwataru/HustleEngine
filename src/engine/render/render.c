@@ -232,14 +232,14 @@ static void screen_to_tile(buffer_t *dest, const buffer_t *src, const Rect *rect
 static void screen_to_screen(buffer_t *dest, const buffer_t *src, const Rect *rect)
 {
     register int y = rect->h;
-    const int stride = SCREEN_WIDTH - rect->x;
 
     src += CALC_OFFSET(rect->x, rect->y);
+    dest += CALC_OFFSET(rect->x, rect->y);
 
     for(; y > 0; --y) {
         _fmemcpy(dest, src, rect->w);
         dest += SCREEN_WIDTH;
-        src  += stride;
+        src  += SCREEN_WIDTH;
     }
 }
 
