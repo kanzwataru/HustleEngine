@@ -102,7 +102,7 @@ static void bouncing_sprites_init(void)
         rect.y = rand() % 200;
         rd->sprites[i].rect = rect;
         rd->sprites[i].vis.colour = rand() % 255;
-        rd->sprites[i].flags = SPRITE_ACTIVE | SPRITE_FILL;
+        rd->sprites[i].flags = SPRITE_ACTIVE | SPRITE_SOLID;
         bounce_dirs[i].x = -1;
         bounce_dirs[i].y = 1;
     }
@@ -234,7 +234,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[0].rect.h = 32;
     rd->sprites[0].rect.x = 16;
     rd->sprites[0].rect.y = 64;
-    rd->sprites[0].flags = SPRITE_ACTIVE | SPRITE_FILL;
+    rd->sprites[0].flags = SPRITE_ACTIVE | SPRITE_SOLID;
 
     rd->sprites[1].vis.image = create_image(32,32);
 
@@ -254,7 +254,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[2].rect.h = 16;
     rd->sprites[2].rect.x = 24;
     rd->sprites[2].rect.y = -8;
-    rd->sprites[2].flags = SPRITE_ACTIVE | SPRITE_FILL;
+    rd->sprites[2].flags = SPRITE_ACTIVE | SPRITE_SOLID;
     rd->sprites[2].parent = &rd->sprites[1].rect;
 
     rd->sprites[SPRITE_COUNT - 1].vis.image = balloon_img;

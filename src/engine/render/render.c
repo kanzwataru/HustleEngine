@@ -490,7 +490,7 @@ void renderer_refresh_sprites(RenderData *rd)
         dirty_rects[i] = r;
 
         /* draw the sprite */
-        if(sprite->flags & SPRITE_FILL) {
+        if(sprite->flags & SPRITE_SOLID) {
             draw_rect(rd->screen, &r, sprite->vis.colour);
         }
         else if(sprite->flags & SPRITE_MASKED) {

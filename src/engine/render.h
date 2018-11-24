@@ -26,8 +26,8 @@
  * */
 enum SPRITEFLAGS {
      SPRITE_ACTIVE     = 0x01, /* (0001) If the sprite should refresh */
-
-     SPRITE_FILL       = 0x04, /* (0100) If the sprite should be a colour and not an iamge */
+     SPRITE_RLE        = 0x02, /* (0010) If this is an RLE sprite */
+     SPRITE_SOLID      = 0x04, /* (0100) If not RLE, sprite is a solid colour, if RLE, sprite is a MonoRLE*/
      SPRITE_MASKED     = 0x08, /* (1000) If colour id 0 should be treated as transparent */
 };
 
@@ -50,6 +50,13 @@ enum ANIMTYPE {
 
 typedef void far* LineUndoList;
 
+union Visual {
+    buffer_t     *image;
+    RLEImage     *rle;
+    RLEImageMono *rlemono;
+    byte          colour;
+};
+
 typedef struct {
     buffer_t    *frames;      /* sprite sheet, not owned */
     size_t       frame_size;
@@ -66,10 +73,7 @@ typedef struct {
 } AnimInstance;
 
 typedef struct {
-    union {
-        buffer_t    *image;   /* not freed, reference only */
-        byte         colour;
-    } vis;
+    union Visual vis;         /* pointers not owned */
     byte         flags;
     Rect         rect;
     Rect         hitbox;
@@ -79,10 +83,7 @@ typedef struct {
 
 typedef struct {
     buffer_t    *screen;
-    union {
-        buffer_t *image;
-        byte      colour;
-    } bg;
+    union Visual bg;          /* pointers owned */
     byte         flags;
     Rect         screen_clipping;
     Sprite      *sprites;
