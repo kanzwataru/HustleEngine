@@ -25,7 +25,7 @@
  * flags, rest is for game use
  * */
 enum SPRITEFLAGS {
-     SPRITE_REFRESH    = 0x01, /* (0001) If the sprite should refresh */
+     SPRITE_ACTIVE     = 0x01, /* (0001) If the sprite should refresh */
      SPRITE_CLIP       = 0x02, /* (0010) If should be screen-clipped to not wrap back */
      SPRITE_FILL       = 0x04, /* (0100) If the sprite should be a colour and not an iamge */
      SPRITE_MASKED     = 0x08, /* (1000) If colour id 0 should be treated as transparent */

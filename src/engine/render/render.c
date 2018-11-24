@@ -433,7 +433,7 @@ static void anim_update(AnimInstance *anim, byte *sprite_flags)
                 anim->playback_direction = 1;
                 break;
             case ANIM_DISAPPEAR:
-                *sprite_flags &= ~SPRITE_REFRESH;
+                *sprite_flags &= ~SPRITE_ACTIVE;
                 anim->playback_direction = 0;
                 break;
             case ANIM_ONCE:
@@ -462,7 +462,7 @@ void renderer_refresh_sprites(RenderData *rd)
         sprite = rd->sprites + i;
 
         /* skip sprites that aren't active */
-        if(!(sprite->flags & SPRITE_REFRESH)) {
+        if(!(sprite->flags & SPRITE_ACTIVE)) {
             dirty_rects[i] = EMPTY_RECT;
             continue;
         }

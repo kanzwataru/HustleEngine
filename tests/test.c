@@ -102,7 +102,7 @@ static void bouncing_sprites_init(void)
         rect.y = rand() % 200;
         rd->sprites[i].rect = rect;
         rd->sprites[i].vis.colour = rand() % 255;
-        rd->sprites[i].flags = SPRITE_REFRESH | SPRITE_CLIP | SPRITE_FILL;
+        rd->sprites[i].flags = SPRITE_ACTIVE | SPRITE_CLIP | SPRITE_FILL;
         bounce_dirs[i].x = -1;
         bounce_dirs[i].y = 1;
     }
@@ -234,7 +234,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[0].rect.h = 32;
     rd->sprites[0].rect.x = 16;
     rd->sprites[0].rect.y = 64;
-    rd->sprites[0].flags = SPRITE_REFRESH | SPRITE_FILL;
+    rd->sprites[0].flags = SPRITE_ACTIVE | SPRITE_FILL;
 
     rd->sprites[1].vis.image = create_image(32,32);
 
@@ -247,14 +247,14 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[1].rect.h = 32;
     rd->sprites[1].rect.x = 128;
     rd->sprites[1].rect.y = 128;
-    rd->sprites[1].flags = SPRITE_REFRESH | SPRITE_CLIP | SPRITE_MASKED;
+    rd->sprites[1].flags = SPRITE_ACTIVE | SPRITE_CLIP | SPRITE_MASKED;
 
     rd->sprites[2].vis.colour = 4;
     rd->sprites[2].rect.w = 8;
     rd->sprites[2].rect.h = 16;
     rd->sprites[2].rect.x = 24;
     rd->sprites[2].rect.y = -8;
-    rd->sprites[2].flags = SPRITE_REFRESH | SPRITE_CLIP | SPRITE_FILL;
+    rd->sprites[2].flags = SPRITE_ACTIVE | SPRITE_CLIP | SPRITE_FILL;
     rd->sprites[2].parent = &rd->sprites[1].rect;
 
     rd->sprites[SPRITE_COUNT - 1].vis.image = balloon_img;
@@ -262,7 +262,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[SPRITE_COUNT - 1].rect.h = 32;
     rd->sprites[SPRITE_COUNT - 1].rect.x = 256;
     rd->sprites[SPRITE_COUNT - 1].rect.y = 128;
-    rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_REFRESH | SPRITE_CLIP | SPRITE_MASKED;
+    rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_ACTIVE | SPRITE_CLIP | SPRITE_MASKED;
 
     //animation_frames_init();
     
