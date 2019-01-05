@@ -8,7 +8,7 @@
  *
  * The first RLEChunk of every RLEImage is
  * actually a 16-bit integer with the size
- * of the entire image.
+ * (in bytes) of the entire image.
 */
 #define GET_RLE_SIZE(rleptr) (*((uint16 *)(rleptr)))
 
