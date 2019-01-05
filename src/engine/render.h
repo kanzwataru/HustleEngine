@@ -27,7 +27,8 @@
 enum SPRITEFLAGS {
      SPRITE_ACTIVE     = 0x01, /* (0001) If the sprite should refresh */
      SPRITE_RLE        = 0x02, /* (0010) If this is an RLE sprite */
-     SPRITE_SOLID      = 0x04, /* (0100) If not RLE, sprite is a solid colour, if RLE, sprite is a MonoRLE*/
+     SPRITE_MONORLE    = 0x06, /* (0110) If this is a solid RLE (monochrome) */
+     SPRITE_SOLID      = 0x04, /* (0100) If this is a solid colour */
      SPRITE_MASKED     = 0x08, /* (1000) If colour id 0 should be treated as transparent */
 };
 
