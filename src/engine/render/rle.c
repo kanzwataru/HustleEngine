@@ -61,26 +61,26 @@ size_t monochrome_buffer_to_rle(RLEImageMono *rle, buffer_t *buf, int width, int
     return GET_RLE_SIZE(rle);
 }
 
-void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * const rect, const byte col)
+void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, Rect rect, byte col)
 {
     int pcount, left, right;
     byte lines, lineskip;
     
-    if(OFFSCREEN(*rect)) return;
+    if(OFFSCREEN(rect)) return;
     
     ++rle; /* skip size header */
-    dest += CALC_OFFSET(MAX(rect->x, 0), rect->y);
-    lines = (rect->y + rect->h) > SCREEN_HEIGHT ? SCREEN_HEIGHT - rect->y : rect->h;
-    lineskip = rect->y < 0 ? abs(rect->y) : 0;
+    dest += CALC_OFFSET(MAX(rect.x, 0), rect.y);
+    lines = (rect.y + rect.h) > SCREEN_HEIGHT ? SCREEN_HEIGHT - rect.y : rect.h;
+    lineskip = rect.y < 0 ? abs(rect.y) : 0;
     
-    right = (rect->x + rect->w) > SCREEN_WIDTH ? SCREEN_WIDTH - rect->x : rect->w;
-    left = rect->x < 0 ? rect->x : 0; /* this is negative! */
+    right = (rect.x + rect.w) > SCREEN_WIDTH ? SCREEN_WIDTH - rect.x : rect.w;
+    left = rect.x < 0 ? rect.x : 0; /* this is negative! */
     right += left; /* either does nothing, or subtracts */
 
     /* fast-forward RLE to skip the clipped lines */
     while(lineskip != 0) {
         pcount = 0;
-        while(pcount < rect->w) {
+        while(pcount < rect.w) {
             pcount += rle->bglen + rle->fglen;
             ++rle;
         }
@@ -122,7 +122,7 @@ void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, const Rect * 
             }
         }
         else {
-            while(pcount < rect->w) { /* we started at the beginning so we have to fast-forward to the end once we hit the right clip */
+            while(pcount < rect.w) { /* we started at the beginning so we have to fast-forward to the end once we hit the right clip */
                 pcount += rle->bglen;
                 
                 _fmemset(dest + pcount, col, MIN(rle->fglen, MAX(0, right - pcount)));

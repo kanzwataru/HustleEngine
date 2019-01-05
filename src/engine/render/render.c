@@ -174,84 +174,84 @@ static bool clip_rect(Rect *clipped, Point *offset, const Rect *orig, const Rect
 }
 
 /*
-static void blit(buffer_t *dest, const buffer_t *src, const Rect *rect)
+static void blit(buffer_t *dest, const buffer_t *src, Rect rect)
 {
-    register int y = rect->h;
-    register int offset = CALC_OFFSET(rect->x, rect->y);
+    register int y = rect.h;
+    register int offset = CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest + offset, src + offset, rect->w);
+        _fmemcpy(dest + offset, src + offset, rect.w);
 
         offset += SCREEN_WIDTH;
     }
 }
 */
 
-static void blit_offset(buffer_t *dest, const buffer_t *src, const Rect *rect, int offset, int orig_w)
+static void blit_offset(buffer_t *dest, const buffer_t *src, Rect rect, int offset, int orig_w)
 {
-    register int y = rect->h;
-    dest += CALC_OFFSET(rect->x, rect->y);
+    register int y = rect.h;
+    dest += CALC_OFFSET(rect.x, rect.y);
     src += offset;
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect->w);
+        _fmemcpy(dest, src, rect.w);
 
         dest += SCREEN_WIDTH;
         src += orig_w;
     }
 }
 /*
-static void tile_to_screen(buffer_t *dest, const buffer_t *src, const Rect *rect)
+static void tile_to_screen(buffer_t *dest, const buffer_t *src, Rect rect)
 {
-    register int y = rect->h;
+    register int y = rect.h;
 
-    dest += CALC_OFFSET(rect->x, rect->y);
+    dest += CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect->w);
+        _fmemcpy(dest, src, rect.w);
 
         dest += SCREEN_WIDTH;
-        src += rect->w;
+        src += rect.w;
     }
 }
 
-static void screen_to_tile(buffer_t *dest, const buffer_t *src, const Rect *rect)
+static void screen_to_tile(buffer_t *dest, const buffer_t *src, Rect rect)
 {
-    register int y = rect->h;
+    register int y = rect.h;
 
-    src += CALC_OFFSET(rect->x, rect->y);
+    src += CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect->w);
+        _fmemcpy(dest, src, rect.w);
 
-        dest += rect->w;
+        dest += rect.w;
         src += SCREEN_WIDTH;
     }
 }
 */
-static void screen_to_screen(buffer_t *dest, const buffer_t *src, const Rect *rect)
+static void screen_to_screen(buffer_t *dest, const buffer_t *src, Rect rect)
 {
-    register int y = rect->h;
+    register int y = rect.h;
 
-    src += CALC_OFFSET(rect->x, rect->y);
-    dest += CALC_OFFSET(rect->x, rect->y);
+    src += CALC_OFFSET(rect.x, rect.y);
+    dest += CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect->w);
+        _fmemcpy(dest, src, rect.w);
         dest += SCREEN_WIDTH;
         src  += SCREEN_WIDTH;
     }
 }
 
-static void blit_offset_masked(buffer_t *dest, const buffer_t *src, const Rect *rect, int offset, int orig_w)
+static void blit_offset_masked(buffer_t *dest, const buffer_t *src, Rect rect, int offset, int orig_w)
 {
     register int x, y;
 
-    dest += CALC_OFFSET(rect->x, rect->y);
+    dest += CALC_OFFSET(rect.x, rect.y);
     src += offset;
 
-    for(y = 0; y < rect->h; ++y) {
-        for(x = 0; x < rect->w; ++x) {
+    for(y = 0; y < rect.h; ++y) {
+        for(x = 0; x < rect.w; ++x) {
             if(src[x] != TRANSPARENT)
                 *(dest + x) = *(src + x);
         }
@@ -261,25 +261,25 @@ static void blit_offset_masked(buffer_t *dest, const buffer_t *src, const Rect *
     }
 }
 
-void draw_rect(buffer_t *buf, const Rect *rect, byte colour)
+void draw_rect(buffer_t *buf, Rect rect, byte colour)
 {
-    register int y = rect->h;
-    buf += CALC_OFFSET(rect->x,rect->y);
+    register int y = rect.h;
+    buf += CALC_OFFSET(rect.x,rect.y);
     
     for(; y > 0; --y) {
-        _fmemset(buf, colour, rect->w);
+        _fmemset(buf, colour, rect.w);
         buf += SCREEN_WIDTH;
     }
 }
 
-void draw_rect_clipped(buffer_t *buf, const Rect *rect, byte colour)
+void draw_rect_clipped(buffer_t *buf, Rect rect, byte colour)
 {
     Rect c;
     Rect screen_clip = {0,0,SCREEN_WIDTH, SCREEN_HEIGHT};
     Point _;
 
-    if(clip_rect(&c, &_, rect, &screen_clip))
-        draw_rect(buf, &c, colour);
+    if(clip_rect(&c, &_, &rect, &screen_clip))
+        draw_rect(buf, c, colour);
     else
         return;
 }
@@ -370,7 +370,7 @@ Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, const Rect rect
     if(!clip_rect(&clipped, &offset, &rect, &global_clip))
         return EMPTY_RECT;
 
-    blit_offset(buf, image, &clipped, offset.x + (offset.y * clipped.w), rect.w);
+    blit_offset(buf, image, clipped, offset.x + (offset.y * clipped.w), rect.w);
 
     return clipped;
 }
@@ -409,12 +409,12 @@ void renderer_start_frame(RenderData *rd)
 
     if(rd->flags & RENDER_BG_SOLID) {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
-            draw_rect(rd->screen, &dirty_rects[i], rd->bg.colour);
+            draw_rect(rd->screen, dirty_rects[i], rd->bg.colour);
         }
     }
     else {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
-            screen_to_screen(rd->screen, rd->bg.image, &dirty_rects[i]);
+            screen_to_screen(rd->screen, rd->bg.image, dirty_rects[i]);
         }
    }
 }
@@ -491,13 +491,13 @@ void renderer_refresh_sprites(RenderData *rd)
 
         /* draw the sprite */
         if(sprite->flags & SPRITE_SOLID) {
-            draw_rect(rd->screen, &r, sprite->vis.colour);
+            draw_rect(rd->screen, r, sprite->vis.colour);
         }
         else if(sprite->flags & SPRITE_MASKED) {
-            blit_offset_masked(rd->screen, sprite->vis.image, &r, image_offset.x + (image_offset.y * r.w), sprite->rect.w);
+            blit_offset_masked(rd->screen, sprite->vis.image, r, image_offset.x + (image_offset.y * r.w), sprite->rect.w);
         }
         else {
-            blit_offset(rd->screen, sprite->vis.image, &r, image_offset.x + (image_offset.y * r.w), sprite->rect.w);
+            blit_offset(rd->screen, sprite->vis.image, r, image_offset.x + (image_offset.y * r.w), sprite->rect.w);
         }
     }
 }

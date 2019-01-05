@@ -118,8 +118,8 @@ void sprite_reset(Sprite *sprite);
 /*
  * Draw a filled rectangle with a specific colour
 */
-void draw_rect(buffer_t *buf, const Rect *rect, byte colour);
-void draw_rect_clipped(buffer_t *buf, const Rect *rect, byte colour);
+void draw_rect(buffer_t *buf, const Rect rect, byte colour);
+void draw_rect_clipped(buffer_t *buf, const Rect rect, byte colour);
 void draw_dot(buffer_t *buf, Point p, byte colour);
 Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, const Rect rect, const Rect global_clip);
 void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour);

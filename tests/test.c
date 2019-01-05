@@ -67,7 +67,7 @@ void add_bricks(void)
     
     while(r.y < (SCREEN_HEIGHT - BG_BRICK_SIZE)) {
         while(r.x < (SCREEN_WIDTH - BG_BRICK_SIZE)) {
-            draw_rect(rd->bg.image, &r, ++col);
+            draw_rect(rd->bg.image, r, ++col);
             r.x += BG_BRICK_SIZE * 2;
         }
         r.x = 0;
@@ -90,7 +90,7 @@ static void add_border(void)
 {
     Rect btm = {0, 170, SCREEN_WIDTH, SCREEN_HEIGHT - 170};
     rd->screen_clipping.h = 170;
-    draw_rect(rd->screen, &btm, 6);
+    draw_rect(rd->screen, btm, 6);
 }
 
 static void bouncing_sprites_init(void)

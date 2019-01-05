@@ -90,14 +90,14 @@ static void render(void)
 {
     renderer_start_frame(rd);
     
-    draw_rect_clipped(rd->screen, &prev_cloud_rect, SKY_COL);
-    draw_mono_masked_rle(rd->screen, cloud, &cloud_rect, CLOUD_COL);
+    draw_rect_clipped(rd->screen, prev_cloud_rect, SKY_COL);
+    draw_mono_masked_rle(rd->screen, cloud, cloud_rect, CLOUD_COL);
     
-    draw_rect_clipped(rd->screen, &prev_clipper_rect, SKY_COL);
-    draw_mono_masked_rle(rd->screen, clipper, &clipper_rect, 23);
+    draw_rect_clipped(rd->screen, prev_clipper_rect, SKY_COL);
+    draw_mono_masked_rle(rd->screen, clipper, clipper_rect, 23);
     
-    draw_rect_clipped(rd->screen, &prev_wclouds_rect, SKY_COL);
-    draw_mono_masked_rle(rd->screen, wclouds, &wclouds_rect, CLOUD_COL);
+    draw_rect_clipped(rd->screen, prev_wclouds_rect, SKY_COL);
+    draw_mono_masked_rle(rd->screen, wclouds, wclouds_rect, CLOUD_COL);
 }
 
 static void render_flip(void)
