@@ -13,8 +13,8 @@
 #define GET_RLE_SIZE(rleptr) (*((uint16 *)(rleptr)))
 
 struct RLEChunk {
-    byte col;
     byte length;
+    byte col;
 };
 
 struct MonoRLEChunk {
