@@ -2,20 +2,22 @@
 #include "engine/render.h"
 #include "platform/filesys.h"
 
+/*
 static byte test_img[] = {
-    0x14,0,   /* size of structure */
+    0x14,0,   // size of structure
     32,3,
     16,6, 16,7,
     8,4, 8,8, 8,7, 8,23,
     32,1,
     16,3, 16,7
 };
+*/
 
 static RenderData *rd;
 static RLEImageMono *cloud;
 static RLEImageMono *clipper;
 //static RLEImageMono *wclouds;
-static RLEImage *balloon = (RLEImage *)test_img;
+static RLEImage *balloon;
 static Rect prev_cloud_rect, cloud_rect;
 static Rect prev_clipper_rect, clipper_rect;
 //static Rect prev_wclouds_rect, wclouds_rect;
@@ -43,7 +45,7 @@ static void convert_bw(buffer_t *buf, size_t size, byte bgcol, byte fgcol)
 static void load_stuff(void)
 {
     buffer_t *clipper_raw, *cloud_raw, *balloon_raw;
-    //uint16 size;
+    uint16 size;
 
     cloud_raw = load_bmp_image("RES/CLOUD.BMP");
     cloud = mem_pool_alloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
@@ -63,11 +65,11 @@ static void load_stuff(void)
     destroy_image(&wclouds_raw);
 */
     balloon_raw = load_bmp_image("RES/BALLOON.BMP");
-    //balloon = mem_pool_alloc(4096);
-    //size = buffer_to_rle(balloon, balloon_raw, BALLOON_W, BALLOON_W);
+    balloon = mem_pool_alloc(4096);
+    size = buffer_to_rle(balloon, balloon_raw, BALLOON_W, BALLOON_W);
     destroy_image(&balloon_raw);
 
-    //printf("size: %d\n", size);
+    printf("size: %d\n", size);
     //assert(size == GET_RLE_SIZE(wclouds));
 }
 
@@ -199,8 +201,8 @@ int rletest_start(void)
     balloon_rect.x = 0;
     balloon_rect.y = 30;
     balloon_rect.w = 32;
-    //balloon_rect.h = BALLOON_W;
-    balloon_rect.h = 5;
+    balloon_rect.h = BALLOON_W;
+    balloon_rect.h = BALLOON_W;
 
     engine_gameloop(cd);
 

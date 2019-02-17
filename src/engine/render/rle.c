@@ -130,7 +130,8 @@ void draw_masked_rle(buffer_t *dest, const RLEImage *rle, Rect rect)
         while(pcount < 0) {
             pcount += rle->length;
             if(pcount > 0) {
-                _fmemset(dest, rle->col, pcount);
+                if(rle->col != 0)   /* skip transparent pixels */
+                  _fmemset(dest, rle->col, pcount);
                 ++rle;
                 break;
             }
@@ -140,14 +141,16 @@ void draw_masked_rle(buffer_t *dest, const RLEImage *rle, Rect rect)
 
         if(left != 0) {
             while(pcount < right) { /* we've already fast-forwarded so draw to the end of the rle texture */
-                _fmemset(dest + pcount, rle->col, MIN(rle->length, MAX(0, right - pcount)));
+                if(rle->col != 0)   /* skip transparent pixels */
+                  _fmemset(dest + pcount, rle->col, MIN(rle->length, MAX(0, right - pcount)));
                 pcount += rle->length;
                 ++rle;
             }
         }
         else {
             while(pcount < rect.w) { /* we started at the beginning so we have to fast-forward to the end once we hit the right clip */
-                _fmemset(dest + pcount, rle->col, MIN(rle->length, MAX(0, right - pcount)));
+                if(rle->col != 0)   /* skip transparent pixels */
+                  _fmemset(dest + pcount, rle->col, MIN(rle->length, MAX(0, right - pcount)));
                 pcount += rle->length;
                 ++rle;
             }
