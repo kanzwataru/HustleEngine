@@ -124,17 +124,17 @@ size_t buffer_to_rle(RLEImage *rle, buffer_t *buf, int width, int height)
     return GET_RLE_SIZE(rle);
 }
 
-void draw_rle(buffer_t *dest, const RLEImage *rle, Rect rect)
+void draw_rle_sprite(buffer_t *dest, const RLEImage *rle, Rect rect)
 {
     DO_RLE_DRAW(rle->col != 0, rle->col);
 }
 
-void draw_rle_filled(buffer_t *dest, const RLEImage *rle, Rect rect, byte col)
+void draw_rle_sprite_filled(buffer_t *dest, const RLEImage *rle, Rect rect, byte col)
 {
     DO_RLE_DRAW(rle->col != 0, col);
 }
 
-void draw_rle_filled_reverse(buffer_t *dest, const RLEImage *rle, Rect rect, byte col)
+void draw_rle_sprite_filled_reverse(buffer_t *dest, const RLEImage *rle, Rect rect, byte col)
 {
     DO_RLE_DRAW(rle->col == 0, col);
 }

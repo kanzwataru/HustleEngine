@@ -114,17 +114,17 @@ static void render(void)
 {
     renderer_start_frame(rd);
 
-    draw_rle_filled(rd->screen, cloud, prev_cloud_rect, SKY_COL);
-    draw_rle_filled(rd->screen, cloud, cloud_rect, CLOUD_COL);
+    draw_rle_sprite_filled(rd->screen, cloud, prev_cloud_rect, SKY_COL);
+    draw_rle_sprite_filled(rd->screen, cloud, cloud_rect, CLOUD_COL);
 
-    draw_rle_filled(rd->screen, clipper, prev_clipper_rect, SKY_COL);
-    draw_rle_filled(rd->screen, clipper, clipper_rect, 23);
+    draw_rle_sprite_filled(rd->screen, clipper, prev_clipper_rect, SKY_COL);
+    draw_rle_sprite_filled(rd->screen, clipper, clipper_rect, 23);
 /*
     draw_rect_clipped(rd->screen, prev_wclouds_rect, SKY_COL);
     draw_mono_masked_rle(rd->screen, wclouds, wclouds_rect, CLOUD_COL);
 */
-    draw_rle_filled(rd->screen, balloon, prev_balloon_rect, SKY_COL);
-    draw_rle(rd->screen, balloon, balloon_rect);
+    draw_rle_sprite_filled(rd->screen, balloon, prev_balloon_rect, SKY_COL);
+    draw_rle_sprite(rd->screen, balloon, balloon_rect);
 }
 
 static void render_flip(void)

@@ -3,6 +3,8 @@
 /*
  * HustleEngine Render routines
  *
+ * Can either use renderer's builtin sprite drawing
+ * or the individual drawing routines
 */
 
 #include "common/platform.h"
@@ -112,15 +114,29 @@ void palette_fade_from_color(Color start, const buffer_t *end, float percent);
 
 void sprite_reset(Sprite *sprite);
 
-/**** Drawing functions ****/
-
-/*
- * Draw a filled rectangle with a specific colour
+/* *** DRAWING FUNCTIONS ***
+ *
+ * The renderer has sprite rendering logic but for
+ * any effects that it cannot do, you may also use these drawing
+ * functions manually
 */
+
+/* Draw a filled rectangle with a specific colour */
 void draw_rect(buffer_t *buf, const Rect rect, byte colour);
 void draw_rect_clipped(buffer_t *buf, const Rect rect, byte colour);
+
+/* Draw single pixels (with bounds-checking) */
 void draw_dot(buffer_t *buf, Point p, byte colour);
+
+/* Blit a bitmap (with bounds-checking) */
 Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, const Rect rect, const Rect global_clip);
+
+/* RLE (Run-Length Encoded) sprite drawing */
+void draw_rle_sprite(buffer_t *dest, const RLEImage *rle, Rect rect);
+void draw_rle_sprite_filled(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
+void draw_rle_sprite_filled_reverse(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
+
+/* Line drawing */
 void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour);
 void erase_line(buffer_t *buf, LineUndoList undo);
 

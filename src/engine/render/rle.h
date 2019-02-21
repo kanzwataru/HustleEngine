@@ -1,3 +1,10 @@
+/*
+ * Run-Length Encoded sprite drawing
+ *
+ * Saves memory at the expense of CPU time, but can also
+ * be faster to draw in certain circumstances because it uses
+ * memory setting instead of memory copying
+*/
 #ifndef RLE_H
 #define RLE_H
 
@@ -19,12 +26,7 @@ struct RLEChunk {
 
 typedef struct RLEChunk far RLEImage;
 
+/* Convert bitmap to RLE */
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf, int width, int height);
-
-/* TODO: move to render.h */
-void draw_rle(buffer_t *dest, const RLEImage *rle, Rect rect);
-void draw_rle_filled(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
-void draw_rle_filled_reverse(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
-/* */
 
 #endif
