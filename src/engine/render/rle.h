@@ -17,21 +17,14 @@ struct RLEChunk {
     byte col;
 };
 
-struct MonoRLEChunk {
-    byte bglen;
-    byte fglen;
-};
-
-typedef struct RLEChunk     far RLEImage;
-typedef struct MonoRLEChunk far RLEImageMono;
+typedef struct RLEChunk far RLEImage;
 
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf, int width, int height);
-size_t monochrome_buffer_to_rle(RLEImageMono *rle, buffer_t *buf, int width, int height, byte bgcol, byte fgcol);
 
 /* TODO: move to render.h */
-void draw_mono_masked_rle(buffer_t *dest, const RLEImageMono *rle, Rect rect, byte col);
-void draw_mono_rle(buffer_t *dest, const RLEImageMono *rle, Rect rect, byte bgcol, byte fgcol);
-void draw_masked_rle(buffer_t *dest, const RLEImage *rle, Rect rect);
+void draw_rle(buffer_t *dest, const RLEImage *rle, Rect rect);
+void draw_rle_filled(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
+void draw_rle_filled_reverse(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
 /* */
 
 #endif

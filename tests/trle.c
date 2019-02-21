@@ -14,8 +14,8 @@ static byte test_img[] = {
 */
 
 static RenderData *rd;
-static RLEImageMono *cloud;
-static RLEImageMono *clipper;
+static RLEImage *cloud;
+static RLEImage *clipper;
 //static RLEImageMono *wclouds;
 static RLEImage *balloon;
 static Rect prev_cloud_rect, cloud_rect;
@@ -49,12 +49,12 @@ static void load_stuff(void)
 
     cloud_raw = load_bmp_image("RES/CLOUD.BMP");
     cloud = mem_pool_alloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
-    monochrome_buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
+    buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
     destroy_image(&cloud_raw);
 
     clipper_raw = load_bmp_image("RES/CLIPPER.BMP");
     clipper = mem_pool_alloc(4024);
-    monochrome_buffer_to_rle(clipper, clipper_raw, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D, 0, 1);
+    buffer_to_rle(clipper, clipper_raw, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
     destroy_image(&clipper_raw);
 
 /*
@@ -73,6 +73,7 @@ static void load_stuff(void)
     //assert(size == GET_RLE_SIZE(wclouds));
 }
 
+/*
 static void monorle_dump(RLEImageMono *rle, int width, int height)
 {
     int pcount = 0;
@@ -92,6 +93,7 @@ static void monorle_dump(RLEImageMono *rle, int width, int height)
 
     printf("\n");
 }
+*/
 
 static void update(void)
 {
@@ -112,17 +114,17 @@ static void render(void)
 {
     renderer_start_frame(rd);
 
-    draw_rect_clipped(rd->screen, prev_cloud_rect, SKY_COL);
-    draw_mono_masked_rle(rd->screen, cloud, cloud_rect, CLOUD_COL);
+    draw_rle_filled(rd->screen, cloud, prev_cloud_rect, SKY_COL);
+    draw_rle_filled(rd->screen, cloud, cloud_rect, CLOUD_COL);
 
-    draw_rect_clipped(rd->screen, prev_clipper_rect, SKY_COL);
-    draw_mono_masked_rle(rd->screen, clipper, clipper_rect, 23);
+    draw_rle_filled(rd->screen, clipper, prev_clipper_rect, SKY_COL);
+    draw_rle_filled(rd->screen, clipper, clipper_rect, 23);
 /*
     draw_rect_clipped(rd->screen, prev_wclouds_rect, SKY_COL);
     draw_mono_masked_rle(rd->screen, wclouds, wclouds_rect, CLOUD_COL);
 */
-    draw_rect_clipped(rd->screen, prev_balloon_rect, SKY_COL);
-    draw_masked_rle(rd->screen, balloon, balloon_rect);
+    draw_rle_filled(rd->screen, balloon, prev_balloon_rect, SKY_COL);
+    draw_rle(rd->screen, balloon, balloon_rect);
 }
 
 static void render_flip(void)
@@ -161,8 +163,8 @@ int rletest_start(void)
     load_stuff();
 
 #ifdef DEBUG
-    monorle_dump(cloud, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
-    monorle_dump(clipper, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
+    //monorle_dump(cloud, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
+    //monorle_dump(clipper, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
     //monorle_dump(wclouds, WCLOUDS_SPRITE_W, CLOUD_SPRITE_H);
 #endif
 

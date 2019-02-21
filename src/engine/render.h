@@ -54,7 +54,6 @@ typedef void far* LineUndoList;
 union Visual {
     buffer_t     *image;
     RLEImage     *rle;
-    RLEImageMono *rlemono;
     byte          colour;
 };
 
