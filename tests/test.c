@@ -64,7 +64,7 @@ void add_bricks(void)
 {
     int col = 0;
     Rect r = {0,0,BG_BRICK_SIZE, BG_BRICK_SIZE};
-    
+
     while(r.y < (SCREEN_HEIGHT - BG_BRICK_SIZE)) {
         while(r.x < (SCREEN_WIDTH - BG_BRICK_SIZE)) {
             draw_rect(rd->bg.image, r, ++col);
@@ -151,9 +151,9 @@ static void render(void) {
 
 static bool input(void) {
     keyboard_per_frame_update();
-    if(keyboard_os_quit_event())
+    if(keyboard_os_quit_event() || keyboard_keys[KEY_ESC])
         return false;
-    
+
     return true;
 }
 
@@ -172,19 +172,19 @@ void test_keyboard(void)
 {
 /*
     int i;
-    
+
     keyboard_init();
-    
+
 
     while(!(keyboard_os_quit_event() || keyboard_keys[KEY_ESC])) {
     for(i = 0; i < KEYCODES_MAX; ++i) {
             if(keyboard_keys[i])
                 printf("Key down: %d\n", i);
         }
-        
+
         printf("\n");
     } */
-    
+
 //    keyboard_quit();
 }
 
@@ -265,7 +265,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_ACTIVE | SPRITE_MASKED;
 
     //animation_frames_init();
-    
+
     FILL_BUFFER(rd->bg.image, 3);
     add_bricks();
     renderer_draw_bg(rd);
@@ -279,7 +279,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     //ASSERT(0);
 
     renderer_refresh_sprites(rd);
-    
+
     if(do_benchmark)
         engine_benchmark(cd, benchmark_times);
     else
