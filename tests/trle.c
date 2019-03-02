@@ -151,8 +151,7 @@ static bool input(void)
 static void quit(void)
 {
     mem_pool_free(cloud);
-    renderer_quit(&rd, true);
-    engine_gameloop_break();
+    engine_quit();
 }
 
 int rletest_start(void)
