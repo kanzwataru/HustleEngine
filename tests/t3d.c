@@ -5,10 +5,14 @@
 
 static RenderData *rd;
 
-static int geo_tris = 1;
+static int geo_tris = 2;
 static Point geo[] = {
-    {160, 20},
+    {300, 20},
     {300, 180},
+    {20,  180},
+
+    {20, 20},
+    {300, 20},
     {20,  180},
 };
 
@@ -22,9 +26,9 @@ static void render(void)
     renderer_start_frame(rd);
 
     for(i = 0; i < geo_tris * 3; i += 3) {
-        draw_line_raw(rd->screen, geo[i + 0].x, geo[i + 0].y, geo[i + 1].x, geo[i + 1].y, 3);
-        draw_line_raw(rd->screen, geo[i + 1].x, geo[i + 1].y, geo[i + 2].x, geo[i + 2].y, 4);
-        draw_line_raw(rd->screen, geo[i + 2].x, geo[i + 2].y, geo[i + 0].x, geo[i + 0].y, 6);
+        draw_line_raw(rd->screen, geo[i + 0].x, geo[i + 0].y, geo[i + 1].x, geo[i + 1].y, i + 1);
+        draw_line_raw(rd->screen, geo[i + 1].x, geo[i + 1].y, geo[i + 2].x, geo[i + 2].y, i + 2);
+        draw_line_raw(rd->screen, geo[i + 2].x, geo[i + 2].y, geo[i + 0].x, geo[i + 0].y, i + 3);
     }
 }
 
