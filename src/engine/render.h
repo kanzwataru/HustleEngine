@@ -138,6 +138,7 @@ void draw_rle_sprite_filled_reverse(buffer_t *dest, const RLEImage *rle, Rect re
 
 /* Line drawing */
 void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour);
+void draw_line_raw(buffer_t *buf, int p1x, int p1y, int p2x, int p2y, const byte colour);
 void erase_line(buffer_t *buf, LineUndoList undo);
 
 #endif /* RENDER_H */

@@ -12,11 +12,11 @@ void engine_init(void)
 {
     if(initialized)
         PANIC("HustleEngine: Double core initialization");
-    
+
     mem_init();
     mem_pool_init(MEMSLOT_MEMORY_POOL);
     keyboard_init();
-    
+
     initialized = true;
     DEBUG_DO(printf("HustleEngine: Core initialized\n"));
 }
@@ -24,13 +24,13 @@ void engine_init(void)
 void engine_gameloop(CoreData cd)
 {
     stop = false;
-    
+
     /* Game Loop */
-    while(cd.input_handler()) 
+    while(cd.input_handler())
     {
         if(stop)
             return;
-            
+
         cd.update_callback();
         event_update();
 
@@ -50,7 +50,7 @@ void engine_gameloop_break(void)
 void engine_quit(void)
 {
     keyboard_quit();
-    mem_pool_quit();
+    //mem_pool_quit();  // for some reason this crashes on DOS...
     mem_quit();
     DEBUG_DO(printf("HustleEngine: Done quitting\n"));
 }

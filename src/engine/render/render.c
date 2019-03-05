@@ -57,11 +57,11 @@ void destroy_line_undo_list(LineUndoList *lul) {
     *lul = NULL;
 }
 
-static void init_all_sprites(Sprite **sprites, const uint16 count) 
+static void init_all_sprites(Sprite **sprites, const uint16 count)
 {
     if(count > 0) {
         *sprites = transientmem;
-        
+
         dirty_rects = (Rect far *)((char far *)transientmem + (sizeof(Sprite) * count)); /* dirty tiles go right after the sprites */
     }
     else {
@@ -87,7 +87,7 @@ void palette_set(const buffer_t *palette)
 void palette_fade(const buffer_t *start, const buffer_t *end, float percent)
 {
     int i;
-    
+
     for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
         video_set_color_at(i, LERP(start[i * 3 + 0], end[i * 3 + 0], percent),
                               LERP(start[i * 3 + 1], end[i * 3 + 1], percent),
@@ -98,7 +98,7 @@ void palette_fade(const buffer_t *start, const buffer_t *end, float percent)
 void palette_fade_to_color(const buffer_t *start, Color end, float percent)
 {
     int i;
-    
+
     for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
         video_set_color_at(i, LERP(start[i * 3 + 0], end.r, percent),
                               LERP(start[i * 3 + 1], end.g, percent),
@@ -108,7 +108,7 @@ void palette_fade_to_color(const buffer_t *start, Color end, float percent)
 void palette_fade_from_color(Color start, const buffer_t *end, float percent)
 {
     int i;
-    
+
     for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
         video_set_color_at(i, LERP(start.r, end[i * 3 + 0], percent),
                               LERP(start.g, end[i * 3 + 1], percent),
@@ -129,7 +129,7 @@ static bool clip_rect(Rect *clipped, Point *offset, const Rect *orig, const Rect
     /* Horizontal clip */
     if(orig->x < clip->x) { /* left */
         if(o_xmax < clip->x) return false; /* completely offscreen */
-        
+
         offset->x = (clip->x - orig->x);
 
         clipped->x = clip->x;
@@ -265,7 +265,7 @@ void draw_rect(buffer_t *buf, Rect rect, byte colour)
 {
     register int y = rect.h;
     buf += CALC_OFFSET(rect.x,rect.y);
-    
+
     for(; y > 0; --y) {
         _fmemset(buf, colour, rect.w);
         buf += SCREEN_WIDTH;
@@ -326,11 +326,11 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
 
             px += sdx;
             offset = CALC_OFFSET(px, py);
-            
+
             /* clip to screen boundary */
             if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
                 continue;
-                
+
             undopix[count].x = px;
             undopix[count].y = py;
             undopix[count].col = buf[offset];
@@ -347,11 +347,11 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
 
             py += sdy;
             offset = CALC_OFFSET(px, py);
-            
+
             /* clip to screen boundary */
             if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
                 continue;
-            
+
             undopix[count].x = px;
             undopix[count].y = py;
             undopix[count].col = buf[offset];
@@ -360,6 +360,63 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
     }
 
     (*(struct LineUndo *)undo).count = count;
+}
+
+void draw_line_raw(buffer_t *buf, int p1x, int p1y, int p2x, int p2y, const byte colour)
+{
+    int i, dx, dy, sdx, sdy, dxabs, dyabs, x, y, px, py, offset, count;
+
+    dx = CLAMP(p2x, 0, SCREEN_WIDTH)  - CLAMP(p1x, 0, SCREEN_WIDTH);
+    dy = CLAMP(p2y, 0, SCREEN_HEIGHT) - CLAMP(p1y, 0, SCREEN_HEIGHT);
+    dxabs = abs(dx);
+    dyabs = abs(dy);
+    sdx = SGN(dx);
+    sdy = SGN(dy);
+    x = dyabs >> 1;
+    y = dxabs >> 1;
+    px = CLAMP(p1x, 0, SCREEN_WIDTH);
+    py = CLAMP(p1y, 0, SCREEN_HEIGHT);
+
+    offset = CALC_OFFSET(px, py);
+    buf[offset] = colour;
+    count = 1;
+
+    if(dxabs >= dyabs) {                /* more horizontal */
+        for(i = 0; i < dxabs; ++i, ++count) {
+            y += dyabs;
+            if(y >= dxabs) {
+                y  -= dxabs;
+                py += sdy;
+            }
+
+            px += sdx;
+            offset = CALC_OFFSET(px, py);
+
+            /* clip to screen boundary */
+            if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
+                continue;
+
+            buf[offset] = colour;
+        }
+    }
+    else {                              /* more vertical */
+        for(i = 0; i < dyabs; ++i, ++count) {
+            x += dxabs;
+            if(x >= dyabs) {
+                x  -= dyabs;
+                px += sdx;
+            }
+
+            py += sdy;
+            offset = CALC_OFFSET(px, py);
+
+            /* clip to screen boundary */
+            if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
+                continue;
+
+            buf[offset] = colour;
+        }
+    }
 }
 
 Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, const Rect rect, const Rect global_clip)
@@ -426,7 +483,7 @@ static void anim_update(AnimInstance *anim, byte *sprite_flags)
 
         if(anim->frame == anim->animation->count || anim->frame == UCHAR_MAX) /* Can get overflowed by ANIM_FLIPFLOP */
         {
-            switch(anim->animation->playback_type) 
+            switch(anim->animation->playback_type)
             {
             case ANIM_LOOP:
                 anim->frame = 0;
@@ -513,9 +570,9 @@ RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
     tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
     transientmem = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
     assert(rd && tblock && transientmem);
-    
+
     _fmemset(transientmem, 0, 64000);
-    
+
     rd->screen = make_framebuffer(MEMSLOT_RENDERER_BACKBUFFER);
     rd->sprite_count = sprite_count;
     rd->flags = flags;
@@ -549,12 +606,12 @@ void renderer_quit(RenderData *rd, bool quit_video)
 {
     free_all_sprites(&rd->sprites, &rd->sprite_count);
     rd->screen = NULL;
-    
+
     assert(tblock);
     mem_free_block(tblock);
     tblock = 0;
     transientmem = NULL;
-    
+
     if(quit_video)
         video_exit();
 }
