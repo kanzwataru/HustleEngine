@@ -116,58 +116,56 @@ void palette_fade_from_color(Color start, const buffer_t *end, float percent)
     }
 }
 
-static bool clip_rect(Rect *clipped, Point *offset, const Rect *orig, const Rect *clip)
+static bool clip_rect(Rect *clipped, Point *offset, const Rect orig)
 {
-    register int o_xmax = orig->x + orig->w;
-    register int o_ymax = orig->y + orig->h;
-    register int c_xmax = clip->x + clip->w;
-    register int c_ymax = clip->y + clip->h;
+    int o_xmax = orig.x + orig.w;
+    int o_ymax = orig.y + orig.h;
 
-    if(orig->x > c_xmax || orig->y > c_ymax) /* completely offscreen */
+    if(orig.x > SCREEN_WIDTH || orig.y > SCREEN_HEIGHT) /* completely offscreen */
         return false;
 
     /* Horizontal clip */
-    if(orig->x < clip->x) { /* left */
-        if(o_xmax < clip->x) return false; /* completely offscreen */
+    if(orig.x < 0) { /* left */
+        if(o_xmax < 0) return false; /* completely offscreen */
 
-        offset->x = (clip->x - orig->x);
+        offset->x = -orig.x;
 
-        clipped->x = clip->x;
-        clipped->w = orig->w - offset->x;
+        clipped->x = 0;
+        clipped->w = orig.w - offset->x;
     }
-    else if(o_xmax > c_xmax) {  /* right */
+    else if(o_xmax > SCREEN_WIDTH) {  /* right */
         offset->x = 0;
 
-        clipped->x = orig->x;
-        clipped->w = c_xmax - orig->x;
+        clipped->x = orig.x;
+        clipped->w = SCREEN_WIDTH - orig.x;
     }
     else {                  /* not clipped */
         offset->x = 0;
 
-        clipped->x = orig->x;
-        clipped->w = orig->w;
+        clipped->x = orig.x;
+        clipped->w = orig.w;
     }
 
     /* Vertical clip */
-    if(orig->y < clip->y) {
-        if(o_ymax < clip->y) return false; /* completely offscreen */
+    if(orig.y < 0) {
+        if(o_ymax < 0) return false; /* completely offscreen */
 
-        offset->y = (clip->y - orig->y);
+        offset->y = -orig.y;
 
-        clipped->y = clip->y;
-        clipped->h = orig->h - offset->y;
+        clipped->y = 0;
+        clipped->h = orig.h - offset->y;
     }
-    else if(o_ymax > c_ymax) {
+    else if(o_ymax > SCREEN_HEIGHT) {
         offset->y = 0;
 
-        clipped->y = orig->y;
-        clipped->h = c_ymax - orig->y;
+        clipped->y = orig.y;
+        clipped->h = SCREEN_HEIGHT - orig.y;
     }
     else {
         offset->y = 0;
 
-        clipped->y = orig->y;
-        clipped->h = orig->h;
+        clipped->y = orig.y;
+        clipped->h = orig.h;
     }
 
     return true;
@@ -274,12 +272,10 @@ void draw_rect(buffer_t *buf, Rect rect, byte colour)
 
 void draw_rect_clipped(buffer_t *buf, Rect rect, byte colour)
 {
-    Rect c;
-    Rect screen_clip = {0,0,SCREEN_WIDTH, SCREEN_HEIGHT};
     Point _;
 
-    if(clip_rect(&c, &_, &rect, &screen_clip))
-        draw_rect(buf, c, colour);
+    if(clip_rect(&rect, &_, rect))
+        draw_rect(buf, rect, colour);
     else
         return;
 }
@@ -419,17 +415,16 @@ void draw_line_raw(buffer_t *buf, int p1x, int p1y, int p2x, int p2y, const byte
     }
 }
 
-Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, const Rect rect, const Rect global_clip)
+Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, Rect rect)
 {
-    Rect clipped;
     Point offset;
 
-    if(!clip_rect(&clipped, &offset, &rect, &global_clip))
+    if(!clip_rect(&rect, &offset, rect))
         return EMPTY_RECT;
 
-    blit_offset(buf, image, clipped, offset.x + (offset.y * clipped.w), rect.w);
+    blit_offset(buf, image, rect, offset.x + (offset.y * rect.w), rect.w);
 
-    return clipped;
+    return rect;
 }
 
 void erase_line(buffer_t *buf, LineUndoList undo)
@@ -462,15 +457,25 @@ void renderer_draw_bg(RenderData *rd)
 
 void renderer_start_frame(RenderData *rd)
 {
+    Point _;
     int i;
 
     if(rd->flags & RENDER_BG_SOLID) {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
-            draw_rect(rd->screen, dirty_rects[i], rd->bg.colour);
+            if(rd->sprites[i].flags & SPRITE_RLE)
+                draw_rle_sprite_filled(rd->screen, rd->sprites[i].vis.rle, dirty_rects[i], rd->bg.colour);
+            else
+                draw_rect(rd->screen, dirty_rects[i], rd->bg.colour);
         }
     }
     else {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
+            if(rd->sprites[i].flags & SPRITE_RLE) {
+                if(!clip_rect(&dirty_rects[i], &_, dirty_rects[i])) {
+                    continue;
+                }
+            }
+
             screen_to_screen(rd->screen, rd->bg.image, dirty_rects[i]);
         }
    }
@@ -509,52 +514,61 @@ static void anim_update(AnimInstance *anim, byte *sprite_flags)
 
 void renderer_refresh_sprites(RenderData *rd)
 {
+    Rect transformed;
     Point image_offset;
-    Rect orig;
-    Rect r;
-
     size_t i;
-    Sprite *sprite;
+
     for(i = 0; i < rd->sprite_count; ++i) {
-        sprite = rd->sprites + i;
-
         /* skip sprites that aren't active */
-        if(!(sprite->flags & SPRITE_ACTIVE)) {
+        if(!(rd->sprites[i].flags & SPRITE_ACTIVE)) {
             dirty_rects[i] = EMPTY_RECT;
             continue;
         }
 
-        orig = sprite->rect;
-        if(sprite->parent) {
-            orig.x += sprite->parent->x;
-            orig.y += sprite->parent->y;
+        /* parent transform */
+        transformed = rd->sprites[i].rect;
+        if(rd->sprites[i].parent) {
+            transformed.x += rd->sprites[i].parent->x;
+            transformed.y += rd->sprites[i].parent->y;
         }
 
-        /* clip sprite, skip if offscreen */
-        if(!clip_rect(&r, &image_offset, &orig, &rd->screen_clipping)) {
-            dirty_rects[i] = EMPTY_RECT;
-            continue;
+        /*
+         * clip sprite, skip if offscreen
+         * (RLE routines have their own clipping, so skip)
+        */
+        if(!(rd->sprites[i].flags & SPRITE_RLE)) {
+            if(!clip_rect(&transformed, &image_offset, transformed)) {
+                dirty_rects[i] = EMPTY_RECT;
+                continue;
+            }
         }
+
+        dirty_rects[i] = transformed;
 
         /* animation */
-        if(sprite->anim.animation) {
-            sprite->vis.image = sprite->anim.animation->frames + (sprite->anim.animation->frame_size * sprite->anim.frame);
+        if(rd->sprites[i].anim.animation) {
+            rd->sprites[i].vis.image = rd->sprites[i].anim.animation->frames + (rd->sprites[i].anim.animation->frame_size * rd->sprites[i].anim.frame);
 
-            anim_update(&sprite->anim, &sprite->flags);
+            anim_update(&rd->sprites[i].anim, &rd->sprites[i].flags);
         }
-
-        //screen_to_tile(d_tile->image, rd->screen, &r);
-        dirty_rects[i] = r;
 
         /* draw the sprite */
-        if(sprite->flags & SPRITE_SOLID) {
-            draw_rect(rd->screen, r, sprite->vis.colour);
-        }
-        else if(sprite->flags & SPRITE_MASKED) {
-            blit_offset_masked(rd->screen, sprite->vis.image, r, image_offset.x + (image_offset.y * r.w), sprite->rect.w);
-        }
-        else {
-            blit_offset(rd->screen, sprite->vis.image, r, image_offset.x + (image_offset.y * r.w), sprite->rect.w);
+        switch((rd->sprites[i].flags << 4 >> 4) & ~SPRITE_ACTIVE) {
+        case SPRITE_SOLID:
+            draw_rect(rd->screen, transformed, rd->sprites[i].vis.colour);
+            break;
+        case SPRITE_MASKED:
+            blit_offset_masked(rd->screen, rd->sprites[i].vis.image, transformed, image_offset.x + (image_offset.y * transformed.w), rd->sprites[i].rect.w);
+            break;
+        case SPRITE_RLE:
+            draw_rle_sprite(rd->screen, rd->sprites[i].vis.rle, transformed);
+            break;
+        case SPRITE_MONORLE:
+            draw_rle_sprite_mono(rd->screen, rd->sprites[i].vis.rle, transformed);
+            break;
+        default: /* just standard bitmap */
+            blit_offset(rd->screen, rd->sprites[i].vis.image, transformed, image_offset.x + (image_offset.y * transformed.w), rd->sprites[i].rect.w);
+            break;
         }
     }
 }
@@ -586,11 +600,6 @@ RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
         }
 
         init_all_sprites(&rd->sprites, sprite_count);
-
-        rd->screen_clipping.x = 0;
-        rd->screen_clipping.y = 0;
-        rd->screen_clipping.w = SCREEN_WIDTH;
-        rd->screen_clipping.h = SCREEN_HEIGHT;
 
         if(palette)
             video_set_palette(palette);

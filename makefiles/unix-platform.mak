@@ -14,7 +14,7 @@ LIBS        += -lSDL
 endif
 
 ifeq ($(DEBUG_BUILD), 1)
-CFLAGS       = -g3 -DDEBUG -Wpedantic -Wall -Werror
+CFLAGS       = -g3 -DDEBUG -Wpedantic -Wall
 else
 CFLAGS       = -O2 -Wall
 endif

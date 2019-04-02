@@ -151,6 +151,8 @@ static bool input(void)
 static void quit(void)
 {
     mem_pool_free(cloud);
+    mem_pool_free(clipper);
+    mem_pool_free(balloon);
     engine_quit();
 }
 

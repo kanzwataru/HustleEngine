@@ -89,7 +89,7 @@ static void animation_frames_init(void)
 static void add_border(void)
 {
     Rect btm = {0, 170, SCREEN_WIDTH, SCREEN_HEIGHT - 170};
-    rd->screen_clipping.h = 170;
+    //rd->screen_clipping.h = 170;
     draw_rect(rd->screen, btm, 6);
 }
 
@@ -146,6 +146,7 @@ static void render(void) {
     if(!paused) {
         renderer_start_frame(rd);
         renderer_refresh_sprites(rd);
+        add_border();
     }
 }
 
@@ -158,6 +159,9 @@ static bool input(void) {
 }
 
 static void quit(void) {
+    destroy_image(&rd->sprites[1].vis.image);
+    mem_pool_free(rd->sprites[SPRITE_COUNT - 1].vis.rle);
+
     renderer_quit(rd, true);
     engine_quit();
     exit(1);
@@ -211,6 +215,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     uint16 i;
     CoreData cd;
     EventID e;
+    RLEImage *balloon_rle;
     buffer_t *balloon_img;
     buffer_t *pal;
 
@@ -224,9 +229,13 @@ void test_start(bool do_benchmark, int benchmark_times)
     cd.frame_skip = 0;
 
     balloon_img = load_bmp_image("RES/BALLOON.BMP");
+    balloon_rle = mem_pool_alloc(4096);
+    buffer_to_rle(balloon_rle, balloon_img, 32, 32);
     pal = load_bmp_palette("RES/BALLOON.BMP");
 
     rd = renderer_init(SPRITE_COUNT, 0, pal);
+    destroy_image(&pal);
+    destroy_image(&balloon_img);
 
     //rd->sprites[0].anim = &test_anim;
     rd->sprites[0].vis.colour = 4;
@@ -257,12 +266,12 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[2].flags = SPRITE_ACTIVE | SPRITE_SOLID;
     rd->sprites[2].parent = &rd->sprites[1].rect;
 
-    rd->sprites[SPRITE_COUNT - 1].vis.image = balloon_img;
+    rd->sprites[SPRITE_COUNT - 1].vis.rle = balloon_rle;
     rd->sprites[SPRITE_COUNT - 1].rect.w = 32;
     rd->sprites[SPRITE_COUNT - 1].rect.h = 32;
     rd->sprites[SPRITE_COUNT - 1].rect.x = 256;
     rd->sprites[SPRITE_COUNT - 1].rect.y = 128;
-    rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_ACTIVE | SPRITE_MASKED;
+    rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_ACTIVE | SPRITE_RLE;
 
     //animation_frames_init();
 
@@ -270,7 +279,6 @@ void test_start(bool do_benchmark, int benchmark_times)
     add_bricks();
     renderer_draw_bg(rd);
     bouncing_sprites_init();
-    add_border();
 
     e = event_add(should_not_fire, NULL, 700);
     event_add(done_eventing, NULL, 400);
