@@ -10,21 +10,19 @@
 
 #include "common/platform.h"
 
-/*
- * Macro to get the size of the RLEImage.
- *
- * The first RLEChunk of every RLEImage is
- * actually a 16-bit integer with the size
- * (in bytes) of the entire image.
-*/
-#define GET_RLE_SIZE(rleptr) (*((uint16 *)(rleptr)))
-
 struct RLEChunk {
-    byte length;
-    byte col;
+    byte   length;
+    byte   col;
 };
 
-typedef struct RLEChunk far RLEImage;
+struct RLEHeader {
+    uint16 size;
+    byte   bgcol;            /* set by user (for monochrome) */
+    byte   fgcol;            /* set by user (for monochrome) */
+    struct RLEChunk data[1]; /* variable length */
+};
+
+typedef struct RLEHeader far RLEImage;
 
 /* Convert bitmap to RLE */
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf, int width, int height);

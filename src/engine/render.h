@@ -87,7 +87,6 @@ typedef struct {
     buffer_t    *screen;
     union Visual bg;          /* pointers owned */
     byte         flags;
-    Rect         screen_clipping;
     Sprite      *sprites;
     uint16       sprite_count;
 } RenderData;
@@ -129,12 +128,13 @@ void draw_rect_clipped(buffer_t *buf, const Rect rect, byte colour);
 void draw_dot(buffer_t *buf, Point p, byte colour);
 
 /* Blit a bitmap (with bounds-checking) */
-Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, const Rect rect, const Rect global_clip);
+Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, const Rect rect);
 
 /* RLE (Run-Length Encoded) sprite drawing */
-void draw_rle_sprite(buffer_t *dest, const RLEImage *rle, Rect rect);
-void draw_rle_sprite_filled(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
-void draw_rle_sprite_filled_reverse(buffer_t *dest, const RLEImage *rle, Rect rect, byte col);
+void draw_rle_sprite(buffer_t *dest, const RLEImage *image, Rect rect);
+void draw_rle_sprite_mono(buffer_t *dest, const RLEImage *image, Rect rect);
+void draw_rle_sprite_filled(buffer_t *dest, const RLEImage *image, Rect rect, byte col);
+void draw_rle_sprite_filled_reverse(buffer_t *dest, const RLEImage *image, Rect rect, byte col);
 
 /* Line drawing */
 void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour);

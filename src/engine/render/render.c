@@ -57,11 +57,11 @@ void destroy_line_undo_list(LineUndoList *lul) {
     *lul = NULL;
 }
 
-static void init_all_sprites(Sprite **sprites, const uint16 count) 
+static void init_all_sprites(Sprite **sprites, const uint16 count)
 {
     if(count > 0) {
         *sprites = transientmem;
-        
+
         dirty_rects = (Rect far *)((char far *)transientmem + (sizeof(Sprite) * count)); /* dirty tiles go right after the sprites */
     }
     else {
@@ -87,7 +87,7 @@ void palette_set(const buffer_t *palette)
 void palette_fade(const buffer_t *start, const buffer_t *end, float percent)
 {
     int i;
-    
+
     for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
         video_set_color_at(i, LERP(start[i * 3 + 0], end[i * 3 + 0], percent),
                               LERP(start[i * 3 + 1], end[i * 3 + 1], percent),
@@ -98,7 +98,7 @@ void palette_fade(const buffer_t *start, const buffer_t *end, float percent)
 void palette_fade_to_color(const buffer_t *start, Color end, float percent)
 {
     int i;
-    
+
     for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
         video_set_color_at(i, LERP(start[i * 3 + 0], end.r, percent),
                               LERP(start[i * 3 + 1], end.g, percent),
@@ -108,7 +108,7 @@ void palette_fade_to_color(const buffer_t *start, Color end, float percent)
 void palette_fade_from_color(Color start, const buffer_t *end, float percent)
 {
     int i;
-    
+
     for(i = 0; i < PALETTE_NUM_COLORS; i += 1) {
         video_set_color_at(i, LERP(start.r, end[i * 3 + 0], percent),
                               LERP(start.g, end[i * 3 + 1], percent),
@@ -116,30 +116,28 @@ void palette_fade_from_color(Color start, const buffer_t *end, float percent)
     }
 }
 
-static bool clip_rect(Rect *clipped, Point *offset, const Rect orig, const Rect const *clip)
+static bool clip_rect(Rect *clipped, Point *offset, const Rect orig)
 {
     int o_xmax = orig.x + orig.w;
     int o_ymax = orig.y + orig.h;
-    int c_xmax = clip->x + clip->w;
-    int c_ymax = clip->y + clip->h;
 
-    if(orig.x > c_xmax || orig.y > c_ymax) /* completely offscreen */
+    if(orig.x > SCREEN_WIDTH || orig.y > SCREEN_HEIGHT) /* completely offscreen */
         return false;
 
     /* Horizontal clip */
-    if(orig.x < clip->x) { /* left */
-        if(o_xmax < clip->x) return false; /* completely offscreen */
-        
-        offset->x = (clip->x - orig.x);
+    if(orig.x < 0) { /* left */
+        if(o_xmax < 0) return false; /* completely offscreen */
 
-        clipped->x = clip->x;
+        offset->x = -orig.x;
+
+        clipped->x = 0;
         clipped->w = orig.w - offset->x;
     }
-    else if(o_xmax > c_xmax) {  /* right */
+    else if(o_xmax > SCREEN_WIDTH) {  /* right */
         offset->x = 0;
 
         clipped->x = orig.x;
-        clipped->w = c_xmax - orig.x;
+        clipped->w = SCREEN_WIDTH - orig.x;
     }
     else {                  /* not clipped */
         offset->x = 0;
@@ -149,19 +147,19 @@ static bool clip_rect(Rect *clipped, Point *offset, const Rect orig, const Rect 
     }
 
     /* Vertical clip */
-    if(orig.y < clip->y) {
-        if(o_ymax < clip->y) return false; /* completely offscreen */
+    if(orig.y < 0) {
+        if(o_ymax < 0) return false; /* completely offscreen */
 
-        offset->y = (clip->y - orig.y);
+        offset->y = -orig.y;
 
-        clipped->y = clip->y;
+        clipped->y = 0;
         clipped->h = orig.h - offset->y;
     }
-    else if(o_ymax > c_ymax) {
+    else if(o_ymax > SCREEN_HEIGHT) {
         offset->y = 0;
 
         clipped->y = orig.y;
-        clipped->h = c_ymax - orig.y;
+        clipped->h = SCREEN_HEIGHT - orig.y;
     }
     else {
         offset->y = 0;
@@ -265,7 +263,7 @@ void draw_rect(buffer_t *buf, Rect rect, byte colour)
 {
     register int y = rect.h;
     buf += CALC_OFFSET(rect.x,rect.y);
-    
+
     for(; y > 0; --y) {
         _fmemset(buf, colour, rect.w);
         buf += SCREEN_WIDTH;
@@ -274,10 +272,9 @@ void draw_rect(buffer_t *buf, Rect rect, byte colour)
 
 void draw_rect_clipped(buffer_t *buf, Rect rect, byte colour)
 {
-    Rect screen_clip = {0,0,SCREEN_WIDTH, SCREEN_HEIGHT};
     Point _;
 
-    if(clip_rect(&rect, &_, rect, &screen_clip))
+    if(clip_rect(&rect, &_, rect))
         draw_rect(buf, rect, colour);
     else
         return;
@@ -325,11 +322,11 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
 
             px += sdx;
             offset = CALC_OFFSET(px, py);
-            
+
             /* clip to screen boundary */
             if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
                 continue;
-                
+
             undopix[count].x = px;
             undopix[count].y = py;
             undopix[count].col = buf[offset];
@@ -346,11 +343,11 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
 
             py += sdy;
             offset = CALC_OFFSET(px, py);
-            
+
             /* clip to screen boundary */
             if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
                 continue;
-            
+
             undopix[count].x = px;
             undopix[count].y = py;
             undopix[count].col = buf[offset];
@@ -361,11 +358,11 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
     (*(struct LineUndo *)undo).count = count;
 }
 
-Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, Rect rect, const Rect global_clip)
+Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, Rect rect)
 {
     Point offset;
 
-    if(!clip_rect(&rect, &offset, rect, &global_clip))
+    if(!clip_rect(&rect, &offset, rect))
         return EMPTY_RECT;
 
     blit_offset(buf, image, rect, offset.x + (offset.y * rect.w), rect.w);
@@ -403,15 +400,25 @@ void renderer_draw_bg(RenderData *rd)
 
 void renderer_start_frame(RenderData *rd)
 {
+    Point _;
     int i;
 
     if(rd->flags & RENDER_BG_SOLID) {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
-            draw_rect(rd->screen, dirty_rects[i], rd->bg.colour);
+            if(rd->sprites[i].flags & SPRITE_RLE)
+                draw_rle_sprite_filled(rd->screen, rd->sprites[i].vis.rle, dirty_rects[i], rd->bg.colour);
+            else
+                draw_rect(rd->screen, dirty_rects[i], rd->bg.colour);
         }
     }
     else {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
+            if(rd->sprites[i].flags & SPRITE_RLE) {
+                if(!clip_rect(&dirty_rects[i], &_, dirty_rects[i])) {
+                    continue;
+                }
+            }
+
             screen_to_screen(rd->screen, rd->bg.image, dirty_rects[i]);
         }
    }
@@ -424,7 +431,7 @@ static void anim_update(AnimInstance *anim, byte *sprite_flags)
 
         if(anim->frame == anim->animation->count || anim->frame == UCHAR_MAX) /* Can get overflowed by ANIM_FLIPFLOP */
         {
-            switch(anim->animation->playback_type) 
+            switch(anim->animation->playback_type)
             {
             case ANIM_LOOP:
                 anim->frame = 0;
@@ -453,7 +460,7 @@ void renderer_refresh_sprites(RenderData *rd)
     Rect transformed;
     Point image_offset;
     size_t i;
-    
+
     for(i = 0; i < rd->sprite_count; ++i) {
         /* skip sprites that aren't active */
         if(!(rd->sprites[i].flags & SPRITE_ACTIVE)) {
@@ -467,32 +474,43 @@ void renderer_refresh_sprites(RenderData *rd)
             transformed.x += rd->sprites[i].parent->x;
             transformed.y += rd->sprites[i].parent->y;
         }
-        
-        /* clip sprite, skip if offscreen */
-        if(!clip_rect(&transformed, &image_offset, transformed, &rd->screen_clipping)) {
-            dirty_rects[i] = EMPTY_RECT;
-            continue;
+
+        /*
+         * clip sprite, skip if offscreen
+         * (RLE routines have their own clipping, so skip)
+        */
+        if(!(rd->sprites[i].flags & SPRITE_RLE)) {
+            if(!clip_rect(&transformed, &image_offset, transformed)) {
+                dirty_rects[i] = EMPTY_RECT;
+                continue;
+            }
         }
-        
+
         dirty_rects[i] = transformed;
-        
+
         /* animation */
         if(rd->sprites[i].anim.animation) {
             rd->sprites[i].vis.image = rd->sprites[i].anim.animation->frames + (rd->sprites[i].anim.animation->frame_size * rd->sprites[i].anim.frame);
 
             anim_update(&rd->sprites[i].anim, &rd->sprites[i].flags);
         }
-        
+
         /* draw the sprite */
-        switch(rd->sprites[i].flags) {
-        case 0x05: /* SPRITE_ACTIVE & SPRITE_SOLID */
+        switch((rd->sprites[i].flags << 4 >> 4) & ~SPRITE_ACTIVE) {
+        case SPRITE_SOLID:
             draw_rect(rd->screen, transformed, rd->sprites[i].vis.colour);
-        case 0x09: /* SPRITE_ACTIVE & SPRITE_MASKED */
-            blit_offset_masked(rd->screen, rd->sprites[i].vis.image, transformed, image_offset.x + (image_offset.y * transformed.w), rd->sprites[i].rect.w);
-        case SPRITE_ACTIVE: /* just standard bitmap */
-            //blit_offset(rd->screen, rd->sprites[i].vis.image, transformed, image_offset.x + (image_offset.y * transformed.w), rd->sprites[i].rect.w);
             break;
-        default:
+        case SPRITE_MASKED:
+            blit_offset_masked(rd->screen, rd->sprites[i].vis.image, transformed, image_offset.x + (image_offset.y * transformed.w), rd->sprites[i].rect.w);
+            break;
+        case SPRITE_RLE:
+            draw_rle_sprite(rd->screen, rd->sprites[i].vis.rle, transformed);
+            break;
+        case SPRITE_MONORLE:
+            draw_rle_sprite_mono(rd->screen, rd->sprites[i].vis.rle, transformed);
+            break;
+        default: /* just standard bitmap */
+            blit_offset(rd->screen, rd->sprites[i].vis.image, transformed, image_offset.x + (image_offset.y * transformed.w), rd->sprites[i].rect.w);
             break;
         }
     }
@@ -509,9 +527,9 @@ RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
     tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
     transientmem = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
     assert(rd && tblock && transientmem);
-    
+
     _fmemset(transientmem, 0, 64000);
-    
+
     rd->screen = make_framebuffer(MEMSLOT_RENDERER_BACKBUFFER);
     rd->sprite_count = sprite_count;
     rd->flags = flags;
@@ -525,11 +543,6 @@ RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
         }
 
         init_all_sprites(&rd->sprites, sprite_count);
-
-        rd->screen_clipping.x = 0;
-        rd->screen_clipping.y = 0;
-        rd->screen_clipping.w = SCREEN_WIDTH;
-        rd->screen_clipping.h = SCREEN_HEIGHT;
 
         if(palette)
             video_set_palette(palette);
@@ -545,12 +558,12 @@ void renderer_quit(RenderData *rd, bool quit_video)
 {
     free_all_sprites(&rd->sprites, &rd->sprite_count);
     rd->screen = NULL;
-    
+
     assert(tblock);
     mem_free_block(tblock);
     tblock = 0;
     transientmem = NULL;
-    
+
     if(quit_video)
         video_exit();
 }
