@@ -7,6 +7,7 @@
 #define VECTOR_H
 
 #include "common/prim.h"
+#include "common/math.h"
 #include <math.h>
 
 /* *******************************************************
@@ -180,7 +181,6 @@ static inline Vec2D vdivi(Point a, int val) {
 }
 
 static inline Vec2D vnormalize(Vec2D v) {
-    Vec2D v;
     v.x = SGN(v.x);
     v.y = SGN(v.y);
     return v;
