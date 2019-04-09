@@ -78,6 +78,27 @@ static void draw_tris(buffer_t *buf, Point *geo, int tris)
                 buf[CALC_OFFSET(x, y)] = 3;
             }
         }
+        for(y = tri[1].y; y < tri[2].y; ++y) {
+            int segment_height = tri[2].y - tri[1].y + 1;
+
+            float alpha = (float)(y - tri[0].y) / total_height;
+            float beta = (float)(y - tri[1].y) / segment_height;
+
+            Point a = {
+                tri[0].x + (tri[2].x - tri[0].x) * alpha,
+                tri[0].y + (tri[2].y - tri[0].y) * alpha
+            };
+
+            Point b = {
+                tri[1].x + (tri[2].x - tri[1].x) * beta,
+                tri[1].y + (tri[2].y - tri[1].y) * beta
+            };
+
+            if(a.x > b.x) swap(&a, &b);
+            for(x = a.x; x <= b.x; ++x) {
+                buf[CALC_OFFSET(x, y)] = 3;
+            }
+        }
 
 /*
         draw_line_raw(rd->screen, tri[0].x, tri[0].y, tri[1].x, tri[1].y, 2);
@@ -94,8 +115,8 @@ static void render(void)
     draw_tris(rd->screen, geo, geo_tris);
     draw_tris(rd->screen, smol, 1);
 
-    draw_tris_wire(rd->screen, geo, geo_tris);
-    draw_tris_wire(rd->screen, smol, 1);
+    //draw_tris_wire(rd->screen, geo, geo_tris);
+    //draw_tris_wire(rd->screen, smol, 1);
 }
 
 static void render_flip(void)
