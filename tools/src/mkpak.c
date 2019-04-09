@@ -136,7 +136,7 @@ void generate_header(struct Pak *pak)
 void flush_pak(struct Pak *pak)
 {
     char filename[2048];
-    snprintf(filename, 2048, "build/%s/res/%s.dat", platform, pak->name);
+    snprintf(filename, 2048, "build/%s/%s.dat", platform, pak->name);
 
     write_out(pak->data, pak->size, filename);
     generate_header(pak);
@@ -152,7 +152,7 @@ int pak_handler(void *user, const char *section, const char *name, const char *v
     struct Pak *pak = user;
 
     /* if this is a different pak then write it out (unless it's the first one) */
-    if(strcmp(section, pak->name) == 0 && pak->name[0] != 0) {
+    if(strcmp(section, pak->name) != 0 && pak->name[0] != 0) {
         flush_pak(pak);
     }
 
@@ -220,6 +220,10 @@ int main(int argc, char **argv)
         fprintf(stderr, "\n * Can't correctly load pak.ini\n");
         return 1;
     }
+
+    /* write out the last pak */
+    if(pak.name[0] != 0)
+        flush_pak(&pak);
 
     /* free everything */
     for(int i = 0; i < assets_count; ++i) {
