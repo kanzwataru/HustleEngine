@@ -19,6 +19,7 @@ tests/build/*
 ._*
 *.o
 *.dat
+*.gen.*
 
 mkfontsheet
 mkpak
