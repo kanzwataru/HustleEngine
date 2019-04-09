@@ -37,7 +37,7 @@
     |
     -> build/[platform]/res/paka.dat
        build/[platform]/res/pakb.dat
-    -> build/tmp/resources.gen.h
+    -> build/tmp/assets.gen.h
 
     ** Example pipeline **
     sprite.aseprite -> sprite.bmp -> sprite.rle -> pakb.dat
@@ -50,10 +50,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <ctype.h>
 #include <unistd.h> /* POSIX only */
 
 #define NAME_SIZE       512
 #define MAX_ASSETS      512
+#define HEADER_BUF_SIZE 100000
 #define PAK_SIZE        64000
 #define FILE_EXTENSION  ".pak"
 
@@ -70,6 +72,7 @@ struct Pak {
     size_t  size;
     size_t *offsets;
     byte   *data;
+    struct Asset **assets;
 };
 
 /* globals */
@@ -78,6 +81,8 @@ char         *platform;
 struct Asset *assets;
 size_t        assets_count;
 size_t        assets_capacity;
+
+char          header_gen[HEADER_BUF_SIZE];
 /* */
 
 int asset_handler(void *user, const char *section, const char *name, const char *value)
@@ -109,7 +114,7 @@ int asset_handler(void *user, const char *section, const char *name, const char 
     }
 
     /* note down the type */
-    if(strcmp(name, "type")) {
+    if(strcmp(name, "type") == 0) {
         snprintf(asset->type, NAME_SIZE, "%s", value);
     }
 
@@ -128,9 +133,59 @@ struct Asset *find_asset(const char *name)
     return NULL;
 }
 
-void generate_header(struct Pak *pak)
+void generate_header_for(struct Pak *pak)
 {
+    const char *pak_format =
+    "\n/*\n"
+    " * %s.dat *\n"
+    "*/\n"
+    "%s"
+    "/* *********** */\n";
 
+    char pak_gen[10024];
+
+    const size_t asset_line_size = NAME_SIZE * 4;
+    const size_t assets_gen_size = pak->count * asset_line_size + 512;
+    char *assets_gen = calloc(assets_gen_size, sizeof(char));
+
+    for(int i = 0; i < pak->count; ++i) {
+        char asset_line[asset_line_size];
+
+        snprintf(asset_line, asset_line_size, "%s_%s_%s %d\n", pak->name, pak->assets[i]->name, pak->assets[i]->type, pak->offsets[i]);
+        for(int c = 0; c < strlen(asset_line); ++c) {
+            asset_line[c] = toupper(asset_line[c]);
+        }
+
+        strncat(assets_gen, "#define ", asset_line_size - 1);
+        strncat(assets_gen, asset_line, asset_line_size - 1);
+    }
+
+    snprintf(pak_gen, 10024, pak_format, pak->name, assets_gen);
+    strncat(header_gen, pak_gen, HEADER_BUF_SIZE - 1);
+
+    free(assets_gen);
+}
+
+void write_header(void)
+{
+    const char *header_format =
+    "/*\n"
+    " * ** HustleEngine AUTOMATICALLY GENERATED ** \n"
+    " * \n"
+    " * Offsets for assets stored in .dat pak files\n"
+    "*/\n"
+    "#ifndef ASSETS_GENERATED_H\n"
+    "#define ASSETS_GENERATED_H\n"
+    "\n%s\n"
+    "#endif /* ASSETS_GENERATED_H */\n";
+
+    char *header_all = malloc(HEADER_BUF_SIZE * 2);
+    snprintf(header_all, HEADER_BUF_SIZE * 2, header_format, header_gen);
+
+    const char *filename = "build/__temp__/assets.gen.h";
+    write_out(header_all, strlen(header_all), filename);
+
+    printf("Wrote header -> %s\n", filename);
 }
 
 void flush_pak(struct Pak *pak)
@@ -139,7 +194,7 @@ void flush_pak(struct Pak *pak)
     snprintf(filename, 2048, "build/%s/%s.dat", platform, pak->name);
 
     write_out(pak->data, pak->size, filename);
-    generate_header(pak);
+    generate_header_for(pak);
 
     pak->count = 0;
     pak->size = 0;
@@ -180,6 +235,7 @@ int pak_handler(void *user, const char *section, const char *name, const char *v
     }
 
     memcpy(pak->data + pak->offsets[pak->count - 1], asset->data, asset->size);
+    pak->assets[pak->count - 1] = asset;
 }
 
 void help(void)
@@ -215,15 +271,19 @@ int main(int argc, char **argv)
     struct Pak pak = {0};
     pak.data = malloc(PAK_SIZE);
     pak.offsets = malloc(MAX_ASSETS * sizeof(*pak.offsets));
+    pak.assets = malloc(MAX_ASSETS * sizeof(struct Asset *));
 
     if(ini_parse("config/pak.ini", pak_handler, &pak) < 0) {
         fprintf(stderr, "\n * Can't correctly load pak.ini\n");
         return 1;
     }
 
-    /* write out the last pak */
-    if(pak.name[0] != 0)
+    /* write out generated header file and the last pak */
+    if(pak.name[0] != 0) {  /* may not have had any paks at all */
         flush_pak(&pak);
+        write_header();
+    }
+
 
     /* free everything */
     for(int i = 0; i < assets_count; ++i) {
