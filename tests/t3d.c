@@ -1,7 +1,9 @@
 /* Poly TEST */
 #include "engine/core.h"
 #include "engine/render.h"
+#include "engine/render/internal.h"
 #include "platform/filesys.h"
+#include "common/vector.h"
 
 static RenderData *rd;
 
@@ -45,7 +47,7 @@ static void swap(int *a, int *b) {
 
 static void draw_tris(buffer_t *buf, Point *geo, int tris)
 {
-    int i;
+    int i, x, y;
     Point tri[3];
 
     for(i = 0; i < tris * 3; i += 3) {
@@ -54,9 +56,33 @@ static void draw_tris(buffer_t *buf, Point *geo, int tris)
         if(tri[0].y > tri[2].y) swap(&tri[0].y, &tri[2].y);
         if(tri[1].y > tri[2].y) swap(&tri[1].y, &tri[2].y);
 
+        int total_height = tri[2].y - tri[0].y;
+        for(y = tri[0].y; y < tri[1].y; ++y) {
+            int segment_height = tri[1].y - tri[0].y + 1;
+
+            float alpha = (float)(y - tri[0].y) / total_height;
+            float beta = (float)(y - tri[0].y) / segment_height;
+
+            Point a = {
+                tri[0].x + (tri[2].x - tri[0].x) * alpha,
+                tri[0].y + (tri[2].y - tri[0].y) * alpha
+            };
+
+            Point b = {
+                tri[0].x + (tri[1].x - tri[0].x) * beta,
+                tri[0].y + (tri[1].y - tri[0].y) * beta
+            };
+
+            for(x = a.x; x <= b.x; ++x) {
+                buf[CALC_OFFSET(x, y)] = 3;
+            }
+        }
+
+/*
         draw_line_raw(rd->screen, tri[0].x, tri[0].y, tri[1].x, tri[1].y, 2);
         draw_line_raw(rd->screen, tri[1].x, tri[1].y, tri[2].x, tri[2].y, 2);
         draw_line_raw(rd->screen, tri[2].x, tri[2].y, tri[0].x, tri[0].y, 5);
+*/
     }
 }
 
@@ -66,6 +92,9 @@ static void render(void)
     renderer_start_frame(rd);
     draw_tris(rd->screen, geo, geo_tris);
     draw_tris(rd->screen, smol, 1);
+
+    draw_tris_wire(rd->screen, geo, geo_tris);
+    draw_tris_wire(rd->screen, smol, 1);
 }
 
 static void render_flip(void)
