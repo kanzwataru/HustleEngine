@@ -39,8 +39,8 @@ static void draw_tris_wire(buffer_t *buf, Point *geo, int tris)
     }
 }
 
-static void swap(int *a, int *b) {
-    int c = *a;
+static void swap(Point *a, Point *b) {
+    Point c = *a;
     *a = *b;
     *b = c;
 }
@@ -52,9 +52,9 @@ static void draw_tris(buffer_t *buf, Point *geo, int tris)
 
     for(i = 0; i < tris * 3; i += 3) {
         memcpy(tri, geo + i, 3 * sizeof(Point));
-        if(tri[0].y > tri[1].y) swap(&tri[0].y, &tri[1].y);
-        if(tri[0].y > tri[2].y) swap(&tri[0].y, &tri[2].y);
-        if(tri[1].y > tri[2].y) swap(&tri[1].y, &tri[2].y);
+        if(tri[0].y > tri[1].y) swap(&tri[0], &tri[1]);
+        if(tri[0].y > tri[2].y) swap(&tri[0], &tri[2]);
+        if(tri[1].y > tri[2].y) swap(&tri[1], &tri[2]);
 
         int total_height = tri[2].y - tri[0].y;
         for(y = tri[0].y; y < tri[1].y; ++y) {
@@ -73,6 +73,7 @@ static void draw_tris(buffer_t *buf, Point *geo, int tris)
                 tri[0].y + (tri[1].y - tri[0].y) * beta
             };
 
+            if(a.x > b.x) swap(&a, &b);
             for(x = a.x; x <= b.x; ++x) {
                 buf[CALC_OFFSET(x, y)] = 3;
             }
