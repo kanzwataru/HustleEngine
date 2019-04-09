@@ -18,3 +18,8 @@ tests/build/*
 *.swp
 ._*
 *.o
+*.dat
+
+mkfontsheet
+mkpak
+
