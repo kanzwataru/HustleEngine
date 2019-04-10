@@ -8,27 +8,27 @@
 static RenderData *rd;
 
 static int geo_tris = 2;
-static Point geo[] = {
-    {200, 20},
-    {200, 130},
-    {30,  180},
+static Vec3D geo[] = {
+    {200, 20, 0},
+    {200, 130, 0},
+    {30,  180, 0},
 
-    {30, 15},
-    {200, 10},
-    {10,  100},
+    {30, 15, 0},
+    {200, 10, 0},
+    {10,  100, 0},
 };
 
-static Point smol[] = {
-    {300, 80},
-    {310, 50},
-    {290, 70}
+static Vec3D smol[] = {
+    {300, 80, 0},
+    {310, 50, 0},
+    {290, 70, 0}
 };
 
 static void update(void)
 {
 }
 
-static void draw_tris_wire(buffer_t *buf, Point *geo, int tris)
+static void draw_tris_wire(buffer_t *buf, Vec3D *geo, int tris)
 {
     int i;
 
@@ -39,64 +39,62 @@ static void draw_tris_wire(buffer_t *buf, Point *geo, int tris)
     }
 }
 
-static void swap(Point *a, Point *b) {
-    Point c = *a;
+static void swap(Vec3D *a, Vec3D *b) {
+    Vec3D c = *a;
     *a = *b;
     *b = c;
 }
 
-static void draw_tris(buffer_t *buf, Point *geo, int tris)
+static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
 {
     int i, x, y;
-    Point tri[3];
+    int segment_height;
+    int total_height;
+    float alpha;
+    float beta;
+    Vec3D a;
+    Vec3D b;
+    Vec3D tri[3];
 
     for(i = 0; i < tris * 3; i += 3) {
-        memcpy(tri, geo + i, 3 * sizeof(Point));
+        memcpy(tri, geo + i, 3 * sizeof(Vec3D));
         if(tri[0].y > tri[1].y) swap(&tri[0], &tri[1]);
         if(tri[0].y > tri[2].y) swap(&tri[0], &tri[2]);
         if(tri[1].y > tri[2].y) swap(&tri[1], &tri[2]);
 
-        int total_height = tri[2].y - tri[0].y;
+        total_height = tri[2].y - tri[0].y;
         for(y = tri[0].y; y < tri[1].y; ++y) {
-            int segment_height = tri[1].y - tri[0].y + 1;
+            segment_height = tri[1].y - tri[0].y + 1;
 
-            float alpha = (float)(y - tri[0].y) / total_height;
-            float beta = (float)(y - tri[0].y) / segment_height;
+            alpha = (float)(y - tri[0].y) / total_height;
+            beta = (float)(y - tri[0].y) / segment_height;
 
-            Point a = {
-                tri[0].x + (tri[2].x - tri[0].x) * alpha,
-                tri[0].y + (tri[2].y - tri[0].y) * alpha
-            };
+            a.x = tri[0].x + (tri[2].x - tri[0].x) * alpha;
+            a.y = tri[0].y + (tri[2].y - tri[0].y) * alpha;
 
-            Point b = {
-                tri[0].x + (tri[1].x - tri[0].x) * beta,
-                tri[0].y + (tri[1].y - tri[0].y) * beta
-            };
+            b.x = tri[0].x + (tri[1].x - tri[0].x) * beta;
+            b.y = tri[0].y + (tri[1].y - tri[0].y) * beta;
 
             if(a.x > b.x) swap(&a, &b);
             for(x = a.x; x <= b.x; ++x) {
-                buf[CALC_OFFSET(x, y)] = 3;
+                buf[CALC_OFFSET(x, y)] = i + 1;
             }
         }
         for(y = tri[1].y; y < tri[2].y; ++y) {
-            int segment_height = tri[2].y - tri[1].y + 1;
+            segment_height = tri[2].y - tri[1].y + 1;
 
-            float alpha = (float)(y - tri[0].y) / total_height;
-            float beta = (float)(y - tri[1].y) / segment_height;
+            alpha = (float)(y - tri[0].y) / total_height;
+            beta = (float)(y - tri[1].y) / segment_height;
 
-            Point a = {
-                tri[0].x + (tri[2].x - tri[0].x) * alpha,
-                tri[0].y + (tri[2].y - tri[0].y) * alpha
-            };
+            a.x = tri[0].x + (tri[2].x - tri[0].x) * alpha;
+            a.y = tri[0].y + (tri[2].y - tri[0].y) * alpha;
 
-            Point b = {
-                tri[1].x + (tri[2].x - tri[1].x) * beta,
-                tri[1].y + (tri[2].y - tri[1].y) * beta
-            };
+            b.x = tri[1].x + (tri[2].x - tri[1].x) * beta;
+            b.y = tri[1].y + (tri[2].y - tri[1].y) * beta;
 
             if(a.x > b.x) swap(&a, &b);
             for(x = a.x; x <= b.x; ++x) {
-                buf[CALC_OFFSET(x, y)] = 3;
+                buf[CALC_OFFSET(x, y)] = i + 1;
             }
         }
 
