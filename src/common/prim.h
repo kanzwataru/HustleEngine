@@ -18,6 +18,14 @@ typedef struct {
 } Vec3Df;
 
 typedef struct {
+    float x, y, z, w;
+} Quaternion;
+
+typedef struct {
+    float m[16];
+} Matrix;
+
+typedef struct {
     int x, y, w, h;
 } Rect;
 
