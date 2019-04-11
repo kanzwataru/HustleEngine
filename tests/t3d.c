@@ -132,7 +132,7 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
 
             if(a.x > b.x) swap(&a, &b);
             for(x = a.x; x <= b.x; ++x) {
-                buf[CALC_OFFSET(x, y)] = i + 1;
+                buf[CALC_OFFSET(x, y)] = i + 24;
             }
         }
         for(y = tri[1].y; y < tri[2].y; ++y) {
@@ -152,10 +152,17 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
                 if(x < 0 || x > 320 || y < 0 || y > 200)
                     continue;
 
-                buf[CALC_OFFSET(x, y)] = i + 1;
+                buf[CALC_OFFSET(x, y)] = i + 24;
             }
         }
     }
+}
+
+int zsort(const void *a, const void *b) {
+    int average_a = (((Vec3D*)a)[0].z + ((Vec3D*)a)[1].z + ((Vec3D*)a)[2].z) / 3;
+    int average_b = (((Vec3D*)b)[0].z + ((Vec3D*)b)[1].z + ((Vec3D*)b)[2].z) / 3;
+
+    return average_b > average_a;
 }
 
 static void render(void)
@@ -167,7 +174,7 @@ static void render(void)
     Vec3D geo_xformed[12 * 3];
     mat4 model = GLM_MAT4_IDENTITY_INIT;
 
-    glm_translate(model, (vec3){320 / 2, 200 / 2, 0});
+    glm_translate(model, (vec3){320 / 2, (200 / 2) + (sin((float)rotation * 0.05f) * 8), 0});
     glm_rotate_at(model, (vec3){0.0f,0.0f,0.0f}, rotation * M_PI / 180, (vec3){1.0f, 1.0f, 0.0f});
     glm_scale_uni(model, 24);
 
@@ -183,6 +190,8 @@ static void render(void)
         geo_xformed[i].y = out[1] / out[3];
         geo_xformed[i].z = out[2] / out[3];
     }
+
+    qsort(geo_xformed, 12, 3 * sizeof(Vec3D), zsort);
 
     renderer_start_frame(rd);
     FILL_BUFFER(rd->screen, 0);
