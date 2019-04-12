@@ -7,6 +7,7 @@
 #include "extern/cglm/mat4.h"
 #include "extern/cglm/vec4.h"
 #include "extern/cglm/affine.h"
+#include "extern/cglm/cam.h"
 
 #define USE_MATRIX
 #define USE_3DVEC_INT
@@ -112,6 +113,9 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
     Vec3D tri[3];
 
     for(i = 0; i < tris * 3; i += 3) {
+        if(geo[i + 2].z > 0 || geo[i + 1].z > 0 || geo[i + 0].z > 0)
+            continue;
+
         memcpy(tri, geo + i, 3 * sizeof(Vec3D));
         if(tri[0].y > tri[1].y) swap(&tri[0], &tri[1]);
         if(tri[0].y > tri[2].y) swap(&tri[0], &tri[2]);
@@ -131,7 +135,17 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
             b.y = tri[0].y + (tri[1].y - tri[0].y) * beta;
 
             if(a.x > b.x) swap(&a, &b);
+
+            a.x = CLAMP(a.x, 0, 320);
+            a.y = CLAMP(a.y, 0, 200);
+
+            b.x = CLAMP(b.x, 0, 320);
+            b.y = CLAMP(b.y, 0, 200);
+
             for(x = a.x; x <= b.x; ++x) {
+                if(x <= 0 || x >= 320 || y <= 0 || y >= 200)
+                    continue;
+
                 buf[CALC_OFFSET(x, y)] = i + 24;
             }
         }
@@ -148,8 +162,15 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
             b.y = tri[1].y + (tri[2].y - tri[1].y) * beta;
 
             if(a.x > b.x) swap(&a, &b);
+
+            a.x = CLAMP(a.x, 0, 320);
+            a.y = CLAMP(a.y, 0, 200);
+
+            b.x = CLAMP(b.x, 0, 320);
+            b.y = CLAMP(b.y, 0, 200);
+
             for(x = a.x; x <= b.x; ++x) {
-                if(x < 0 || x > 320 || y < 0 || y > 200)
+                if(x <= 0 || x >= 320 || y <= 0 || y >= 200)
                     continue;
 
                 buf[CALC_OFFSET(x, y)] = i + 24;
@@ -162,7 +183,7 @@ int zsort(const void *a, const void *b) {
     int average_a = (((Vec3D*)a)[0].z + ((Vec3D*)a)[1].z + ((Vec3D*)a)[2].z) / 3;
     int average_b = (((Vec3D*)b)[0].z + ((Vec3D*)b)[1].z + ((Vec3D*)b)[2].z) / 3;
 
-    return average_b > average_a;
+    return average_b < average_a;
 }
 
 static void render(void)
@@ -173,10 +194,16 @@ static void render(void)
     vec4 out;
     Vec3D geo_xformed[12 * 3];
     mat4 model = GLM_MAT4_IDENTITY_INIT;
+    mat4 proj = GLM_MAT4_IDENTITY_INIT;
+    mat4 xform = GLM_MAT4_IDENTITY_INIT;
 
-    glm_translate(model, (vec3){320 / 2, (200 / 2) + (sin((float)rotation * 0.05f) * 8), 0});
+    glm_perspective(160 * 0.5f * M_PI / 180, 240.0f / 200.0f, 0.1f, 1000.0f, proj);
+    //glm_perspective_default(320/200, proj);
+    glm_translate(model, (vec3){0, (8) + (sin((float)rotation * 0.05f) * 8), 50});
     glm_rotate_at(model, (vec3){0.0f,0.0f,0.0f}, rotation * M_PI / 180, (vec3){1.0f, 1.0f, 0.0f});
-    glm_scale_uni(model, 24);
+    glm_scale_uni(model, 12);
+
+    glm_mat4_mul(proj, model, xform);
 
     for(i = 0; i < 12 * 3; ++i) {
         in[0] = cube[i].x;
@@ -184,11 +211,30 @@ static void render(void)
         in[2] = cube[i].z;
         in[3] = 1.0f;
 
-        glm_mat4_mulv(model, in, out);
+        glm_mat4_mulv(xform, in, out);
+        printf("(%f %f %f %f) -> ", out[0], out[1], out[2], out[3]);
+/*
+        in[0] = out[0];
+        in[1] = out[1];
+        in[2] = out[2];
+        in[3] = out[3];
 
-        geo_xformed[i].x = out[0] / out[3];
-        geo_xformed[i].y = out[1] / out[3];
-        geo_xformed[i].z = out[2] / out[3];
+        glm_mat4_mulv(proj, in, out);
+*/
+        if(out[3] == 0)
+            out[3] = 0.001f;
+
+        out[0] /= out[3];     out[1] /= out[3];       // persp divide
+        printf("(%f %f %f %f) -> ", out[0], out[1], out[2], out[3]);
+
+        out[0] += 1.0f;       out[1] += 1.0f;         // put -1:1 to 0:2
+        out[0] *= 0.5f * 320; out[1] *= 0.5f * 240;   // scale to screen;
+
+        geo_xformed[i].x = out[0];
+        geo_xformed[i].y = out[1];
+        geo_xformed[i].z = out[2];
+
+        printf("(%d %d %d)\n", geo_xformed[i].x, geo_xformed[i].y, geo_xformed[i].z);
     }
 
     qsort(geo_xformed, 12, 3 * sizeof(Vec3D), zsort);
