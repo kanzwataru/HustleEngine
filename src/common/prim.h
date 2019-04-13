@@ -6,24 +6,15 @@ typedef struct {
 } Point;
 
 typedef struct {
-    float x, y;
-} Pointf;
-
-typedef struct {
-    int x, y, z;
+    float x, y, z;
 } Vec3D;
 
 typedef struct {
-    float x, y, z;
-} Vec3Df;
+    int x, y, z;
+} Vec3Di;
 
-typedef struct {
-    float x, y, z, w;
-} Quaternion;
-
-typedef struct {
-    float m[16];
-} Matrix;
+typedef float Vec4D[4];
+typedef float Matrix[4][4];
 
 typedef struct {
     int x, y, w, h;

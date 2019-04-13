@@ -4,15 +4,7 @@
 #include "engine/render/internal.h"
 #include "platform/filesys.h"
 
-#include "extern/cglm/mat4.h"
-#include "extern/cglm/vec4.h"
-#include "extern/cglm/affine.h"
-#include "extern/cglm/cam.h"
-
-#define USE_MATRIX
-#define USE_3DVEC_INT
-#define USE_3DVEC_FLOAT
-#include "common/vector.h"
+#include "common/math3d.h"
 
 static RenderData *rd;
 
@@ -104,8 +96,8 @@ static void swap(Vec3D *a, Vec3D *b) {
 static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
 {
     int i, x, y;
-    int segment_height;
-    int total_height;
+    float segment_height;
+    float total_height;
     float alpha;
     float beta;
     Vec3D a;
@@ -190,51 +182,43 @@ static void render(void)
 {
     int i, j;
 
-    vec4 in;
-    vec4 out;
+    Vec4D tmp;
     Vec3D geo_xformed[12 * 3];
-    mat4 model = GLM_MAT4_IDENTITY_INIT;
-    mat4 proj = GLM_MAT4_IDENTITY_INIT;
-    mat4 xform = GLM_MAT4_IDENTITY_INIT;
+    Matrix model = MAT_IDENTITY;
+    Matrix proj;
+    Matrix xform = MAT_IDENTITY;
 
-    glm_perspective(160 * 0.5f * M_PI / 180, 240.0f / 200.0f, 0.1f, 1000.0f, proj);
-    //glm_perspective_default(320/200, proj);
-    glm_translate(model, (vec3){0, (8) + (sin((float)rotation * 0.05f) * 8), 50});
-    glm_rotate_at(model, (vec3){0.0f,0.0f,0.0f}, rotation * M_PI / 180, (vec3){1.0f, 1.0f, 0.0f});
-    glm_scale_uni(model, 12);
+    mat_perspective_make(proj, RADIANS(90), 240.0f / 200.0f, 0.1f, 1000.0f);
+    mat_translate(model, (Vec3D){0, (8) + (sin((float)rotation * 0.05f) * 8), 50});
+    mat_rotate(model, RADIANS(rotation), (Vec3D){1.0f, 1.0f, 0.0f});
+    mat_scale(model, (Vec3D){12, 12, 12});
 
-    glm_mat4_mul(proj, model, xform);
+    mat_mul_mat(xform, model, proj);
 
     for(i = 0; i < 12 * 3; ++i) {
-        in[0] = cube[i].x;
-        in[1] = cube[i].y;
-        in[2] = cube[i].z;
-        in[3] = 1.0f;
+        tmp[0] = cube[i].x;
+        tmp[1] = cube[i].y;
+        tmp[2] = cube[i].z;
+        tmp[3] = 1.0f;
 
-        glm_mat4_mulv(xform, in, out);
-        printf("(%f %f %f %f) -> ", out[0], out[1], out[2], out[3]);
-/*
-        in[0] = out[0];
-        in[1] = out[1];
-        in[2] = out[2];
-        in[3] = out[3];
+        mat_mul_vec(tmp, xform);
 
-        glm_mat4_mulv(proj, in, out);
-*/
-        if(out[3] == 0)
-            out[3] = 0.001f;
+        printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
 
-        out[0] /= out[3];     out[1] /= out[3];       // persp divide
-        printf("(%f %f %f %f) -> ", out[0], out[1], out[2], out[3]);
+        if(tmp[3] == 0)
+            tmp[3] = 0.001f;
 
-        out[0] += 1.0f;       out[1] += 1.0f;         // put -1:1 to 0:2
-        out[0] *= 0.5f * 320; out[1] *= 0.5f * 240;   // scale to screen;
+        tmp[0] /= tmp[3];     tmp[1] /= tmp[3];       // persp divide
+        printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
 
-        geo_xformed[i].x = out[0];
-        geo_xformed[i].y = out[1];
-        geo_xformed[i].z = out[2];
+        tmp[0] += 1.0f;       tmp[1] += 1.0f;         // put -1:1 to 0:2
+        tmp[0] *= 0.5f * 320; tmp[1] *= 0.5f * 240;   // scale to screen;
 
-        printf("(%d %d %d)\n", geo_xformed[i].x, geo_xformed[i].y, geo_xformed[i].z);
+        geo_xformed[i].x = (int)tmp[0];
+        geo_xformed[i].y = (int)tmp[1];
+        geo_xformed[i].z = (int)tmp[2];
+
+        printf("(%f %f %f)\n", geo_xformed[i].x, geo_xformed[i].y, geo_xformed[i].z);
     }
 
     qsort(geo_xformed, 12, 3 * sizeof(Vec3D), zsort);
@@ -244,6 +228,7 @@ static void render(void)
     //draw_tris(rd->screen, geo, geo_tris);
     //draw_tris(rd->screen, smol, 1);
     draw_tris(rd->screen, geo_xformed, 12);
+    //draw_tris_wire(rd->screen, geo_xformed, 12);
 
     //draw_tris_wire(rd->screen, geo, geo_tris);
     //draw_tris_wire(rd->screen, smol, 1);
