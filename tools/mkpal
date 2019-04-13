@@ -1,0 +1,41 @@
+#!/usr/bin/env python3 
+import sys
+from PIL import Image
+
+def remap(value, oldmin, oldmax, newmin, newmax):
+    real_range = oldmax - oldmin
+    new_range = newmax - newmin
+    return (((value - oldmin) * new_range) / real_range) + newmin
+
+def to_paletted(in_rgb):
+    out = Image.new('P', (16, 16))
+
+    pixels = list(in_rgb.getdata())
+    paltable = [channel for rgb in pixels for channel in rgb] # flatten list
+    data = list(range(256))
+
+    out.putpalette(paltable)
+    out.putdata(data)
+
+    return out
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print('usage: mkpal [outfile]')
+    
+    pal = Image.new('HSV', (16, 16))
+
+    for y in range(pal.size[1]):
+        for x in range(pal.size[0]):
+            h = int(remap(y, 0, 16, 0, 255))
+            s = int(remap(x, 0, 16, 255, 96))
+            v = int(remap(pow(x, 1.1), 0, pow(16, 1.1), 24, 255))
+
+            h -= 1 - int((v * 0.1))
+
+            pal.putpixel((x,y), (h, s, v))
+
+    pal_rgb = pal.convert(mode='RGB')
+    pal_out = to_paletted(pal_rgb)
+    pal_out.save(sys.argv[1])
+
