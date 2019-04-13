@@ -3,7 +3,7 @@
 # Cross-compile for DOS with OpenWatcom
 ENGINE_SRC += platform/dos/vga.c platform/dos/kb.c platform/dos/internal/biosmem.c platform/dos/internal/xms.c platform/dos/mem.c platform/dos/dosalloc.c
 HEADERS	   += $(GAME_INCLUDE)
-LIBS		= mathc.lib
+LIBS		= 
 TARGET		= $(BUILD_DIR)/$(GAME_NAME).exe
 DOS_ROOT    = $(shell pwd)/$(BUILD_DIR)
 
@@ -25,7 +25,7 @@ $(OBJ_DIR)/%.o: %.c
 $(TARGET): $(OBJS)
 	mkdir -p `dirname $@`
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
-	
+
 	# clean up unnecessary crud that OpenWatcom leaves behind
 	rm -f *.err
 

@@ -6,6 +6,9 @@
 
 #include "common/math3d.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+
 static RenderData *rd;
 
 static int geo_tris = 2;
@@ -188,10 +191,17 @@ static void render(void)
     Matrix proj;
     Matrix xform = MAT_IDENTITY;
 
+    Vec3D rotation_axis = {1.0f, 1.0f, 0.0f};
+    Vec3D scale = {12, 12, 12};
+    Vec3D translation;
+    translation.x = 0;
+    translation.y = (8) + (sin((float)rotation * 0.05f) * 8);
+    translation.z = 50;
+
     mat_perspective_make(proj, RADIANS(90), 240.0f / 200.0f, 0.1f, 1000.0f);
-    mat_translate(model, (Vec3D){0, (8) + (sin((float)rotation * 0.05f) * 8), 50});
-    mat_rotate(model, RADIANS(rotation), (Vec3D){1.0f, 1.0f, 0.0f});
-    mat_scale(model, (Vec3D){12, 12, 12});
+    mat_translate(model, translation);
+    mat_rotate(model, RADIANS(rotation), rotation_axis);
+    mat_scale(model, scale);
 
     mat_mul_mat(xform, model, proj);
 
@@ -203,13 +213,13 @@ static void render(void)
 
         mat_mul_vec(tmp, xform);
 
-        printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
+        //printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
 
         if(tmp[3] == 0)
             tmp[3] = 0.001f;
 
         tmp[0] /= tmp[3];     tmp[1] /= tmp[3];       // persp divide
-        printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
+        //printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
 
         tmp[0] += 1.0f;       tmp[1] += 1.0f;         // put -1:1 to 0:2
         tmp[0] *= 0.5f * 320; tmp[1] *= 0.5f * 240;   // scale to screen;
@@ -218,7 +228,7 @@ static void render(void)
         geo_xformed[i].y = (int)tmp[1];
         geo_xformed[i].z = (int)tmp[2];
 
-        printf("(%f %f %f)\n", geo_xformed[i].x, geo_xformed[i].y, geo_xformed[i].z);
+        //printf("(%f %f %f)\n", geo_xformed[i].x, geo_xformed[i].y, geo_xformed[i].z);
     }
 
     qsort(geo_xformed, 12, 3 * sizeof(Vec3D), zsort);
@@ -260,6 +270,7 @@ int polytest_start(void)
     buffer_t *pal;
 
     engine_init();
+
 
     cd.update_callback = &update;
     cd.render_callback = &render;

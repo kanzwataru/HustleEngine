@@ -67,10 +67,10 @@ void mat_rotate(Matrix mat, float angle, Vec3D axis) {
     Matrix rot = MAT_IDENTITY;
     Matrix out;
 
-    c = cosf(angle);
+    c = cos(angle);
     vec_normalize(&axis);
     VEC_MUL_SCALAR(v, axis, 1.0f - c);
-    VEC_MUL_SCALAR(vs, axis, sinf(angle));
+    VEC_MUL_SCALAR(vs, axis, sin(angle));
 
     VEC4_MUL_SCALAR(rot[0], ((float*)&axis), v.x);
     VEC4_MUL_SCALAR(rot[1], ((float*)&axis), v.y);
@@ -94,7 +94,7 @@ void mat_scale(Matrix mat, Vec3D vec) {
 }
 
 void mat_perspective_make(Matrix mat, float fovy, float aspect_ratio, float near_plane, float far_plane) {
-    float fov = 1.0f / tanf(fovy * 0.5f);
+    float fov = 1.0f / tan(fovy * 0.5f);
     float far_near = 1.0f / (near_plane - far_plane);
 
     memset(mat, 0, sizeof(Matrix));
