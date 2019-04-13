@@ -180,7 +180,7 @@ int zsort(const void *a, const void *b) {
 
 static void render(void)
 {
-    int i, j;
+    int i;
 
     Vec4D tmp;
     Vec3D geo_xformed[12 * 3];

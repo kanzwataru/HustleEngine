@@ -101,7 +101,7 @@ void mat_perspective_make(Matrix mat, float fovy, float aspect_ratio, float near
 
     mat[0][0] = fov / aspect_ratio;
     mat[1][1] = fov;
-    mat[2][2] = (near_plane, + far_plane) * far_near;
+    mat[2][2] = (near_plane + far_plane) * far_near;
     mat[2][3] = -1.0f;
     mat[3][2] = 2.0f * near_plane * far_plane * far_near;
 }
