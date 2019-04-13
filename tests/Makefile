@@ -2,8 +2,8 @@
 #
 # The engine has a set of makefiles for the various target platforms,
 # so the compilation is all taken care of on the engine side.
-# 
-# All that is needed is to list the game's 
+#
+# All that is needed is to list the game's
 # header directories and object files, the rest will be taken care of
 # in the engine's makefiles.
 #
@@ -25,7 +25,7 @@ prebuild:
 postbuild: mainbuild
 	@# things that should happen after the compilation
 	@echo "** Postbuild **"
-	rsync -av RES/ $(BUILD_DIR)/RES/
+	@rsync -av RES/ $(BUILD_DIR)/RES/
 
 cleanhook:
 	@# add to the `make clean` target

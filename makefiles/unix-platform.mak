@@ -26,18 +26,18 @@ CC			 = gcc
 CXX			 = g++
 
 $(OBJ_DIR)/%.o: %.c
-	mkdir -p `dirname $@`
-	$(CC) -c $(CFLAGS) $(DEFINES) $*.c -o $@
+	@mkdir -p `dirname $@`
+	@$(CC) -c $(CFLAGS) $(DEFINES) $*.c -o $@
 
 $(TARGET): $(OBJS)
-	mkdir -p `dirname $@`
-	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
+	@mkdir -p `dirname $@`
+	@$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
 
 build: $(TARGET)
-	chmod +x $(TARGET)
+	@chmod +x $(TARGET)
 
 run: all
 	cd $(BUILD_DIR) && ./$(GAME_NAME)
 
 clean: preclean
-	rm -f $(OBJS) $(TARGET)
+	@rm -f $(OBJS) $(TARGET)

@@ -141,7 +141,7 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
                 if(x <= 0 || x >= 320 || y <= 0 || y >= 200)
                     continue;
 
-                buf[CALC_OFFSET(x, y)] = i + 24;
+                buf[CALC_OFFSET(x, y)] = i + 32;
             }
         }
         for(y = tri[1].y; y < tri[2].y; ++y) {
@@ -168,7 +168,7 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
                 if(x <= 0 || x >= 320 || y <= 0 || y >= 200)
                     continue;
 
-                buf[CALC_OFFSET(x, y)] = i + 24;
+                buf[CALC_OFFSET(x, y)] = i + 32;
             }
         }
     }
@@ -213,13 +213,10 @@ static void render(void)
 
         mat_mul_vec(tmp, xform);
 
-        //printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
-
         if(tmp[3] == 0)
             tmp[3] = 0.001f;
 
         tmp[0] /= tmp[3];     tmp[1] /= tmp[3];       // persp divide
-        //printf("(%f %f %f %f) -> ", tmp[0], tmp[1], tmp[2], tmp[3]);
 
         tmp[0] += 1.0f;       tmp[1] += 1.0f;         // put -1:1 to 0:2
         tmp[0] *= 0.5f * 320; tmp[1] *= 0.5f * 240;   // scale to screen;
@@ -227,8 +224,6 @@ static void render(void)
         geo_xformed[i].x = (int)tmp[0];
         geo_xformed[i].y = (int)tmp[1];
         geo_xformed[i].z = (int)tmp[2];
-
-        //printf("(%f %f %f)\n", geo_xformed[i].x, geo_xformed[i].y, geo_xformed[i].z);
     }
 
     qsort(geo_xformed, 12, 3 * sizeof(Vec3D), zsort);
@@ -278,7 +273,7 @@ int polytest_start(void)
     cd.input_handler = &input;
     cd.exit_handler = &quit;
 
-    pal = load_bmp_palette("RES/VGAPAL.BMP");
+    pal = load_bmp_palette("RES/3DPAL.BMP");
     rd = renderer_init(0, RENDER_BG_SOLID, pal);
     rd->bg.colour = 1;
     destroy_image(&pal);
