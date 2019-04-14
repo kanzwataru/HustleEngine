@@ -133,8 +133,8 @@ static void update(void)
     cube.xform.position.y = (8) + (sin((float)rotation * 0.05f) * 8);
     cube.xform.position.z = 50;
     cube.xform.rotation.x = rotation;
-    cube.xform.rotation.x = 0;
-    cube.xform.rotation.x = 0;
+    cube.xform.rotation.y = rotation;
+    cube.xform.rotation.z = 0;
 }
 
 /*
@@ -297,7 +297,8 @@ static void render(void)
     //draw_tris_wire(rd->screen, geo, geo_tris);
     //draw_tris_wire(rd->screen, smol, 1);
     */
-
+    renderer_start_frame(rd);
+    FILL_BUFFER(rd->screen, 0);
     draw_mesh(rd->screen, &cube);
 }
 
@@ -347,12 +348,12 @@ int polytest_start(void)
     cube.tris = cube_tris;
     for(i = 0; i < cube.tri_count; ++i) {
         cube.tris[i].vertices[0] = cube_verts[(i * 3) + 0];
-        cube.tris[i].vertices[0] = cube_verts[(i * 3) + 1];
-        cube.tris[i].vertices[0] = cube_verts[(i * 3) + 2];
+        cube.tris[i].vertices[1] = cube_verts[(i * 3) + 1];
+        cube.tris[i].vertices[2] = cube_verts[(i * 3) + 2];
 
         cube.tris[i].normals[0] = cube_normals[(i * 3) + 0];
-        cube.tris[i].normals[0] = cube_normals[(i * 3) + 1];
-        cube.tris[i].normals[0] = cube_normals[(i * 3) + 2];
+        cube.tris[i].normals[1] = cube_normals[(i * 3) + 1];
+        cube.tris[i].normals[2] = cube_normals[(i * 3) + 2];
 
         cube.tris[i].color = 0x7F;
     }
