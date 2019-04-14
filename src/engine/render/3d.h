@@ -13,7 +13,7 @@ struct Transform {
 
 typedef struct {
     Vec3D      vertices[3];
-    Vec3D      normals[3];
+    Vec3D      normal;
     color_t    color;
 } Triangle;
 
@@ -29,7 +29,7 @@ typedef struct {
 } Scene;
 
 void draw_tris(buffer_t *buf, Triangle far *tris, size_t count);
-void draw_tris_wire(buffer_t *buf, Triangle far *tris, size_t count);
+void draw_tris_wire(buffer_t *buf, Triangle far *tris, size_t count, color_t color);
 void draw_mesh(buffer_t *buf, Mesh *mesh);
 
 #endif

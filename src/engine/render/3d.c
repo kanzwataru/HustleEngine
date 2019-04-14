@@ -17,6 +17,8 @@ static const Vec3D x = {1.0f, 0.0f, 0.0f};
 static const Vec3D y = {0.0f, 1.0f, 0.0f};
 static const Vec3D z = {0.0f, 0.0f, 1.0f};
 
+static const Vec3D temp_light = {0.0f, 0.0f, 1.0f};
+
 static int zsort(const void *a, const void *b) {
     int average_a = (((Triangle far *)a)->vertices[0].z + ((Triangle far *)a)->vertices[1].z + ((Triangle far *)a)->vertices[2].z) / 3;
     int average_b = (((Triangle far *)b)->vertices[0].z + ((Triangle far *)b)->vertices[1].z + ((Triangle far *)b)->vertices[2].z) / 3;
@@ -24,20 +26,33 @@ static int zsort(const void *a, const void *b) {
     return average_a > average_b;
 }
 
-void draw_tris_wire(buffer_t *buf, Triangle far *tris, size_t count)
+static color_t shader(Triangle far *tri, Vec3D light_vec)
+{
+    float lambert;
+    int brightness;
+
+    lambert = vec_dot(tri->normal, light_vec);
+    brightness = (int)remap(lambert, -1, 1, 0, 16);
+
+    printf("world_normals: (%f %f %f) lambert: %f brightness: %d\n", tri->normal.x, tri->normal.y, tri->normal.z, lambert, brightness);
+
+    return (tri->color & 0xF0) | brightness;
+}
+
+void draw_tris_wire(buffer_t *buf, Triangle far *tris, size_t count, color_t color)
 {
     int i;
 
     for(i = 0; i < count; ++i) {
         draw_line_raw(buf, tris[i].vertices[0].x, tris[i].vertices[0].y,
                            tris[i].vertices[1].x, tris[i].vertices[1].y,
-                           tris[i].color);
+                           color);
         draw_line_raw(buf, tris[i].vertices[1].x, tris[i].vertices[1].y,
                            tris[i].vertices[2].x, tris[i].vertices[2].y,
-                           tris[i].color);
+                           color);
         draw_line_raw(buf, tris[i].vertices[1].x, tris[i].vertices[1].y,
                            tris[i].vertices[2].x, tris[i].vertices[2].y,
-                           tris[i].color);
+                           color);
     }
 }
 
@@ -59,7 +74,8 @@ void draw_tris(buffer_t *buf, Triangle far *tris, size_t count)
         //printf("[%d] (%f %f %f)\n", i, tris[i].vertices[2].x, tris[i].vertices[2].y, tris[i].vertices[2].z);
 
         if(tris[i].vertices[2].z > 0 || tris[i].vertices[1].z > 0 || tris[i].vertices[0].z > 0 /* skip behind camera geo */
-           || (tris[i].vertices[0].y == tris[i].vertices[1].y && tris[i].vertices[0].y == tris[i].vertices[2].y))     /* skip degenarate tris */
+           || (tris[i].vertices[0].y == tris[i].vertices[1].y && tris[i].vertices[0].y == tris[i].vertices[2].y)     /* skip degenarate tris */
+           || tris[i].normal.z < -0.5f)
             continue;
 
         tri[0] = tris[i].vertices[0];
@@ -94,7 +110,7 @@ void draw_tris(buffer_t *buf, Triangle far *tris, size_t count)
                 if(x <= 0 || x >= 320 || y <= 0 || y >= 200)
                     continue;
 
-                buf[CALC_OFFSET(x, y)] = i + 32;
+                buf[CALC_OFFSET(x, y)] = tris[i].color;
             }
         }
         for(y = tri[1].y; y < tri[2].y; ++y) {
@@ -121,7 +137,7 @@ void draw_tris(buffer_t *buf, Triangle far *tris, size_t count)
                 if(x <= 0 || x >= 320 || y <= 0 || y >= 200)
                     continue;
 
-                buf[CALC_OFFSET(x, y)] = i + 32;
+                buf[CALC_OFFSET(x, y)] = tris[i].color;
             }
         }
     }
@@ -181,10 +197,16 @@ void draw_mesh(buffer_t *buf, Mesh *mesh)
             transformed[i].vertices[j].y = (int)tmp[1];
             transformed[i].vertices[j].z = (int)tmp[2];
 
+            mat_mul_vec3(&transformed[i].normal, model);
+            vec_normalize(&transformed[i].normal);
+
+            transformed[i].color = shader(transformed + i, temp_light);
+
             //printf("(%f %f %f)\n", tmp[0], tmp[1], tmp[2]);
         }
     }
 
     qsort(transformed, mesh->tri_count, sizeof(Triangle), zsort);
     draw_tris(buf, transformed, mesh->tri_count);
+    //draw_tris_wire(buf, transformed, mesh->tri_count, 0xF0);
 }

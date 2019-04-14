@@ -13,13 +13,30 @@ float fast_invsqrtf(float value) {
     i = 0x5f3759df - (i >> 1);
     y = *(float *)&i;
     y = y * (1.5f - (x2 * y * y));
+    y = y * (1.5f - (x2 * y * y));
 
     return y;
+}
+
+float remap(float value, float oldmin, float oldmax, float newmin, float newmax)
+{
+    float real_range = oldmax - oldmin;
+    float new_range = newmax - newmin;
+    return (((value - oldmin) * new_range) / real_range) + newmin;
+}
+
+float vec_dot(Vec3D a, Vec3D b) {
+    return (a.x * b.x + a.y * b.y + a.z * b.z);
 }
 
 void vec_normalize(Vec3D *vec) {
     float inv_length = fast_invsqrtf(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
     VEC_MUL_SCALAR(*vec, *vec, inv_length);
+
+    /*
+    float length = sqrt(vec->x * vec->x + vec->y * vec->y + vec->z * vec->z);
+    VEC_DIV_SCALAR(*vec, *vec, length);
+    */
 }
 
 void vec4_normalize(Vec4D vec) {
@@ -36,6 +53,24 @@ void mat_mul_vec(Vec4D vec, Matrix mat) {
     o[3] = vec[0] * mat[0][3] + vec[1] * mat[1][3] + vec[2] * mat[2][3] + mat[3][3] * vec[3];
 
     memcpy(vec, o, sizeof(Vec4D));
+}
+
+void mat_mul_vec3(Vec3D *vec, Matrix mat) {
+    Vec3D o;
+    float w;
+
+    o.x = vec->x * mat[0][0] + vec->y * mat[1][0] + vec->z * mat[2][0] + mat[3][0];
+    o.y = vec->x * mat[0][1] + vec->y * mat[1][1] + vec->z * mat[2][1] + mat[3][1];
+    o.z = vec->x * mat[0][2] + vec->y * mat[1][2] + vec->z * mat[2][2] + mat[3][3];
+    w = vec->x * mat[0][2] + vec->y * mat[1][2] + vec->z * mat[2][2] + mat[3][3];
+
+    if(w != 0.0f) {
+        o.x /= w;
+        o.y /= w;
+        o.z /= w;
+    }
+
+    memcpy(vec, &o, sizeof(Vec3D));
 }
 
 void mat_mul_mat(Matrix out, Matrix a, Matrix b) {

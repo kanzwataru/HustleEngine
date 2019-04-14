@@ -77,45 +77,21 @@ static const Vec3D cube_verts[] = {
 static const Vec3D cube_normals[] = {
     { 0,  0, -1},
     { 0,  0, -1},
-    { 0,  0, -1},
-    { 0,  0, -1},
-    { 0,  0, -1},
-    { 0,  0, -1},
 
-    { 0,  0, 1},
-    { 0,  0, 1},
-    { 0,  0, 1},
-    { 0,  0, 1},
     { 0,  0, 1},
     { 0,  0, 1},
 
     {-1,  0,  0},
     {-1,  0,  0},
-    {-1,  0,  0},
-    {-1,  0,  0},
-    {-1,  0,  0},
-    {-1,  0,  0},
 
-    { 1,  0,  0},
-    { 1,  0,  0},
-    { 1,  0,  0},
-    { 1,  0,  0},
     { 1,  0,  0},
     { 1,  0,  0},
 
     { 0, -1,  0},
     { 0, -1,  0},
-    { 0, -1,  0},
-    { 0, -1,  0},
-    { 0, -1,  0},
-    { 0, -1,  0},
 
     { 0,  1,  0},
     { 0,  1,  0},
-    { 0,  1,  0},
-    { 0,  1,  0},
-    { 0,  1,  0},
-    { 0,  1,  0}
 };
 
 static Mesh cube;
@@ -132,7 +108,7 @@ static void update(void)
     cube.xform.position.x = 0;
     cube.xform.position.y = (8) + (sin((float)rotation * 0.05f) * 8);
     cube.xform.position.z = 50;
-    cube.xform.rotation.x = rotation;
+    cube.xform.rotation.x = rotation * 0.5f;
     cube.xform.rotation.y = rotation;
     cube.xform.rotation.z = 0;
 }
@@ -298,7 +274,7 @@ static void render(void)
     //draw_tris_wire(rd->screen, smol, 1);
     */
     renderer_start_frame(rd);
-    FILL_BUFFER(rd->screen, 0);
+    FILL_BUFFER(rd->screen, rd->bg.colour);
     draw_mesh(rd->screen, &cube);
 }
 
@@ -340,7 +316,7 @@ int polytest_start(void)
     // load palette
     pal = load_bmp_palette("RES/3DPAL.BMP");
     rd = renderer_init(0, RENDER_BG_SOLID, pal);
-    rd->bg.colour = 1;
+    rd->bg.colour = 0x71;
     destroy_image(&pal);
 
     // set up cube mesh
@@ -351,11 +327,9 @@ int polytest_start(void)
         cube.tris[i].vertices[1] = cube_verts[(i * 3) + 1];
         cube.tris[i].vertices[2] = cube_verts[(i * 3) + 2];
 
-        cube.tris[i].normals[0] = cube_normals[(i * 3) + 0];
-        cube.tris[i].normals[1] = cube_normals[(i * 3) + 1];
-        cube.tris[i].normals[2] = cube_normals[(i * 3) + 2];
+        cube.tris[i].normal = cube_normals[i];
 
-        cube.tris[i].color = 0x7F;
+        cube.tris[i].color = 0x3F;
     }
 
     engine_gameloop(cd);

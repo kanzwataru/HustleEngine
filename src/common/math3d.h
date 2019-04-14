@@ -18,6 +18,7 @@
 #define RADIANS(X) ((X * M_PI) / 180)
 
 float fast_invsqrt(float value);
+float remap(float value, float oldmin, float oldmax, float newmin, float newmax);
 
 /*
  * Vector math
@@ -45,6 +46,8 @@ float fast_invsqrt(float value);
 void vec_normalize(Vec3D *vec);
 void vec4_normalize(Vec4D vec);
 
+float vec_dot(Vec3D a, Vec3D b);
+
 /*
  * Matrix math
 */
@@ -54,6 +57,7 @@ void vec4_normalize(Vec4D vec);
                       {0, 0, 0, 1}}
 
 void mat_mul_vec(Vec4D vec, Matrix mat);
+void mat_mul_vec3(Vec3D *vec, Matrix mat);
 void mat_mul_mat(Matrix out, Matrix a, Matrix b);
 void mat_translate(Matrix mat, Vec3D vec);
 void mat_rotate(Matrix mat, float angle, Vec3D axis);
