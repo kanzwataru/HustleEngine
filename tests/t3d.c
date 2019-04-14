@@ -11,8 +11,9 @@
 
 static RenderData *rd;
 
-static int geo_tris = 2;
-static Vec3D geo[] = {
+/*
+static const int geo_tris = 2;
+static const Vec3D geo[] = {
     {200, 20, 100},
     {200, 130, 100},
     {30,  180, 100},
@@ -22,13 +23,14 @@ static Vec3D geo[] = {
     {10,  100, 100},
 };
 
-static Vec3D smol[] = {
+static const Vec3D smol[] = {
     {300, 80, 60},
     {310, 50, 60},
     {290, 70, 60}
 };
+*/
 
-static Vec3D cube[] = {
+static const Vec3D cube_verts[] = {
     {-1, -1, -1},
     { 1, -1, -1},
     { 1,  1, -1},
@@ -72,13 +74,70 @@ static Vec3D cube[] = {
     {-1,  1, -1}
 };
 
-static unsigned int rotation = 0;
+static const Vec3D cube_normals[] = {
+    { 0,  0, -1},
+    { 0,  0, -1},
+    { 0,  0, -1},
+    { 0,  0, -1},
+    { 0,  0, -1},
+    { 0,  0, -1},
+
+    { 0,  0, 1},
+    { 0,  0, 1},
+    { 0,  0, 1},
+    { 0,  0, 1},
+    { 0,  0, 1},
+    { 0,  0, 1},
+
+    {-1,  0,  0},
+    {-1,  0,  0},
+    {-1,  0,  0},
+    {-1,  0,  0},
+    {-1,  0,  0},
+    {-1,  0,  0},
+
+    { 1,  0,  0},
+    { 1,  0,  0},
+    { 1,  0,  0},
+    { 1,  0,  0},
+    { 1,  0,  0},
+    { 1,  0,  0},
+
+    { 0, -1,  0},
+    { 0, -1,  0},
+    { 0, -1,  0},
+    { 0, -1,  0},
+    { 0, -1,  0},
+    { 0, -1,  0},
+
+    { 0,  1,  0},
+    { 0,  1,  0},
+    { 0,  1,  0},
+    { 0,  1,  0},
+    { 0,  1,  0},
+    { 0,  1,  0}
+};
+
+static Mesh cube;
+static Triangle far cube_tris[12];
+static uint16 rotation = 0;
 
 static void update(void)
 {
     rotation += 1;
+
+    cube.xform.scale.x = 12;
+    cube.xform.scale.y = 12;
+    cube.xform.scale.z = 12;
+    cube.xform.position.x = 0;
+    cube.xform.position.y = (8) + (sin((float)rotation * 0.05f) * 8);
+    cube.xform.position.z = 50;
+    cube.xform.rotation.x = rotation;
+    cube.xform.rotation.x = 0;
+    cube.xform.rotation.x = 0;
 }
 
+/*
 static void draw_tris_wire(buffer_t *buf, Vec3D *geo, int tris)
 {
     int i;
@@ -94,8 +153,8 @@ static void swap(Vec3D *a, Vec3D *b) {
     Vec3D c = *a;
     *a = *b;
     *b = c;
-}
-
+} */
+/*
 static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
 {
     int i, x, y;
@@ -173,7 +232,7 @@ static void draw_tris(buffer_t *buf, Vec3D *geo, int tris)
         }
     }
 }
-
+*/
 int zsort(const void *a, const void *b) {
     int average_a = (((Vec3D*)a)[0].z + ((Vec3D*)a)[1].z + ((Vec3D*)a)[2].z) / 3;
     int average_b = (((Vec3D*)b)[0].z + ((Vec3D*)b)[1].z + ((Vec3D*)b)[2].z) / 3;
@@ -184,7 +243,7 @@ int zsort(const void *a, const void *b) {
 static void render(void)
 {
     int i;
-
+    /*
     Vec4D tmp;
     Vec3D geo_xformed[12 * 3];
     Matrix model = MAT_IDENTITY;
@@ -237,6 +296,9 @@ static void render(void)
 
     //draw_tris_wire(rd->screen, geo, geo_tris);
     //draw_tris_wire(rd->screen, smol, 1);
+    */
+
+    draw_mesh(rd->screen, &cube);
 }
 
 static void render_flip(void)
@@ -261,6 +323,7 @@ static void quit(void)
 
 int polytest_start(void)
 {
+    int i;
     CoreData cd;
     buffer_t *pal;
 
@@ -273,10 +336,26 @@ int polytest_start(void)
     cd.input_handler = &input;
     cd.exit_handler = &quit;
 
+    // load palette
     pal = load_bmp_palette("RES/3DPAL.BMP");
     rd = renderer_init(0, RENDER_BG_SOLID, pal);
     rd->bg.colour = 1;
     destroy_image(&pal);
+
+    // set up cube mesh
+    cube.tri_count = 12;
+    cube.tris = cube_tris;
+    for(i = 0; i < cube.tri_count; ++i) {
+        cube.tris[i].vertices[0] = cube_verts[(i * 3) + 0];
+        cube.tris[i].vertices[0] = cube_verts[(i * 3) + 1];
+        cube.tris[i].vertices[0] = cube_verts[(i * 3) + 2];
+
+        cube.tris[i].normals[0] = cube_normals[(i * 3) + 0];
+        cube.tris[i].normals[0] = cube_normals[(i * 3) + 1];
+        cube.tris[i].normals[0] = cube_normals[(i * 3) + 2];
+
+        cube.tris[i].color = 0x7F;
+    }
 
     engine_gameloop(cd);
 
