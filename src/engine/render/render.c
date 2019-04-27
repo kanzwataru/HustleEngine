@@ -1,5 +1,6 @@
 #include "internal.h"
 #include "engine/render.h"
+#include "engine/asset.h"
 #include "platform/video.h"
 #include "platform/mem.h"
 #include "common/platform.h"
@@ -7,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <stddef.h>
 #include <math.h>
 
 struct Pixel {
@@ -424,21 +426,24 @@ void renderer_start_frame(RenderData *rd)
    }
 }
 
-static void anim_update(AnimInstance *anim, byte *sprite_flags)
+static void anim_update(AnimInstance *anim, Sprite *sprite)
 {
+    int i;
+
+    /* update counter and stuff */
     if(!(anim->frame_skip_counter --> 0)) {
         anim->frame += anim->playback_direction;
 
         if(anim->frame == anim->animation->count || anim->frame == UCHAR_MAX) /* Can get overflowed by ANIM_FLIPFLOP */
         {
-            switch(anim->animation->playback_type)
+            switch(anim->animation->flags << 1 >> 1)
             {
             case ANIM_LOOP:
                 anim->frame = 0;
                 anim->playback_direction = 1;
                 break;
             case ANIM_DISAPPEAR:
-                *sprite_flags &= ~SPRITE_ACTIVE;
+                sprite->flags &= ~SPRITE_ACTIVE;
                 anim->playback_direction = 0;
                 break;
             case ANIM_ONCE:
@@ -451,7 +456,21 @@ static void anim_update(AnimInstance *anim, byte *sprite_flags)
             }
         }
 
-        anim->frame_skip_counter = anim->animation->skip;
+        anim->frame_skip_counter = anim->animation->frameskip;
+    }
+
+    /* update sprite visuals */
+    switch(anim->animation->flags >> 1 & ~0xF0) {
+    case SHEET_PIXELS:
+        sprite->vis.image = (buffer_t *)anim->animation->data + ((anim->animation->width * anim->animation->height) * anim->frame);
+        break;
+    case SHEET_RLE:
+        /* TODO: make this not stupidly inefficient */
+        sprite->vis.rle = (RLEImage *)anim->animation->data;
+        for(i = 0; i < anim->frame; ++i) {
+            sprite->vis.rle = (RLEImage *)((char*)sprite->vis.rle + sprite->vis.rle->size + offsetof(struct RLEHeader, fgcol));
+        }
+        break;
     }
 }
 
@@ -490,9 +509,7 @@ void renderer_refresh_sprites(RenderData *rd)
 
         /* animation */
         if(rd->sprites[i].anim.animation) {
-            rd->sprites[i].vis.image = rd->sprites[i].anim.animation->frames + (rd->sprites[i].anim.animation->frame_size * rd->sprites[i].anim.frame);
-
-            anim_update(&rd->sprites[i].anim, &rd->sprites[i].flags);
+            anim_update(&rd->sprites[i].anim, &rd->sprites[i]);
         }
 
         /* draw the sprite */

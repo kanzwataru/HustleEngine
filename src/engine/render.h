@@ -42,33 +42,19 @@ enum RENDERFLAGS {
 };
 
 /*
- * Animation playback type
+ * Forward-declarations
 */
-enum ANIMTYPE {
-     ANIM_LOOP       = 0,  /* play animation on loop */
-     ANIM_ONCE       = 1,  /* play animation once then stop on the last frame */
-     ANIM_DISAPPEAR  = 2,  /* play animation once then hide the sprite */
-     ANIM_FLIPFLOP   = 3   /* play from beginning to end then end to beginning */
-};
-
 typedef void far* LineUndoList;
+typedef struct Spritesheet Spritesheet;
 
 union Visual {
-    buffer_t     *image;
-    RLEImage     *rle;
-    byte          colour;
+    buffer_t    *image;
+    RLEImage    *rle;
+    byte         colour;
 };
 
 typedef struct {
-    buffer_t    *frames;      /* sprite sheet, not owned */
-    size_t       frame_size;
-    byte         count;
-    byte         skip;
-    byte         playback_type;
-} Animation;
-
-typedef struct {
-    Animation   *animation;
+    Spritesheet *animation;
     byte         frame;
     byte         frame_skip_counter;
     char         playback_direction;
