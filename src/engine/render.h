@@ -98,8 +98,6 @@ void palette_fade(const buffer_t *start, const buffer_t *end, float percent);
 void palette_fade_to_color(const buffer_t *start, Color end, float percent);
 void palette_fade_from_color(Color start, const buffer_t *end, float percent);
 
-void sprite_reset(Sprite *sprite);
-
 /* *** DRAWING FUNCTIONS ***
  *
  * The renderer has sprite rendering logic but for
