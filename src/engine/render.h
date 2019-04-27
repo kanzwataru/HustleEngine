@@ -39,6 +39,7 @@ enum SPRITEFLAGS {
 */
 enum RENDERFLAGS {
      RENDER_BG_SOLID  = 0x01, /* (0001) If set, the BG layer is a solid image */
+     RENDER_PERSIST   = 0x02  /* (0010) If set, the screen will persist and dirty rects will be used */
 };
 
 /*
@@ -46,6 +47,7 @@ enum RENDERFLAGS {
 */
 typedef void far* LineUndoList;
 typedef struct Spritesheet Spritesheet;
+typedef struct RenderIntr RenderIntr;
 
 union Visual {
     buffer_t    *image;
@@ -70,11 +72,14 @@ typedef struct {
 } Sprite;
 
 typedef struct {
-    buffer_t    *screen;
-    union Visual bg;          /* pointers owned */
+    buffer_t    *screen;      /* back buffer, pointers owned */
+    union Visual bg;           /* pointers owned */
     byte         flags;
     Sprite      *sprites;
     uint16       sprite_count;
+
+    /* internal use only */
+    Rect        *dirty_rects;
 } RenderData;
 
 /**** Renderer functions ****/
@@ -84,7 +89,8 @@ void destroy_image(buffer_t **image);
 LineUndoList create_line_undo_list();
 void destroy_line_undo_list(LineUndoList *lul);
 
-RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette);
+RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buffer_t *palette);
+size_t renderer_tell_size(uint16 sprite_count, byte flags);    /* how much space we need for these render settings */
 void renderer_quit(RenderData *rd, bool quit_video);
 void renderer_start_frame(RenderData *rd);
 void renderer_draw_bg(RenderData *rd);

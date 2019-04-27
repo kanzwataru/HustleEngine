@@ -23,6 +23,9 @@ static Rect prev_clipper_rect, clipper_rect;
 //static Rect prev_wclouds_rect, wclouds_rect;
 static Rect prev_balloon_rect, balloon_rect;
 
+static memid_t tblock = 0;
+static void far *transientmem = NULL;
+
 #define CLIPPER_SPRITE_D    48
 
 #define WCLOUDS_SPRITE_W    300
@@ -150,6 +153,7 @@ static bool input(void)
 
 static void quit(void)
 {
+    mem_free_block(tblock);
     mem_pool_free(cloud);
     mem_pool_free(clipper);
     mem_pool_free(balloon);
@@ -177,8 +181,11 @@ int rletest_start(void)
     cd.input_handler = &input;
     cd.exit_handler = &quit;
 
+    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
+    transientmem = mem_slot_get(tblock);
+
     pal = load_bmp_palette("RES/VGAPAL.BMP");
-    rd  = renderer_init(3, RENDER_BG_SOLID, pal);
+    rd  = renderer_init(transientmem, 3, RENDER_BG_SOLID | RENDER_PERSIST, pal);
     destroy_image(&pal);
 
     FILL_BUFFER(rd->screen, SKY_COL);

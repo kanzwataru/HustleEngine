@@ -22,12 +22,13 @@ struct LineUndo {
     struct Pixel segs[MAX_LINE_LENGTH];
 };
 
-static Rect far *dirty_rects;
+struct RenderIntr {
+    Rect far *dirty_rects;
+    byte      data[1];
+};
+
 static const Rect EMPTY_RECT = {0,0,0,0};
 static bool video_initialized = false;
-
-memid_t   tblock = 0;
-void far *transientmem = NULL;
 
 /*
  * Use a memory slot as a framebuffer
@@ -57,28 +58,6 @@ LineUndoList create_line_undo_list() {
 void destroy_line_undo_list(LineUndoList *lul) {
     mem_pool_free(*lul);
     *lul = NULL;
-}
-
-static void init_all_sprites(Sprite **sprites, const uint16 count)
-{
-    if(count > 0) {
-        *sprites = transientmem;
-
-        dirty_rects = (Rect far *)((char far *)transientmem + (sizeof(Sprite) * count)); /* dirty tiles go right after the sprites */
-    }
-    else {
-        *sprites = NULL;
-    }
-}
-
-static void free_all_sprites(Sprite **sprites, uint16 *count)
-{
-    if(*sprites && *count > 0) {
-        *sprites = NULL;
-        dirty_rects = NULL;
-    }
-
-    *count = 0;
 }
 
 void palette_set(const buffer_t *palette)
@@ -408,20 +387,20 @@ void renderer_start_frame(RenderData *rd)
     if(rd->flags & RENDER_BG_SOLID) {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
             if(rd->sprites[i].flags & SPRITE_RLE)
-                draw_rle_sprite_filled(rd->screen, rd->sprites[i].vis.rle, dirty_rects[i], rd->bg.colour);
+                draw_rle_sprite_filled(rd->screen, rd->sprites[i].vis.rle, rd->dirty_rects[i], rd->bg.colour);
             else
-                draw_rect(rd->screen, dirty_rects[i], rd->bg.colour);
+                draw_rect(rd->screen, rd->dirty_rects[i], rd->bg.colour);
         }
     }
     else {
         for(i = rd->sprite_count - 1; i >= 0; --i) {
             if(rd->sprites[i].flags & SPRITE_RLE) {
-                if(!clip_rect(&dirty_rects[i], &_, dirty_rects[i])) {
+                if(!clip_rect(&rd->dirty_rects[i], &_, rd->dirty_rects[i])) {
                     continue;
                 }
             }
 
-            screen_to_screen(rd->screen, rd->bg.image, dirty_rects[i]);
+            screen_to_screen(rd->screen, rd->bg.image, rd->dirty_rects[i]);
         }
    }
 }
@@ -483,7 +462,7 @@ void renderer_refresh_sprites(RenderData *rd)
     for(i = 0; i < rd->sprite_count; ++i) {
         /* skip sprites that aren't active */
         if(!(rd->sprites[i].flags & SPRITE_ACTIVE)) {
-            dirty_rects[i] = EMPTY_RECT;
+            rd->dirty_rects[i] = EMPTY_RECT;
             continue;
         }
 
@@ -500,12 +479,12 @@ void renderer_refresh_sprites(RenderData *rd)
         */
         if(!(rd->sprites[i].flags & SPRITE_RLE)) {
             if(!clip_rect(&transformed, &image_offset, transformed)) {
-                dirty_rects[i] = EMPTY_RECT;
+                rd->dirty_rects[i] = EMPTY_RECT;
                 continue;
             }
         }
 
-        dirty_rects[i] = transformed;
+        rd->dirty_rects[i] = transformed;
 
         /* animation */
         if(rd->sprites[i].anim.animation) {
@@ -538,14 +517,28 @@ void renderer_finish_frame(RenderData *rd)
     video_flip(rd->screen);
 }
 
-RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
+size_t renderer_tell_size(uint16 sprite_count, byte flags)
 {
-    RenderData *rd = mem_pool_alloc(sizeof(RenderData));
-    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
-    transientmem = mem_slot_get(MEMSLOT_RENDERER_TRANSIENT);
-    assert(rd && tblock && transientmem);
+    size_t size = sizeof(RenderData) + (sizeof(Sprite) * sprite_count);
 
-    _fmemset(transientmem, 0, 64000);
+    if(flags & RENDER_PERSIST) {
+        size += sizeof(Rect) * sprite_count;
+    }
+
+    return size;
+}
+
+RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buffer_t *palette)
+{
+    RenderData *rd;
+#ifdef DEBUG
+    void far *initial_mem = memory;
+#endif
+    size_t total_size = renderer_tell_size(sprite_count, flags);
+    _fmemset(memory, 0, total_size);
+
+    rd = memory;
+    memory = (char *)memory + sizeof(*rd);
 
     rd->screen = make_framebuffer(MEMSLOT_RENDERER_BACKBUFFER);
     rd->sprite_count = sprite_count;
@@ -559,7 +552,18 @@ RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
             video_initialized = true;
         }
 
-        init_all_sprites(&rd->sprites, sprite_count);
+        if(sprite_count > 0) {
+            rd->sprites = memory;
+            memory = (char *)memory + sizeof(*rd->sprites) * sprite_count;
+
+            if(flags & RENDER_PERSIST) {
+                rd->dirty_rects = memory;
+                memory = (char *)memory + sizeof(*rd->dirty_rects) * sprite_count;
+            }
+        }
+        else {
+            rd->sprites = NULL;
+        }
 
         if(palette)
             video_set_palette(palette);
@@ -568,19 +572,15 @@ RenderData *renderer_init(int sprite_count, byte flags, buffer_t *palette)
         PANIC("out of mem\n");
     }
 
+#ifdef DEBUG
+    assert(((char far *)memory - (char far *)initial_mem) == total_size);
+#endif
+
     return rd;
 }
 
 void renderer_quit(RenderData *rd, bool quit_video)
 {
-    free_all_sprites(&rd->sprites, &rd->sprite_count);
-    rd->screen = NULL;
-
-    assert(tblock);
-    mem_free_block(tblock);
-    tblock = 0;
-    transientmem = NULL;
-
     if(quit_video)
         video_exit();
 }

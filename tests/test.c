@@ -16,6 +16,9 @@ static RenderData *rd;
 //static byte col = 0;
 static bool paused = false;
 
+static memid_t tblock = 0;
+static void far *transientmem = NULL;
+
 //static Animation test_anim;
 
 static void engine_benchmark(CoreData cd, int times)
@@ -164,6 +167,7 @@ static void quit(void) {
 
     renderer_quit(rd, true);
     engine_quit();
+    mem_free_block(tblock);
     exit(1);
 }
 
@@ -233,7 +237,10 @@ void test_start(bool do_benchmark, int benchmark_times)
     buffer_to_rle(balloon_rle, balloon_img, 32, 32);
     pal = load_bmp_palette("RES/BALLOON.BMP");
 
-    rd = renderer_init(SPRITE_COUNT, 0, pal);
+    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
+    transientmem = mem_slot_get(tblock);
+
+    rd = renderer_init(transientmem, SPRITE_COUNT, RENDER_PERSIST, pal);
     destroy_image(&pal);
     destroy_image(&balloon_img);
 
