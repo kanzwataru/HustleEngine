@@ -11,17 +11,6 @@
 #include <stddef.h>
 #include <math.h>
 
-struct Pixel {
-    int  x;
-    int  y;
-    byte col;
-};
-
-struct LineUndo {
-    uint16         count;
-    struct Pixel segs[MAX_LINE_LENGTH];
-};
-
 struct RenderIntr {
     Rect far *dirty_rects;
     byte      data[1];
@@ -36,28 +25,6 @@ static bool video_initialized = false;
 static buffer_t *make_framebuffer(slotid_t memslot) {
     mem_alloc_block(memslot);
     return mem_slot_get(memslot);
-}
-
-buffer_t *create_image(uint16 w, uint16 h) {
-    return mem_pool_alloc(w * h);
-}
-
-buffer_t *create_palette(void) {
-    return mem_pool_alloc(PALETTE_SIZE);
-}
-
-void destroy_image(buffer_t **image) {
-    mem_pool_free(*image);
-    *image = NULL;
-}
-
-LineUndoList create_line_undo_list() {
-    return mem_pool_alloc(sizeof(struct LineUndo));
-}
-
-void destroy_line_undo_list(LineUndoList *lul) {
-    mem_pool_free(*lul);
-    *lul = NULL;
 }
 
 void palette_set(const buffer_t *palette)
@@ -273,7 +240,6 @@ void draw_dot(buffer_t *buf, Point p, byte colour)
 void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour)
 {
     int i, dx, dy, sdx, sdy, dxabs, dyabs, x, y, px, py, offset, count;
-    struct Pixel *undopix = (*(struct LineUndo *)undo).segs;
 
     dx = CLAMP(p2->x, 0, SCREEN_WIDTH)  - CLAMP(p1->x, 0, SCREEN_WIDTH);
     dy = CLAMP(p2->y, 0, SCREEN_HEIGHT) - CLAMP(p1->y, 0, SCREEN_HEIGHT);
@@ -287,9 +253,6 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
     py = CLAMP(p1->y, 0, SCREEN_HEIGHT);
 
     offset = CALC_OFFSET(px, py);
-    undopix[0].x = px;
-    undopix[0].y = py;
-    undopix[0].col = buf[offset];
     buf[offset] = colour;
     count = 1;
 
@@ -308,9 +271,6 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
             if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
                 continue;
 
-            undopix[count].x = px;
-            undopix[count].y = py;
-            undopix[count].col = buf[offset];
             buf[offset] = colour;
         }
     }
@@ -329,14 +289,9 @@ void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p
             if(px <= 0 || px >= SCREEN_WIDTH || py <= 0 || py >= SCREEN_HEIGHT)
                 continue;
 
-            undopix[count].x = px;
-            undopix[count].y = py;
-            undopix[count].col = buf[offset];
             buf[offset] = colour;
         }
     }
-
-    (*(struct LineUndo *)undo).count = count;
 }
 
 Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, Rect rect)
@@ -349,24 +304,6 @@ Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, Rect rect)
     blit_offset(buf, image, rect, offset.x + (offset.y * rect.w), rect.w);
 
     return rect;
-}
-
-void erase_line(buffer_t *buf, LineUndoList undo)
-{
-    uint16 count = (*(struct LineUndo *)undo).count;
-    struct Pixel *p = (*(struct LineUndo *)undo).segs;
-
-    if(!count)
-        return;
-
-    do {
-        buf[CALC_OFFSET(p->x, p->y)] = p->col;
-        p++;
-    } while(--count);
-}
-
-void reset_sprite(Sprite *sprite) {
-    _fmemset(sprite, 0, sizeof(Sprite));
 }
 
 void renderer_draw_bg(RenderData *rd)

@@ -21,6 +21,7 @@
 #define TRANSPARENT         0
 #define DEFAULT_VGA_PALETTE 0
 #define FILL_BUFFER(buf, col) _fmemset((buf), (col), (SCREEN_SIZE));
+#define RESET_SPRITE(spr)     _fmemset(spr, 0, sizeof(Sprite));
 
 /*
  * Only using low nibble for engine
@@ -83,12 +84,6 @@ typedef struct {
 } RenderData;
 
 /**** Renderer functions ****/
-
-buffer_t *create_image(uint16 w, uint16 h);
-void destroy_image(buffer_t **image);
-LineUndoList create_line_undo_list();
-void destroy_line_undo_list(LineUndoList *lul);
-
 RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buffer_t *palette);
 size_t renderer_tell_size(uint16 sprite_count, byte flags);    /* how much space we need for these render settings */
 void renderer_quit(RenderData *rd, bool quit_video);
@@ -130,6 +125,5 @@ void draw_rle_sprite_filled_reverse(buffer_t *dest, const RLEImage *image, Rect 
 
 /* Line drawing */
 void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour);
-void erase_line(buffer_t *buf, LineUndoList undo);
 
 #endif /* RENDER_H */

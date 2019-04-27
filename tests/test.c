@@ -162,7 +162,7 @@ static bool input(void) {
 }
 
 static void quit(void) {
-    destroy_image(&rd->sprites[1].vis.image);
+    mem_pool_free(rd->sprites[1].vis.image);
     mem_pool_free(rd->sprites[SPRITE_COUNT - 1].vis.rle);
 
     renderer_quit(rd, true);
@@ -241,8 +241,8 @@ void test_start(bool do_benchmark, int benchmark_times)
     transientmem = mem_slot_get(tblock);
 
     rd = renderer_init(transientmem, SPRITE_COUNT, RENDER_PERSIST, pal);
-    destroy_image(&pal);
-    destroy_image(&balloon_img);
+    mem_pool_free(pal);
+    mem_pool_free(balloon_img);
 
     //rd->sprites[0].anim = &test_anim;
     rd->sprites[0].vis.colour = 4;
@@ -252,7 +252,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[0].rect.y = 64;
     rd->sprites[0].flags = SPRITE_ACTIVE | SPRITE_SOLID;
 
-    rd->sprites[1].vis.image = create_image(32,32);
+    rd->sprites[1].vis.image = mem_pool_alloc(32 * 32);
 
     for(i = 0; i < 32 * 32; ++i) {
         rd->sprites[1].vis.image[i] = i;

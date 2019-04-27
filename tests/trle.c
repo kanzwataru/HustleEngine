@@ -53,24 +53,24 @@ static void load_stuff(void)
     cloud_raw = load_bmp_image("RES/CLOUD.BMP");
     cloud = mem_pool_alloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
     buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
-    destroy_image(&cloud_raw);
+    mem_pool_free(cloud_raw);
 
     clipper_raw = load_bmp_image("RES/CLIPPER.BMP");
     clipper = mem_pool_alloc(4024);
     buffer_to_rle(clipper, clipper_raw, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
-    destroy_image(&clipper_raw);
+    mem_pool_free(clipper_raw);
 
 /*
     wclouds_raw = load_bmp_image("RES/CLOUDS.BMP");
     convert_bw(wclouds_raw, WCLOUDS_SPRITE_W * CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
     wclouds = mem_pool_alloc(4096 * 2);
     size = monochrome_buffer_to_rle(wclouds, wclouds_raw, WCLOUDS_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
-    destroy_image(&wclouds_raw);
+    mem_pool_free(wclouds_raw);
 */
     balloon_raw = load_bmp_image("RES/BALLOON.BMP");
     balloon = mem_pool_alloc(4096);
     size = buffer_to_rle(balloon, balloon_raw, BALLOON_W, BALLOON_W);
-    destroy_image(&balloon_raw);
+    mem_pool_free(balloon_raw);
 
     printf("size: %d\n", size);
     //assert(size == GET_RLE_SIZE(wclouds));
@@ -186,7 +186,7 @@ int rletest_start(void)
 
     pal = load_bmp_palette("RES/VGAPAL.BMP");
     rd  = renderer_init(transientmem, 3, RENDER_BG_SOLID | RENDER_PERSIST, pal);
-    destroy_image(&pal);
+    mem_pool_free(pal);
 
     FILL_BUFFER(rd->screen, SKY_COL);
     rd->bg.colour = SKY_COL;
