@@ -14,7 +14,7 @@ else
 CFLAGS	   += -otexan -d0
 endif
 CFLAGS	   += $(addprefix -i,$(HEADERS))
-LDFLAGS		= -fe=$(TARGET)
+LDFLAGS		= -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME)
 
 CC			= wcl
 
@@ -25,7 +25,7 @@ $(OBJ_DIR)/%.o: %.c
 $(TARGET): $(OBJS)
 	mkdir -p `dirname $@`
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
-	
+
 	# clean up unnecessary crud that OpenWatcom leaves behind
 	rm -f *.err
 
