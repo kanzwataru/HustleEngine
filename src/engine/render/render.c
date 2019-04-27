@@ -306,16 +306,6 @@ Rect draw_sprite_explicit(buffer_t *buf, buffer_t * const image, Rect rect)
     return rect;
 }
 
-void renderer_draw_bg(RenderData *rd)
-{
-    if(rd->flags & RENDER_BG_SOLID) {
-        FILL_BUFFER(rd->screen, rd->bg.colour);
-    }
-    else {
-        _fmemcpy(rd->screen, rd->bg.image, SCREEN_SIZE);
-    }
-}
-
 void renderer_start_frame(RenderData *rd)
 {
     Point _;

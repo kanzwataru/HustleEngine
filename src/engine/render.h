@@ -88,7 +88,6 @@ RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buf
 size_t renderer_tell_size(uint16 sprite_count, byte flags);    /* how much space we need for these render settings */
 void renderer_quit(RenderData *rd, bool quit_video);
 void renderer_start_frame(RenderData *rd);
-void renderer_draw_bg(RenderData *rd);
 void renderer_refresh_sprites(RenderData *rd);
 void renderer_finish_frame(RenderData *rd);
 
