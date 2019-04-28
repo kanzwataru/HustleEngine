@@ -12,7 +12,6 @@ static void far *transientmem = NULL;
 
 static bool input(void)
 {
-    keyboard_per_frame_update();
     if(keyboard_os_quit_event())
         return false;
 

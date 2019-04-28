@@ -5,6 +5,13 @@
 #include "platform/kb.h"
 #include "platform/mem.h"
 
+#define ENGINE_DEFAULT_CALLBACKS(cd)   \
+    cd.update_callback = update;    \
+    cd.render_callback = render;    \
+    cd.flip_callback = render_flip; \
+    cd.input_handler = input;       \
+    cd.exit_handler = quit;
+
 typedef struct {
     void (*update_callback)(void);
     void (*render_callback)(void);

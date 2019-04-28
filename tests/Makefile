@@ -2,15 +2,15 @@
 #
 # The engine has a set of makefiles for the various target platforms,
 # so the compilation is all taken care of on the engine side.
-# 
-# All that is needed is to list the game's 
+#
+# All that is needed is to list the game's
 # header directories and object files, the rest will be taken care of
 # in the engine's makefiles.
 #
 
 GAME_NAME		:= htest
 GAME_INCLUDE	:= .
-GAME_SRC		:= main.c simplet.c test.c tmem.c trle.c
+GAME_SRC		:= main.c simplet.c test.c tmem.c trle.c tasset.c
 ENGINE_DIR		:= ..
 BUILD_DIR       := build
 

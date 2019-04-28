@@ -137,8 +137,7 @@ static void render_flip(void)
 
 static bool input(void)
 {
-    keyboard_per_frame_update();
-    if(keyboard_os_quit_event())
+    if(keyboard_os_quit_event() || keyboard_keys[KEY_ESC])
         return false;
 
     prev_clipper_rect = clipper_rect;

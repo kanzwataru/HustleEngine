@@ -154,7 +154,6 @@ static void render(void) {
 }
 
 static bool input(void) {
-    keyboard_per_frame_update();
     if(keyboard_os_quit_event())
         return false;
 
