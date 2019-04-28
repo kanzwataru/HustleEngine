@@ -25,65 +25,79 @@ struct XMSCopyTable {
 	struct XMSPage dest;
 };
 
-static uint32 xmsdriver;
-static uint16 xmstotal;
+static volatile uint32 xmsdriver;
+static volatile uint16 xmstotal;
 
 static void locate_driver_address(void)
 {
+    volatile uint32 driver;
+
     _asm {
         mov ax, XMS_QUERY_DRIVER
         int XMS_ISR
-        mov [WORD PTR xmsdriver], bx
-        mov [WORD PTR xmsdriver + 2], es
+        mov [WORD PTR driver], bx
+        mov [WORD PTR driver + 2], es
     }
+
+    xmsdriver = driver;
 }
 
 bool xms_query_installed(void)
 {
     union REGS r;
     bool installed;
-    
+
     r.x.ax = XMS_QUERY_EXISTS;
     int86(XMS_ISR, &r, &r);
-    
+
     installed = (r.h.al == 0x80);
     if(installed) {
         locate_driver_address();
     }
-    
+
     return installed;
 }
 
 uint32 xms_query_avail(void)
 {
+    volatile uint32  driver = xmsdriver;
     assert(xmsdriver);
-    
+
     _asm {
+        pusha
+
         mov  ah, XMS_QUERY_AVAIL
-        call [DWORD PTR xmsdriver]
+        call [DWORD PTR driver]
         mov  xmstotal, ax
+
+        popa
     }
-    
+
     return xmstotal;
 }
 
 xmsid_t xms_alloc(uint16 kilobytes)
 {
-    xmsid_t id;
-    uint16 success; 
-    byte   err_code;
-    
+    volatile xmsid_t id;
+    volatile uint16  success;
+    volatile byte    err_code;
+    volatile uint32  driver = xmsdriver;
+
     _asm {
+        pusha
+
         mov  dx, kilobytes      /* load the desired size */
-        
+
         mov  ah, XMS_ALLOC
-        call [DWORD PTR xmsdriver]
-        
+        call [DWORD PTR driver]
+
         mov  id, dx             /* get the ID */
         mov  success, ax        /* get whether there was an error */
         mov  err_code, bl       /* get the error code */
+
+        popa
     }
-    
+
     if(!success) {
         printf("XMS Alloc Failed: %d\n", err_code);
         PANIC("MEMORY ERROR");
@@ -95,18 +109,25 @@ xmsid_t xms_alloc(uint16 kilobytes)
 
 void xms_free(xmsid_t id)
 {
-    byte  err_code;
-    
+    volatile uint16  success;
+    volatile byte    err_code;
+    volatile uint32  driver = xmsdriver;
+
     _asm {
+        pusha
+
         mov  dx, id
-        
+
         mov  ah, XMS_FREE
-        call [DWORD PTR xmsdriver]
-        
-        mov  err_code, bl
+        call [DWORD PTR driver]
+
+        mov  success, ax        /* get whether there was an error */
+        mov  err_code, bl       /* get the error code */
+
+        popa
     }
-    
-    if(err_code) {
+
+    if(!success) {
         printf("XMS Free Failed: %d\n", err_code);
         PANIC("MEMORY ERROR");
     }
@@ -114,37 +135,22 @@ void xms_free(xmsid_t id)
 
 void xms_copy_submit(struct XMSCopyTable *xct)
 {
-    uint16 x_seg, x_off, d_seg, d_off;
-    uint16 success;
-    byte   err_code;
-    
-    d_seg = FP_SEG(&xmsdriver);
-    d_off = FP_OFF(&xmsdriver);
-    x_seg = FP_SEG(xct);
-    x_off = FP_OFF(xct);
-    
+    volatile uint32 driver = xmsdriver;
+    volatile uint16 success;
+    volatile byte   err_code;
+
     _asm {
-        push es
-        push ds
-        push si
-        push di
-        
-        mov  es, d_seg          /* load driver address */
-        mov  di, d_off
-        
-        mov  ds, x_seg          /* load submission struct address */
-        mov  si, x_off
-        
-        mov  ah, XMS_COPY       /* select copy function */
-        call [DWORD PTR es:di]  /* call the driver */
-        
+        pusha
+
+        lds  si, xct             /* load copy table */
+
+        mov  ah, XMS_COPY        /* select copy function */
+        call [DWORD PTR driver]  /* call the driver */
+
         mov  success, ax
         mov  err_code, bl
-        
-        pop  di
-        pop  si
-        pop  ds
-        pop  es
+
+        popa
     }
 
     if(!success) {
@@ -156,29 +162,29 @@ void xms_copy_submit(struct XMSCopyTable *xct)
 void xms_copy_to_ext(xmsid_t id, uint32 offset, void far *memaddr, uint32 count)
 {
     struct XMSCopyTable xct;
-    
+
     memset(&xct, 0, sizeof(struct XMSCopyTable));
-    
+
     xct.len = TO_EVEN(count);
     xct.src.handle  = 0;
     xct.src.offset  = (uint32)memaddr;
     xct.dest.handle = id;
     xct.dest.offset = offset;
-    
+
     xms_copy_submit(&xct);
 }
 
 void xms_copy_from_ext(void far *memaddr, xmsid_t id, uint32 offset, uint32 count)
 {
     struct XMSCopyTable xct;
-    
+
     memset(&xct, 0, sizeof(struct XMSCopyTable));
-    
+
     xct.len = TO_EVEN(count);
     xct.src.handle  = id;
     xct.src.offset  = offset;
     xct.dest.handle = 0;
     xct.dest.offset = (uint32)memaddr;
-    
+
     xms_copy_submit(&xct);
 }
