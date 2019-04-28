@@ -30,20 +30,20 @@ static void update(void)
 
 static void render(void)
 {
-    //FILL_BUFFER(rd->screen, col++);
+    FILL_BUFFER(rd->screen, col++);
 }
 
 static void render_flip(void)
 {
     /* finish up the frame and flip the screen buffer */
-    //renderer_finish_frame(rd);
+    renderer_finish_frame(rd);
 }
 
 static void quit(void)
 {
     /* quit the renderer (switch back to text mode on DOS or close the window on modern PCs)
      * and engine */
-    //renderer_quit(rd, true);
+    renderer_quit(rd, true);
     engine_quit();
 }
 
@@ -59,7 +59,7 @@ void assettest_start(void)
     block_a_mem = mem_slot_get(block_a);
 
     /* initialize the renderer with no sprites and no background inside block_a */
-    //rd = renderer_init(block_a_mem, 0, 0, DEFAULT_VGA_PALETTE);
+    rd = renderer_init(block_a_mem, 0, 0, DEFAULT_VGA_PALETTE);
 
     /* set up the default function table (input, update, etc...)
        and start the gameloop
