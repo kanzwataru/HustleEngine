@@ -1,20 +1,20 @@
 .PHONY: buildnrun run
 
 # Cross-compile for DOS with OpenWatcom
-ENGINE_SRC += platform/dos/vga.c platform/dos/kb.c platform/dos/internal/biosmem.c platform/dos/internal/xms.c platform/dos/mem.c platform/dos/dosalloc.c
+ENGINE_SRC += platform/dos32/vga.c platform/dos32/kb.c platform/dos32/mem.c
 HEADERS	   += $(GAME_INCLUDE)
 LIBS		= mathc.lib
 TARGET		= $(BUILD_DIR)/$(GAME_NAME).exe
 DOS_ROOT    = $(shell pwd)/$(BUILD_DIR)
 
-CFLAGS 		= -3 -bt=dos -ml -w4 -zq
+CFLAGS 		= -dDOS32 -4 -bt=dos -ml -w4 -zq
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS	   += -od -d2 -dDEBUG
 else
 CFLAGS	   += -otexan -d0
 endif
 CFLAGS	   += $(addprefix -i,$(HEADERS))
-LDFLAGS		= -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME)
+LDFLAGS		= -bt=dos -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME)
 
 CC			= wcl
 
