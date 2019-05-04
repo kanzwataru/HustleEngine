@@ -14,6 +14,11 @@ typedef unsigned char bool;
 #ifdef __WATCOMC__ /* watcom support */
     #include <mem.h>
     #include <conio.h>
+
+    #ifdef DOS32
+        #define __far /* nope! */
+    #endif
+
     #define farmalloc(a)      _fmalloc(a)
     #define farcalloc(a, b)   _fcalloc(a, b)
     #define farfree(a)        _ffree(a)
@@ -34,7 +39,7 @@ typedef unsigned char bool;
  ***    PLATFORM CHECK    ***
  ***                      ***/
 #ifdef __GNUC__
-    /* Modern 32-bit OS support (future) 
+    /* Modern 32-bit OS support (future)
      *
      * DJGPP may also define this, so not guaranteed
      * to not be DOS, but DJGPP is not supported anyway
@@ -43,7 +48,7 @@ typedef unsigned char bool;
     #include <string.h> /* memset is here on modern compilers */
     #include <stdint.h>
     #include <stdlib.h>
-    
+
     #define far /* no more far pointers */
     #define farmalloc(a)        malloc(a)
     #define farcalloc(a, b)     calloc(a, b)
@@ -57,7 +62,7 @@ typedef unsigned char bool;
     typedef uint32_t uint32;
     typedef int16_t  int16;
     typedef int32_t  int32;
-#else           
+#else
     /* 16-bit DOS
      *
      * This is for both Borland and Watcom

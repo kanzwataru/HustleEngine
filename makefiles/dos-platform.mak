@@ -1,28 +1,35 @@
 .PHONY: buildnrun run
 
 # Cross-compile for DOS with OpenWatcom
-ENGINE_SRC += platform/dos32/vga.c platform/dos32/kb.c platform/dos32/mem.c
+#ENGINE_SRC += platform/dos32/vga.c platform/dos32/kb.c platform/dos32/mem.c
+ENGINE_SRC  =
 HEADERS	   += $(GAME_INCLUDE)
-LIBS		= mathc.lib
+LIBS		= #mathc.lib
 TARGET		= $(BUILD_DIR)/$(GAME_NAME).exe
 DOS_ROOT    = $(shell pwd)/$(BUILD_DIR)
 
-CFLAGS 		= -dDOS32 -4 -bt=dos -ml -w4 -zq
+CFLAGS 		= -dDOS32 -bt=dos -zq -w4 -e25
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS	   += -od -d2 -dDEBUG
 else
 CFLAGS	   += -otexan -d0
 endif
 CFLAGS	   += $(addprefix -i,$(HEADERS))
-LDFLAGS		= -bt=dos -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME)
+LDFLAGS		= -bt=dos -l=pmodew -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -6r -mf
 
-CC			= wcl
+CC			= wcl386
+PMODE       = $(dir $(shell which $(CC)))../binw/pmodew.exe
+
+$(BUILD_DIR)/pmodew.exe:
+	mkdir -p `dirname $@`
+	cp $(PMODE) $@
+	cp $(PMODE) ./pmodew.exe
 
 $(OBJ_DIR)/%.o: %.c
 	mkdir -p `dirname $@`
 	$(CC) -c $(CFLAGS) $^ -fo=$@
 
-$(TARGET): $(OBJS)
+$(TARGET): $(BUILD_DIR)/pmodew.exe $(OBJS)
 	mkdir -p `dirname $@`
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
 
@@ -30,6 +37,7 @@ $(TARGET): $(OBJS)
 	rm -f *.err
 
 build: $(TARGET)
+	rm pmodew.exe
 
 run: all
 	dosbox -c "Z:" -c "mount F $(DOS_ROOT)" -c "F:" -c "cd $(DOS_BUILD)" -c "$(GAME_NAME).exe"

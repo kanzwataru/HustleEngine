@@ -23,8 +23,9 @@ static bool video_initialized = false;
  * Use a memory slot as a framebuffer
 */
 static buffer_t *make_framebuffer(slotid_t memslot) {
-    mem_alloc_block(memslot);
-    return mem_slot_get(memslot);
+    //mem_alloc_block(memslot);
+    //return mem_slot_get(memslot);
+    return malloc(320 * 200);
 }
 
 void palette_set(const buffer_t *palette)
@@ -462,7 +463,7 @@ RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buf
     void far *initial_mem = memory;
 #endif
     size_t total_size = renderer_tell_size(sprite_count, flags);
-    _fmemset(memory, 0, total_size);
+    memset(memory, 0, total_size);
 
     rd = memory;
     memory = (char *)memory + sizeof(*rd);

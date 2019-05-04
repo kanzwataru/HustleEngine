@@ -44,8 +44,9 @@ static void vga_modeset(byte mode)
 
     _asm {
         mov al, mode
-        int 0x10        
+        int 0x10
     }
+    
     current_mode = mode;
 }
 

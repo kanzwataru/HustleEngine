@@ -8,13 +8,14 @@ void mem_init(void)
         slots[i] = calloc(1, MEM_BLOCK_SIZE);
         assert(slots[i]);
     }
-
+    /*
     for(i = 0; i < MEM_BLOCK_MAX; ++i) {
         memset(&blocks[i], 0, sizeof(struct MemBlock));
 
         blocks[i].stash = calloc(1, MEM_BLOCK_SIZE);
         assert(blocks[i].stash);
     }
+    */
 }
 
 void mem_quit(void)
@@ -32,7 +33,7 @@ void mem_quit(void)
 memid_t mem_alloc_block(slotid_t slot)
 {
     memid_t new_block;
-    
+
     /* evict whatever is in the slot if anything */
     evict_slot(slot);
 

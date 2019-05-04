@@ -13,9 +13,9 @@ void engine_init(void)
     if(initialized)
         PANIC("HustleEngine: Double core initialization");
 
-    mem_init();
-    mem_pool_init(MEMSLOT_MEMORY_POOL);
-    keyboard_init();
+    //mem_init();
+    //mem_pool_init(MEMSLOT_MEMORY_POOL);
+    //keyboard_init();
 
     initialized = true;
     DEBUG_DO(printf("HustleEngine: Core initialized\n"));
@@ -26,7 +26,7 @@ void engine_gameloop(CoreData cd)
     stop = false;
 
     /* Game Loop */
-    keyboard_per_frame_update();
+    //keyboard_per_frame_update();
     while(cd.input_handler())
     {
         if(stop)
@@ -39,7 +39,7 @@ void engine_gameloop(CoreData cd)
         video_wait_vsync();
         cd.flip_callback();
 
-        keyboard_per_frame_update();
+        //keyboard_per_frame_update();
     }
 
     cd.exit_handler();
@@ -52,8 +52,8 @@ void engine_gameloop_break(void)
 
 void engine_quit(void)
 {
-    keyboard_quit();
-    mem_pool_quit();
-    mem_quit();
+    //keyboard_quit();
+    //mem_pool_quit();
+    //mem_quit();
     DEBUG_DO(printf("HustleEngine: Done quitting\n"));
 }

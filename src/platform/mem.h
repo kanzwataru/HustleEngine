@@ -10,7 +10,7 @@
 #endif
 
 #define MEM_BLOCK_SIZE      64000
-#define MEM_BLOCK_MAX       128     /* temporarily hard-coded */
+#define MEM_BLOCK_MAX       8     /* temporarily hard-coded */
 #define MEM_SLOT_MAX        6
 
 typedef byte memid_t;

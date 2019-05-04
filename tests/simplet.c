@@ -92,8 +92,6 @@
 #include <string.h>
 
 void main(void) {
-    getch();
-
     _asm {
         pusha
         mov al, 0x13
@@ -101,7 +99,7 @@ void main(void) {
         popa
     }
 
-    //memset((void *)0xA0000, 5, 320 * 200);
+    memset((void *)0xA0000, 5, 320 * 200);
     getch();
 
     _asm {
