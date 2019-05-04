@@ -50,12 +50,12 @@ static void load_stuff(void)
     uint16 size;
 
     cloud_raw = load_bmp_image("RES/CLOUD.BMP");
-    cloud = malloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 8);
+    cloud = calloc(1, CLOUD_SPRITE_H * CLOUD_SPRITE_W * 8);
     buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
     free(cloud_raw);
 
     clipper_raw = load_bmp_image("RES/CLIPPER.BMP");
-    clipper = malloc(4024 * 10);
+    clipper = calloc(1, 4024 * 10);
     buffer_to_rle(clipper, clipper_raw, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
     free(clipper_raw);
 
@@ -67,7 +67,7 @@ static void load_stuff(void)
     free(wclouds_raw);
 */
     balloon_raw = load_bmp_image("RES/BALLOON.BMP");
-    balloon = malloc(4096 * 10);
+    balloon = calloc(1, 4096 * 10);
     size = buffer_to_rle(balloon, balloon_raw, BALLOON_W, BALLOON_W);
     free(balloon_raw);
 
@@ -151,9 +151,11 @@ static bool input(void)
 
 static void quit(void)
 {
+    free(transientmem);
     free(cloud);
     free(clipper);
     free(balloon);
+    renderer_quit(rd, true);
     engine_quit();
 }
 

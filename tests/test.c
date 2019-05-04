@@ -153,7 +153,7 @@ static void render(void) {
 }
 
 static bool input(void) {
-    if(keyboard_os_quit_event())
+    if(keyboard_os_quit_event() || keyboard_keys[KEY_ESC])
         return false;
 
     return true;
@@ -230,7 +230,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     cd.frame_skip = 0;
 
     balloon_img = load_bmp_image("RES/BALLOON.BMP");
-    balloon_rle = malloc(4096 * 10);
+    balloon_rle = calloc(1, 4096 * 10);
     buffer_to_rle(balloon_rle, balloon_img, 32, 32);
     pal = load_bmp_palette("RES/BALLOON.BMP");
 
