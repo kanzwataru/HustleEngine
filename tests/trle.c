@@ -24,7 +24,7 @@ static Rect prev_clipper_rect, clipper_rect;
 static Rect prev_balloon_rect, balloon_rect;
 
 static memid_t tblock = 0;
-static void far *transientmem = NULL;
+static void *transientmem = NULL;
 
 #define CLIPPER_SPRITE_D    48
 

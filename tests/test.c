@@ -17,7 +17,7 @@ static RenderData *rd;
 static bool paused = false;
 
 static memid_t tblock = 0;
-static void far *transientmem = NULL;
+static void *transientmem = NULL;
 
 //static Animation test_anim;
 

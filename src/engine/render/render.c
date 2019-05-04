@@ -12,7 +12,7 @@
 #include <math.h>
 
 struct RenderIntr {
-    Rect far *dirty_rects;
+    Rect     *dirty_rects;
     byte      data[1];
 };
 
@@ -238,7 +238,7 @@ void draw_dot(buffer_t *buf, Point p, byte colour)
 }
 
 /* Bresenham routine copied from: http://www.brackeen.com/vga/source/bc31/lines.c.html */
-void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour)
+void draw_line(buffer_t *buf, const Point *p1, const Point *p2, const byte colour)
 {
     int i, dx, dy, sdx, sdy, dxabs, dyabs, x, y, px, py, offset, count;
 
@@ -456,11 +456,11 @@ size_t renderer_tell_size(uint16 sprite_count, byte flags)
     return size;
 }
 
-RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buffer_t *palette)
+RenderData *renderer_init(void *memory, uint16 sprite_count, byte flags, buffer_t *palette)
 {
     RenderData *rd;
 #ifdef DEBUG
-    void far *initial_mem = memory;
+    void *initial_mem = memory;
 #endif
     size_t total_size = renderer_tell_size(sprite_count, flags);
     memset(memory, 0, total_size);
@@ -501,7 +501,7 @@ RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buf
     }
 
 #ifdef DEBUG
-    assert(((char far *)memory - (char far *)initial_mem) == total_size);
+    assert(((char *)memory - (char *)initial_mem) == total_size);
 #endif
 
     return rd;

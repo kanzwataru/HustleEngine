@@ -46,7 +46,7 @@ static void vga_modeset(byte mode)
         mov al, mode
         int 0x10
     }
-    
+
     current_mode = mode;
 }
 
@@ -91,8 +91,8 @@ void video_exit(void)
 */
 void video_wait_vsync(void)
 {
-    while(inportb(INPUT_STATUS_0) & 8) {;}
-    while(!(inportb(INPUT_STATUS_0) & 8)) {;}
+    while(inp(INPUT_STATUS_0) & 8) {;}
+    while(!(inp(INPUT_STATUS_0) & 8)) {;}
 }
 
 /*

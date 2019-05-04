@@ -22,7 +22,7 @@ struct RLEHeader {
     struct RLEChunk data[1]; /* variable length */
 };
 
-typedef struct RLEHeader far RLEImage;
+typedef struct RLEHeader RLEImage;
 
 /* Convert bitmap to RLE */
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf, int width, int height);

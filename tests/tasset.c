@@ -6,7 +6,7 @@
 /* engine data */
 static RenderData *rd;
 static memid_t   block_a = 0;
-static void far *block_a_mem = NULL;
+static void *block_a_mem = NULL;
 /* */
 
 /* runtime data */

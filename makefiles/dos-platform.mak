@@ -1,7 +1,7 @@
 .PHONY: buildnrun run
 
 # Cross-compile for DOS with OpenWatcom
-ENGINE_SRC += platform/dos32/vga.c platform/dos32/kb.c platform/dos32/mem.c platform/dos32/internal/pc.c
+ENGINE_SRC += platform/dos32/vga.c platform/dos32/kb.c platform/dos32/mem.c
 HEADERS	   += $(GAME_INCLUDE)
 LIBS		= #mathc.lib
 TARGET		= $(BUILD_DIR)/$(GAME_NAME).exe

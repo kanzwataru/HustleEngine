@@ -24,14 +24,14 @@ static uint16 screen_size = 0;
 
 /*
  * Switch VGA display mode
- * 
+ *
  * (uses VGA_VIDEO_MODES not video.h VIDEO_MODES)
 */
 static void vga_modeset(byte mode)
 {
     union REGS in, out;
 
-    /* don't switch modes if we're already there, 
+    /* don't switch modes if we're already there,
      * so if we've panic'd we don't accidentally clear the screen */
     if(mode == current_mode)
         return;
@@ -39,7 +39,7 @@ static void vga_modeset(byte mode)
     in.h.ah = 0;
     in.h.al = mode;
     int86(0x10, &in, &out);
-    
+
     current_mode = mode;
 }
 
@@ -50,11 +50,11 @@ void video_flip(const buffer_t *backbuf)
 {
     assert(current_mode != VGA_TEXT80COL);
     assert(screen_size != 0);
-    
+
     /* we ONLY support Mode 13h for now!! */
     if(current_mode != VGA_CHUNKY256)
         NOT_IMPLEMENTED;
-    
+
     _fmemcpy(vga_mem, backbuf, screen_size);
 }
 
@@ -84,8 +84,8 @@ void video_exit(void)
 */
 void video_wait_vsync(void)
 {
-    while(inportb(INPUT_STATUS_0) & 8) {;}
-    while(!(inportb(INPUT_STATUS_0) & 8)) {;}
+    while(inp(INPUT_STATUS_0) & 8) {;}
+    while(!(inp(INPUT_STATUS_0) & 8)) {;}
 }
 
 /*

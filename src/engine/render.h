@@ -46,7 +46,6 @@ enum RENDERFLAGS {
 /*
  * Forward-declarations
 */
-typedef void far* LineUndoList;
 typedef struct Spritesheet Spritesheet;
 typedef struct RenderIntr RenderIntr;
 
@@ -84,7 +83,7 @@ typedef struct {
 } RenderData;
 
 /**** Renderer functions ****/
-RenderData *renderer_init(void far *memory, uint16 sprite_count, byte flags, buffer_t *palette);
+RenderData *renderer_init(void *memory, uint16 sprite_count, byte flags, buffer_t *palette);
 size_t renderer_tell_size(uint16 sprite_count, byte flags);    /* how much space we need for these render settings */
 void renderer_quit(RenderData *rd, bool quit_video);
 void renderer_start_frame(RenderData *rd);
@@ -121,6 +120,6 @@ void draw_rle_sprite_filled(buffer_t *dest, const RLEImage *image, Rect rect, by
 void draw_rle_sprite_filled_reverse(buffer_t *dest, const RLEImage *image, Rect rect, byte col);
 
 /* Line drawing */
-void draw_line(buffer_t *buf, LineUndoList undo, const Point *p1, const Point *p2, const byte colour);
+void draw_line(buffer_t *buf, const Point *p1, const Point *p2, const byte colour);
 
 #endif /* RENDER_H */

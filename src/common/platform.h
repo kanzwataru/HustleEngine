@@ -2,6 +2,7 @@
 #define PLATFORM_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "debug.h"
 
 typedef unsigned char bool;
@@ -11,84 +12,36 @@ typedef unsigned char bool;
 /***                      ***
  ***    COMPILER CHECK    ***
  ***                      ***/
-#ifdef __WATCOMC__ /* watcom support */
+#ifdef __WATCOMC__
+    #define PLATFORM_DOS32
     #include <mem.h>
     #include <conio.h>
+    #include <malloc.h>
+    #include <dos.h>
 
-    #ifdef DOS32
-        //#define __far /* nope! */
-    #endif
+    /* 32-bit MS-DOS */
+    typedef unsigned char  byte;
+    typedef unsigned short uint16;
+    typedef unsigned int   uint32;
+    typedef short          int16;
+    typedef int            int32;
 
-    #define farmalloc(a)      _fmalloc(a)
-    #define farcalloc(a, b)   _fcalloc(a, b)
-    #define farfree(a)        _ffree(a)
-    #define far __far
-    #define MK_PTR(seg,off)   (((seg) << 4) + (off))
-    #define inport(a)         inpw(a)
-    #define inportb(a)        inp(a)
-    #define outport(a, b)     outpw(a, b)
-    #define outportb(a, b)    outp(a, b)
-    #define getvect(a)        _dos_getvect(a)
-    #define setvect(a, b)     _dos_setvect(a, b)
-    //#define interrupt         __interrupt
-#endif /* compiler */
-/******************************************************/
+    typedef void __interrupt __far (*interrupt_t)(void);
+#endif
 
-
-/***                      ***
- ***    PLATFORM CHECK    ***
- ***                      ***/
 #ifdef __GNUC__
-    /* Modern 32-bit OS support (future)
-     *
-     * DJGPP may also define this, so not guaranteed
-     * to not be DOS, but DJGPP is not supported anyway
-     */
     #define PLATFORM_SDL
-    #include <string.h> /* memset is here on modern compilers */
+    #include <string.h>
     #include <stdint.h>
-    #include <stdlib.h>
 
-    #define far /* no more far pointers */
-    #define farmalloc(a)        malloc(a)
-    #define farcalloc(a, b)     calloc(a, b)
-    #define farfree(a)          free(a)
-    #define _fmemset(a, b, c)   memset(a, b, c)
-    #define _fmemcpy(a, b, c)   memcpy(a, b, c)
-
-    typedef uint8_t  buffer_t;
     typedef uint8_t  byte;
     typedef uint16_t uint16;
     typedef uint32_t uint32;
     typedef int16_t  int16;
     typedef int32_t  int32;
-#else
-    /* 16-bit DOS
-     *
-     * This is for both Borland and Watcom
-     */
-    #define PLATFORM_DOS
-    #include <malloc.h>
-    #include <mem.h>
-    #include <dos.h>
-    #define inline /* no inline on C89 */
+#endif
 
-    #ifdef DOS32
-        typedef unsigned char  byte;
-        typedef unsigned short uint16;
-        typedef unsigned int   uint32;
-        typedef short          int16;
-        typedef int            int32;
-    #else
-        typedef unsigned char byte;
-        typedef unsigned int  uint16;
-        typedef unsigned long uint32;
-        typedef int           int16;
-        typedef long          int32;
-    #endif
+/* in practice this typedef will probably not be changed */
+typedef byte buffer_t;
 
-    typedef byte far buffer_t;
-#endif /* platform */
-/******************************************************/
-
-#endif /* PLATFORM_H */
+#endif

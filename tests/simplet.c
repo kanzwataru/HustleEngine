@@ -10,7 +10,7 @@
 
 static RenderData *rd;
 static memid_t tblock = 0;
-static void far *transientmem = NULL;
+static void *transientmem = NULL;
 
 static volatile unsigned char *vga = (unsigned char *)0xA0000;
 
@@ -35,7 +35,7 @@ static void render(void)
     for(i = 0; i < 320 * 200; ++i) {
         vga[i] = 6;
     } */
-    memset(vga, 4, 320 * 200);
+    memset((void*)vga, 4, 320 * 200);
 }
 
 static void quit(void)
