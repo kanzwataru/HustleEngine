@@ -20,8 +20,8 @@
 #define MAX_LINE_LENGTH     512
 #define TRANSPARENT         0
 #define DEFAULT_VGA_PALETTE 0
-#define FILL_BUFFER(buf, col) _fmemset((buf), (col), (SCREEN_SIZE));
-#define RESET_SPRITE(spr)     _fmemset(spr, 0, sizeof(Sprite));
+#define FILL_BUFFER(buf, col) memset((buf), (col), (SCREEN_SIZE));
+#define RESET_SPRITE(spr)     memset(spr, 0, sizeof(Sprite));
 
 /*
  * Only using low nibble for engine

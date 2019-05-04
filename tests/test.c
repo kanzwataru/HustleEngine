@@ -238,7 +238,7 @@ void test_start(bool do_benchmark, int benchmark_times)
 
     rd = renderer_init(transientmem, SPRITE_COUNT, RENDER_PERSIST, pal);
     free(pal);
-    free(balloon_img);
+    //free(balloon_img);
 
     //rd->sprites[0].anim = &test_anim;
     rd->sprites[0].vis.colour = 4;

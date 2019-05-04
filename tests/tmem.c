@@ -40,7 +40,7 @@ int test_mem_simple(void)
     mem_stash_block(block);
 
     printf("overwrite slot\n");
-    _fmemset(slotptr, 'x', 8);
+    memset(slotptr, 'x', 8);
     puts(slotptr);
 
     printf("restore block\n");
@@ -180,7 +180,7 @@ int test_mem(void)
     block_c = mem_alloc_block(1);
     assert(block_c);
 
-    _fmemset(slot_1_p, BLOCK_C_VAL, MEM_BLOCK_SIZE);
+    memset(slot_1_p, BLOCK_C_VAL, MEM_BLOCK_SIZE);
     for(i = 0; i < MEM_BLOCK_SIZE; ++i) {
         if(slot_1_p[i] != BLOCK_C_VAL) {
             printf("[%d] Non-matching value: %02X !%02X! %02X\n", i, slot_1_p[i - 1], slot_1_p[i], slot_1_p[i + 1]);

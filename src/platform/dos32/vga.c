@@ -18,7 +18,7 @@ enum VGA_VIDEO_MODES {
 #define VGA_PLANAR16_SIZE       640 * 480
 #define VGA_PLANAR16HALF_SIZE   640 * 200
 
-static buffer_t *vga_mem = 0xA0000; /* VGA DMA memory */
+static buffer_t *vga_mem = (buffer_t*)0xA0000; /* VGA DMA memory */
 
 static byte current_mode = VGA_TEXT80COL;
 static uint16 screen_size = 0;
@@ -30,17 +30,10 @@ static uint16 screen_size = 0;
 */
 static void vga_modeset(byte mode)
 {
-    union REGS in, out;
-
     /* don't switch modes if we're already there,
      * so if we've panic'd we don't accidentally clear the screen */
     if(mode == current_mode)
         return;
-/*
-    in.h.ah = 0;
-    in.h.al = mode;
-    int386(0x10, &in, &out);
-*/
 
     _asm {
         mov al, mode

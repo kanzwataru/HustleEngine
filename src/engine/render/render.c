@@ -214,7 +214,7 @@ void draw_rect(buffer_t *buf, Rect rect, byte colour)
     buf += CALC_OFFSET(rect.x,rect.y);
 
     for(; y > 0; --y) {
-        _fmemset(buf, colour, rect.w);
+        memset(buf, colour, rect.w);
         buf += SCREEN_WIDTH;
     }
 }

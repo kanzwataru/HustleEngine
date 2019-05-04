@@ -26,7 +26,7 @@ void far *doscalloc(unsigned long count, unsigned long size)
     if(!ptr)
         return 0;
         
-    _fmemset(ptr, 0, count * size);
+    memset(ptr, 0, count * size);
     
     return ptr;
 }

@@ -1,40 +1,39 @@
 #include "platform/filesys.h"
-//#include "platform/mem.h"
 #include "common/platform.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 struct FileLoadData {
     FILE *fp;
-    uint16 col_num, width, height;
+    uint32 width, height, col_num, data_offset;
 };
 
-static void fskip(FILE *fp, int num_bytes)
+static void fskip(FILE *fp, size_t num_bytes)
 {
-    int i;
+    size_t i;
     for(i = 0; i < num_bytes; ++i)
         fgetc(fp);
 }
 
 static struct FileLoadData open_bmp_file(const char *file)
 {
-    struct FileLoadData d;
     size_t ret;
+    struct FileLoadData d;
 
     /* open the file */
-    if ((d.fp = fopen(file,"rb")) == NULL) {
-        while(1) printf("Error opening file %s\n", file);
-    }
+    d.fp = fopen(file, "rb");
+    assert(d.fp);
 
     /* read in the width and height of the image, and the
     number of colors used; ignore the rest */
-    fskip(d.fp,18);
-    ret = fread(&d.width, sizeof(uint16), 1, d.fp);  assert(ret == 1);
-    fskip(d.fp,2);
-    ret = fread(&d.height,sizeof(uint16), 1, d.fp);  assert(ret == 1);
-    fskip(d.fp,22);
-    ret = fread(&d.col_num,sizeof(uint16), 1, d.fp); assert(ret == 1);
-    fskip(d.fp,6);
+    fskip(d.fp, 10);
+    ret = fread(&d.data_offset, sizeof(uint32), 1, d.fp);  assert(ret == 1);
+    fskip(d.fp, 4);
+    ret = fread(&d.width, sizeof(uint32), 1, d.fp);  assert(ret == 1);
+    ret = fread(&d.height,sizeof(uint32), 1, d.fp);  assert(ret == 1);
+    fskip(d.fp, 20);
+    ret = fread(&d.col_num,sizeof(uint32), 1, d.fp); assert(ret == 1);
+    fskip(d.fp, 4);
 
     /* assume we are working with an 8-bit file */
     if (d.col_num == 0) d.col_num = 256;
@@ -42,25 +41,32 @@ static struct FileLoadData open_bmp_file(const char *file)
     return d;
 }
 
-/*
- * http://www.brackeen.com/vga/source/djgpp20/palette.c.html
-*/
 buffer_t *load_bmp_image(const char *file)
 {
-    long long i;
-    uint16 x;
-    struct FileLoadData d = open_bmp_file(file);
+    size_t x, y;
+    size_t ret;
+    size_t size;
+    struct FileLoadData d;
+    buffer_t *buf;
+    buffer_t *p;
 
-    buffer_t *buf = malloc(d.width * d.height);
-    if(!buf)
-        while(1) printf("Out of mem: load_bmp_image %s\n", file);
+    d = open_bmp_file(file);
+    size = d.width * d.height;
 
-    /* ignore palette */
-    fskip(d.fp,d.col_num * 4);
+    buf = malloc(size);
+    assert(buf);
 
-    for(i = (d.height - 1) * d.width; i >= 0; i -= d.width)
-        for(x = 0; x < d.width; ++x)
-            buf[(size_t)(i + x)] = (byte)fgetc(d.fp);
+    /* skip directly to data */
+    rewind(d.fp);
+    fskip(d.fp, d.data_offset);
+
+    /* BMP files are vertically flipped so read in backwards */
+    p = buf + (size - d.width);
+    for(y = 0; y < d.height; ++y) {
+        ret = fread(p, sizeof(byte), d.width, d.fp);
+        assert(ret = d.width);
+        p -= d.width;
+    }
 
     fclose(d.fp);
 
@@ -73,16 +79,13 @@ buffer_t *load_bmp_palette(const char *file)
     struct FileLoadData d = open_bmp_file(file);
 
     buffer_t *palette = malloc(256 * 3);
-    if(!palette)
-        while(1) printf("Out of mem: load_bmp_palette %s\n", file);
+    assert(palette);
 
     for(i = 0; i < d.col_num * 3; i+= 3) {
         palette[i + 2] = fgetc(d.fp) >> 2;
         palette[i + 1] = fgetc(d.fp) >> 2;
         palette[i + 0] = fgetc(d.fp) >> 2;
         fgetc(d.fp);
-
-        //printf("%s [%d] (%d %d %d)\n", file, i, palette[i + 0], palette[i + 1], palette[i + 2]);
     }
 
     fclose(d.fp);

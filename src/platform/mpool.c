@@ -86,7 +86,7 @@ void mem_pool_init(slotid_t slot)
     poolraw = (unsigned char far *)pool + CHUNK_SIZE;
     
     /* initialize the pool */
-    _fmemset(pool->chunks, CHNK_FREE, CHUNK_MAX);
+    memset(pool->chunks, CHNK_FREE, CHUNK_MAX);
     pool->chunks[0] = CHNK_TOP | CHNK_FREE;
     pool->blockid = block;
 }
@@ -141,7 +141,7 @@ void far *mem_pool_calloc(size_t num, size_t size)
 {
     void far *ptr = malloc(num * size);
     
-    _fmemset(ptr, 0, num * size);
+    memset(ptr, 0, num * size);
     
     return ptr;
 }

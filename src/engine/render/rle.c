@@ -13,11 +13,11 @@
 */
 #ifdef DO_SECOND_TERM
     #define SECOND_TERM_A \
-        else { _fmemset(dest, BGCOL, pcount); }
+        else { memset(dest, BGCOL, pcount); }
     #define SECOND_TERM_B \
-        else { _fmemset(dest + pcount, BGCOL, MIN(rle->length, MAX(0, right - pcount))); }
+        else { memset(dest + pcount, BGCOL, MIN(rle->length, MAX(0, right - pcount))); }
     #define SECOND_TERM_C \
-        else { _fmemset(dest + pcount, COL, MIN(rle->length, MAX(0, right - pcount))); }
+        else { memset(dest + pcount, COL, MIN(rle->length, MAX(0, right - pcount))); }
 #else
     #define SECOND_TERM_A
     #define SECOND_TERM_B
@@ -57,7 +57,7 @@
     while(pcount < 0) {                                     \
         pcount += rle->length;                              \
         if(pcount > 0) {                                    \
-            if(COND) { _fmemset(dest, COL, pcount); }       \
+            if(COND) { memset(dest, COL, pcount); }       \
             SECOND_TERM_A                                   \
             ++rle;                                          \
             break;                                          \
@@ -68,7 +68,7 @@
                                                             \
     if(left != 0) {                                         \
         while(pcount < right) { /* we've already fast-forwarded so draw to the end of the rle texture */    \
-            if(COND) { _fmemset(dest + pcount, COL, MIN(rle->length, MAX(0, right - pcount))); } \
+            if(COND) { memset(dest + pcount, COL, MIN(rle->length, MAX(0, right - pcount))); } \
             SECOND_TERM_B                                   \
             pcount += rle->length;                          \
             ++rle;                                          \
@@ -76,7 +76,7 @@
     }                                                       \
     else {                                                  \
         while(pcount < rect.w) { /* we started at the beginning so we have to fast-forward to the end once we hit the right clip */ \
-            if(COND) { _fmemset(dest + pcount, COL, MIN(rle->length, MAX(0, right - pcount))); } \
+            if(COND) { memset(dest + pcount, COL, MIN(rle->length, MAX(0, right - pcount))); } \
             SECOND_TERM_C                                   \
             pcount += rle->length;                          \
             ++rle;                                          \
