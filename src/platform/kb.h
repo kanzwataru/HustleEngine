@@ -4,7 +4,7 @@
 #include "common/platform.h"
 
 #ifdef PLATFORM_DOS32
-	#include "platform/dos/kb_dos.h"
+	#include "platform/dos32/kb_dos.h"
 #endif
 #ifdef PLATFORM_SDL
 	#include "platform/sdl/kb_sdl.h"
