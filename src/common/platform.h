@@ -16,7 +16,7 @@ typedef unsigned char bool;
     #include <conio.h>
 
     #ifdef DOS32
-        #define __far /* nope! */
+        //#define __far /* nope! */
     #endif
 
     #define farmalloc(a)      _fmalloc(a)
@@ -73,12 +73,21 @@ typedef unsigned char bool;
     #include <dos.h>
     #define inline /* no inline on C89 */
 
-    typedef unsigned char far buffer_t;
-    typedef unsigned char byte;
-    typedef unsigned int  uint16;
-    typedef unsigned long uint32;
-    typedef int           int16;
-    typedef long          int32;
+    #ifdef DOS32
+        typedef unsigned char  byte;
+        typedef unsigned short uint16;
+        typedef unsigned int   uint32;
+        typedef short          int16;
+        typedef int            int32;
+    #else
+        typedef unsigned char byte;
+        typedef unsigned int  uint16;
+        typedef unsigned long uint32;
+        typedef int           int16;
+        typedef long          int32;
+    #endif
+
+    typedef byte far buffer_t;
 #endif /* platform */
 /******************************************************/
 

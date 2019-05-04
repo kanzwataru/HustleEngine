@@ -18,7 +18,7 @@ bool const *keyboard_keys = key_array; /* global key array */
 static void interrupt input_service(void)
 {
     byte key;
-    
+
     assert(init_done);
     _asm {
         in  al,  60h    /* get key from keyboard input port */
@@ -38,18 +38,18 @@ static void interrupt input_service(void)
         key_array[FROM_RELEASED(key)] = false;
     else
         key_array[key] = true;
-    
+
     outportb(0x20, 0x20);
 }
 
 void keyboard_init(void)
 {
     init_done = true;
-    
+
     /* replace the keyboard interrupt service with our handler */
     old_key_vect = getvect(KEYBOARD_ISR);
     setvect(KEYBOARD_ISR, input_service);
-    
+
     /* clear key array */
     memset(key_array, 0, KEYCODES_MAX);
 }
@@ -58,12 +58,12 @@ void keyboard_quit(void)
 {
     assert(init_done);
     init_done = false;
-    
+
     /* bring back the original keyboard interrupt service */
     setvect(KEYBOARD_ISR, old_key_vect);
 }
 
-void keyboard_per_frame_update(void) 
+void keyboard_per_frame_update(void)
 {
     /* On DOS,
      * we use an interrupt so we won't poll what keys are there,

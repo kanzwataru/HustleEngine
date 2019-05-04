@@ -15,7 +15,7 @@ void engine_init(void)
 
     //mem_init();
     //mem_pool_init(MEMSLOT_MEMORY_POOL);
-    //keyboard_init();
+    keyboard_init();
 
     initialized = true;
     DEBUG_DO(printf("HustleEngine: Core initialized\n"));
@@ -52,7 +52,7 @@ void engine_gameloop_break(void)
 
 void engine_quit(void)
 {
-    //keyboard_quit();
+    keyboard_quit();
     //mem_pool_quit();
     //mem_quit();
     DEBUG_DO(printf("HustleEngine: Done quitting\n"));

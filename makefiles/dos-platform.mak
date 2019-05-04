@@ -1,7 +1,7 @@
 .PHONY: buildnrun run
 
 # Cross-compile for DOS with OpenWatcom
-ENGINE_SRC += platform/dos32/vga.c platform/dos32/kb.c platform/dos32/mem.c
+ENGINE_SRC += platform/dos32/vga.c platform/dos32/kb.c platform/dos32/mem.c platform/dos32/internal/pc.c
 HEADERS	   += $(GAME_INCLUDE)
 LIBS		= #mathc.lib
 TARGET		= $(BUILD_DIR)/$(GAME_NAME).exe
@@ -14,23 +14,24 @@ else
 CFLAGS	   += -otexan -d0
 endif
 CFLAGS	   += $(addprefix -i,$(HEADERS))
-LDFLAGS		= -bt=dos -l=pmodew -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -6r -mf -zq
+LDFLAGS		= -bt=dos -l=dos32a -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -6r -mf -zq
 
 CC			= wcl386
-PMODE       = $(dir $(shell which $(CC)))../binw/pmodew.exe
+CC_DOS_DIR  = $(dir $(shell which $(CC)))../binw
+EXTENDER    = dos32a.exe
 
-$(BUILD_DIR)/pmodew.exe:
+$(BUILD_DIR)/$(EXTENDER):
 	@mkdir -p `dirname $@`
-	@cp $(PMODE) $@
+	@cp $(CC_DOS_DIR)/$(EXTENDER) $@
 
 	@# copy it to the current dir also, temporarily for the linker to find
-	@cp $(PMODE) ./pmodew.exe
+	@cp $(CC_DOS_DIR)/$(EXTENDER) ./$(EXTENDER)
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $^ -fo=$@
 
-$(TARGET): $(BUILD_DIR)/pmodew.exe $(OBJS)
+$(TARGET): $(BUILD_DIR)/$(EXTENDER) $(OBJS)
 	@mkdir -p `dirname $@`
 	@$(CC) $(LDFLAGS) $(OBJS) $(LIBS)
 
@@ -38,8 +39,8 @@ $(TARGET): $(BUILD_DIR)/pmodew.exe $(OBJS)
 	@rm -f *.err
 
 build: $(TARGET)
-	@# clean up temporary pmode
-	@rm pmodew.exe
+	@# clean up temporary extender
+	@rm $(EXTENDER)
 
 run: all
 	dosbox -c "Z:" -c "mount F $(DOS_ROOT)" -c "F:" -c "cd $(DOS_BUILD)" -c "$(GAME_NAME).exe"
