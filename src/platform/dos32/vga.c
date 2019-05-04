@@ -55,7 +55,7 @@ void video_flip(const buffer_t *backbuf)
     if(current_mode != VGA_CHUNKY256)
         NOT_IMPLEMENTED;
 
-    _fmemcpy(vga_mem, backbuf, screen_size);
+    memcpy(vga_mem, backbuf, screen_size);
 }
 
 /*

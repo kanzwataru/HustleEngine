@@ -127,7 +127,7 @@ static void blit(buffer_t *dest, const buffer_t *src, Rect rect)
     register int offset = CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest + offset, src + offset, rect.w);
+        memcpy(dest + offset, src + offset, rect.w);
 
         offset += SCREEN_WIDTH;
     }
@@ -141,7 +141,7 @@ static void blit_offset(buffer_t *dest, const buffer_t *src, Rect rect, int offs
     src += offset;
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect.w);
+        memcpy(dest, src, rect.w);
 
         dest += SCREEN_WIDTH;
         src += orig_w;
@@ -155,7 +155,7 @@ static void tile_to_screen(buffer_t *dest, const buffer_t *src, Rect rect)
     dest += CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect.w);
+        memcpy(dest, src, rect.w);
 
         dest += SCREEN_WIDTH;
         src += rect.w;
@@ -169,7 +169,7 @@ static void screen_to_tile(buffer_t *dest, const buffer_t *src, Rect rect)
     src += CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect.w);
+        memcpy(dest, src, rect.w);
 
         dest += rect.w;
         src += SCREEN_WIDTH;
@@ -184,7 +184,7 @@ static void screen_to_screen(buffer_t *dest, const buffer_t *src, Rect rect)
     dest += CALC_OFFSET(rect.x, rect.y);
 
     for(; y > 0; --y) {
-        _fmemcpy(dest, src, rect.w);
+        memcpy(dest, src, rect.w);
         dest += SCREEN_WIDTH;
         src  += SCREEN_WIDTH;
     }

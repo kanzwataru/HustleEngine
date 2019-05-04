@@ -64,7 +64,7 @@ buffer_t *load_bmp_image(const char *file)
     p = buf + (size - d.width);
     for(y = 0; y < d.height; ++y) {
         ret = fread(p, sizeof(byte), d.width, d.fp);
-        assert(ret = d.width);
+        assert(ret == d.width);
         p -= d.width;
     }
 

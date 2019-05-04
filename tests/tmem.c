@@ -170,7 +170,7 @@ int test_mem(void)
     }
 
     printf("Block B is a clone of Block A\n");
-    _fmemcpy(slot_1_p, slot_0_p, MEM_BLOCK_SIZE);
+    memcpy(slot_1_p, slot_0_p, MEM_BLOCK_SIZE);
     ASSERT_SLOTS_MATCH(0, 1);
 
     printf("stow away Block B\n");

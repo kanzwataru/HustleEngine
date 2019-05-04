@@ -25,7 +25,7 @@
 #endif
 
 #define DO_RLE_DRAW(COND, COL, BGCOL) \
-    int pcount, left, right;    \
+    int16 pcount, left, right;    \
     byte lines, lineskip;         \
     const struct RLEChunk *rle = &image->data[0]; \
                                     \
@@ -98,7 +98,7 @@
 size_t buffer_to_rle(RLEImage *rle, buffer_t *buf, int width, int height)
 {
     uint16 offset = 0, line = 0;
-    size_t count = 0;
+    uint16 count = 0;
 
     DEBUG_DO(printf("*RLE Conversion *\n  buf: %p\n  size: (%d %d)\n", buf, width, height));
 

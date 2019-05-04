@@ -280,7 +280,7 @@ void test_start(bool do_benchmark, int benchmark_times)
 
     FILL_BUFFER(rd->bg.image, 3);
     add_bricks();
-    _fmemcpy(rd->screen, rd->bg.image, SCREEN_SIZE);
+    memcpy(rd->screen, rd->bg.image, SCREEN_SIZE);
     bouncing_sprites_init();
 
     e = event_add(should_not_fire, NULL, 700);
