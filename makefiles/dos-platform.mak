@@ -14,15 +14,16 @@ else
 CFLAGS	   += -otexan -d0
 endif
 CFLAGS	   += $(addprefix -i,$(HEADERS))
-LDFLAGS		= -bt=dos -l=dos32a -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -6r -mf -zq
+LDFLAGS		= -bt=dos -l=pmodew -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -6r -mf -zq
 
 CC			= wcl386
 CC_DOS_DIR  = $(dir $(shell which $(CC)))../binw
-EXTENDER    = dos32a.exe
+EXTENDER    = pmodew.exe
 
 $(BUILD_DIR)/$(EXTENDER):
-	@mkdir -p `dirname $@`
-	@cp $(CC_DOS_DIR)/$(EXTENDER) $@
+	@# (if using PMODE/W extender, it's not necessary to copy to build because it's embedded)
+	@#mkdir -p `dirname $@`
+	@#cp $(CC_DOS_DIR)/$(EXTENDER) $@
 
 	@# copy it to the current dir also, temporarily for the linker to find
 	@cp $(CC_DOS_DIR)/$(EXTENDER) ./$(EXTENDER)
