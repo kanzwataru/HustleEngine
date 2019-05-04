@@ -3,9 +3,6 @@
 
 #include "common/platform.h"
 
-buffer_t *load_bmp_image(const char *file);
-buffer_t *load_bmp_palette(const char *file);
-
 void load_asset_pak(const char *file);
 
 #endif
