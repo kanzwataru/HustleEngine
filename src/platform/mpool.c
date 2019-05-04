@@ -1,4 +1,4 @@
-#include "platform/mem.h"
+//#include "platform/mem.h"
 #include "common/math.h"
 
 #define CHUNK_SIZE      512 /* bytes maximum size of chunk */
@@ -99,7 +99,7 @@ void mem_pool_quit(void)
     pool = NULL;
 }
 
-void far *mem_pool_alloc(size_t size)
+void far *malloc(size_t size)
 {
     chunkid_t i, head, tail, num_chunks;
     
@@ -139,14 +139,14 @@ void far *mem_pool_alloc(size_t size)
 
 void far *mem_pool_calloc(size_t num, size_t size)
 {
-    void far *ptr = mem_pool_alloc(num * size);
+    void far *ptr = malloc(num * size);
     
     _fmemset(ptr, 0, num * size);
     
     return ptr;
 }
 
-void mem_pool_free(void far *ptr)
+void free(void far *ptr)
 {
     chunkid_t head, tail;
     head = PTR_TO_ID(ptr);

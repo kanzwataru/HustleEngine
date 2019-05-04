@@ -10,7 +10,7 @@
 
 GAME_NAME		:= htest
 GAME_INCLUDE	:= .
-GAME_SRC		:= main.c simplet.c test.c tmem.c trle.c tasset.c
+GAME_SRC		:= main.c simplet.c test.c trle.c tasset.c
 #GAME_SRC		:= simplet.c
 ENGINE_DIR		:= ..
 BUILD_DIR       := build

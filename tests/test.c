@@ -16,7 +16,6 @@ static RenderData *rd;
 //static byte col = 0;
 static bool paused = false;
 
-static memid_t tblock = 0;
 static void *transientmem = NULL;
 
 //static Animation test_anim;
@@ -161,12 +160,11 @@ static bool input(void) {
 }
 
 static void quit(void) {
-    mem_pool_free(rd->sprites[1].vis.image);
-    mem_pool_free(rd->sprites[SPRITE_COUNT - 1].vis.rle);
+    free(rd->sprites[1].vis.image);
+    free(rd->sprites[SPRITE_COUNT - 1].vis.rle);
 
     renderer_quit(rd, true);
     engine_quit();
-    mem_free_block(tblock);
     exit(1);
 }
 
@@ -232,16 +230,15 @@ void test_start(bool do_benchmark, int benchmark_times)
     cd.frame_skip = 0;
 
     balloon_img = load_bmp_image("RES/BALLOON.BMP");
-    balloon_rle = mem_pool_alloc(4096);
+    balloon_rle = malloc(4096);
     buffer_to_rle(balloon_rle, balloon_img, 32, 32);
     pal = load_bmp_palette("RES/BALLOON.BMP");
 
-    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
-    transientmem = mem_slot_get(tblock);
+    transientmem = malloc(64000);
 
     rd = renderer_init(transientmem, SPRITE_COUNT, RENDER_PERSIST, pal);
-    mem_pool_free(pal);
-    mem_pool_free(balloon_img);
+    free(pal);
+    free(balloon_img);
 
     //rd->sprites[0].anim = &test_anim;
     rd->sprites[0].vis.colour = 4;
@@ -251,7 +248,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[0].rect.y = 64;
     rd->sprites[0].flags = SPRITE_ACTIVE | SPRITE_SOLID;
 
-    rd->sprites[1].vis.image = mem_pool_alloc(32 * 32);
+    rd->sprites[1].vis.image = malloc(32 * 32);
 
     for(i = 0; i < 32 * 32; ++i) {
         rd->sprites[1].vis.image[i] = i;

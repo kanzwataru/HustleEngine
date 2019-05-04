@@ -23,7 +23,6 @@ static Rect prev_clipper_rect, clipper_rect;
 //static Rect prev_wclouds_rect, wclouds_rect;
 static Rect prev_balloon_rect, balloon_rect;
 
-static memid_t tblock = 0;
 static void *transientmem = NULL;
 
 #define CLIPPER_SPRITE_D    48
@@ -51,26 +50,26 @@ static void load_stuff(void)
     uint16 size;
 
     cloud_raw = load_bmp_image("RES/CLOUD.BMP");
-    cloud = mem_pool_alloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
+    cloud = malloc(CLOUD_SPRITE_H * CLOUD_SPRITE_W * 4);
     buffer_to_rle(cloud, cloud_raw, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
-    mem_pool_free(cloud_raw);
+    free(cloud_raw);
 
     clipper_raw = load_bmp_image("RES/CLIPPER.BMP");
-    clipper = mem_pool_alloc(4024);
+    clipper = malloc(4024);
     buffer_to_rle(clipper, clipper_raw, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
-    mem_pool_free(clipper_raw);
+    free(clipper_raw);
 
 /*
     wclouds_raw = load_bmp_image("RES/CLOUDS.BMP");
     convert_bw(wclouds_raw, WCLOUDS_SPRITE_W * CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
-    wclouds = mem_pool_alloc(4096 * 2);
+    wclouds = malloc(4096 * 2);
     size = monochrome_buffer_to_rle(wclouds, wclouds_raw, WCLOUDS_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
-    mem_pool_free(wclouds_raw);
+    free(wclouds_raw);
 */
     balloon_raw = load_bmp_image("RES/BALLOON.BMP");
-    balloon = mem_pool_alloc(4096);
+    balloon = malloc(4096);
     size = buffer_to_rle(balloon, balloon_raw, BALLOON_W, BALLOON_W);
-    mem_pool_free(balloon_raw);
+    free(balloon_raw);
 
     printf("size: %d\n", size);
     //assert(size == GET_RLE_SIZE(wclouds));
@@ -152,10 +151,9 @@ static bool input(void)
 
 static void quit(void)
 {
-    mem_free_block(tblock);
-    mem_pool_free(cloud);
-    mem_pool_free(clipper);
-    mem_pool_free(balloon);
+    free(cloud);
+    free(clipper);
+    free(balloon);
     engine_quit();
 }
 
@@ -180,12 +178,11 @@ int rletest_start(void)
     cd.input_handler = &input;
     cd.exit_handler = &quit;
 
-    tblock = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
-    transientmem = mem_slot_get(tblock);
+    transientmem = malloc(64000);
 
     pal = load_bmp_palette("RES/VGAPAL.BMP");
     rd  = renderer_init(transientmem, 3, RENDER_BG_SOLID | RENDER_PERSIST, pal);
-    mem_pool_free(pal);
+    free(pal);
 
     FILL_BUFFER(rd->screen, SKY_COL);
     rd->bg.colour = SKY_COL;

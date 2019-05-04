@@ -5,13 +5,12 @@
 void simpletest_start(void);
 void test_start(bool do_benchmark, int benchmark_times);
 void test_keyboard(void);
-int test_mem(void);
 int rletest_start(void);
 void assettest_start(void);
 
 void help(void)
 {
-    printf("Here is the list of tests:\n test\n test-keyboard\n simpletest\n benchmark\n mem\n rle\n asset\n");
+    printf("Here is the list of tests:\n test\n test-keyboard\n simpletest\n benchmark\n rle\n asset\n");
 }
 
 int main(int argc, char **argv)
@@ -23,8 +22,6 @@ int main(int argc, char **argv)
             test_keyboard();
         if(0 == strcmp(argv[1], "simpletest"))
             simpletest_start();
-        if(0 == strcmp(argv[1], "mem"))
-            test_mem();
         if(0 == strcmp(argv[1], "rle"))
             rletest_start();
         if(0 == strcmp(argv[1], "asset"))

@@ -5,7 +5,6 @@
 
 /* engine data */
 static RenderData *rd;
-static memid_t   block_a = 0;
 static void *block_a_mem = NULL;
 /* */
 
@@ -55,8 +54,7 @@ void assettest_start(void)
     engine_init();
 
     /* get a 64kb memory block */
-    block_a = mem_alloc_block(MEMSLOT_RENDERER_TRANSIENT);
-    block_a_mem = mem_slot_get(block_a);
+    block_a_mem = malloc(64000);
 
     /* initialize the renderer with no sprites and no background inside block_a */
     rd = renderer_init(block_a_mem, 0, 0, DEFAULT_VGA_PALETTE);

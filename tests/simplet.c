@@ -9,7 +9,6 @@
 #include <time.h>
 
 static RenderData *rd;
-static memid_t tblock = 0;
 static void *transientmem = NULL;
 
 static volatile unsigned char *vga = (unsigned char *)0xA0000;

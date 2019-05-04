@@ -28,8 +28,8 @@ void mem_restore_block(memid_t block, slotid_t slot);
 
 void mem_pool_init(slotid_t slot);
 void mem_pool_quit(void);
-void far *mem_pool_alloc(size_t size);
+void far *malloc(size_t size);
 void far *mem_pool_calloc(size_t num, size_t size);
-void mem_pool_free(void far *ptr);
+void free(void far *ptr);
 
 #endif

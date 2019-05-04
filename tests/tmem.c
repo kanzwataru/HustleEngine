@@ -1,5 +1,5 @@
 #include "common/platform.h"
-#include "platform/mem.h"
+//#include "platform/mem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,9 +77,9 @@ int test_mem_pool(void)
     mem_pool_init(0);
 
     printf("alloc three 512-byte arrays\n");
-    a = mem_pool_alloc(512);
-    b = mem_pool_alloc(512);
-    c = mem_pool_alloc(512);
+    a = malloc(512);
+    b = malloc(512);
+    c = malloc(512);
     PTROUT(a);
     PTROUT(b);
     PTROUT(c);
@@ -87,43 +87,43 @@ int test_mem_pool(void)
     assert(a != b && b != c && a != c);
 
     printf("alloc a 16k array\n");
-    d = mem_pool_alloc(16 * 1024);
+    d = malloc(16 * 1024);
     PTROUT(d);
     assert(d);
 
     printf("free a 512-byte array\n");
-    mem_pool_free(b);
+    free(b);
     b = NULL;
 
     printf("alloc a 4k array\n");
-    b = mem_pool_alloc(4 * 1024);
+    b = malloc(4 * 1024);
     PTROUT(b);
     assert(b);
 
     printf("free the 16k array\n");
-    mem_pool_free(d);
+    free(d);
     d = NULL;
 
     printf("alloc a 4k array\n");
-    d = mem_pool_alloc(4 * 1024);
+    d = malloc(4 * 1024);
     PTROUT(d);
     assert(d);
 
     printf("free a 512-byte array\n");
-    mem_pool_free(a);
+    free(a);
     a = NULL;
 
     printf("alloc a 2k array\n");
-    a = mem_pool_alloc(2 * 1024);
+    a = malloc(2 * 1024);
     PTROUT(a);
     assert(a);
 
     printf("free a 512-byte array\n");
-    mem_pool_free(c);
+    free(c);
     c = NULL;
 
     printf("alloc a 712-byte array (odd-sized)\n");
-    c = mem_pool_alloc(712);
+    c = malloc(712);
     PTROUT(c);
     assert(c);
 

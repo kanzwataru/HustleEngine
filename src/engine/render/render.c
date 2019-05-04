@@ -2,7 +2,7 @@
 #include "engine/render.h"
 #include "engine/asset.h"
 #include "platform/video.h"
-#include "platform/mem.h"
+//#include "platform/mem.h"
 #include "common/platform.h"
 #include "common/math.h"
 #include <stdio.h>
@@ -22,7 +22,7 @@ static bool video_initialized = false;
 /*
  * Use a memory slot as a framebuffer
 */
-static buffer_t *make_framebuffer(slotid_t memslot) {
+static buffer_t *make_framebuffer(void) {
     //mem_alloc_block(memslot);
     //return mem_slot_get(memslot);
     return malloc(320 * 200);
@@ -468,11 +468,11 @@ RenderData *renderer_init(void *memory, uint16 sprite_count, byte flags, buffer_
     rd = memory;
     memory = (char *)memory + sizeof(*rd);
 
-    rd->screen = make_framebuffer(MEMSLOT_RENDERER_BACKBUFFER);
+    rd->screen = make_framebuffer();
     rd->sprite_count = sprite_count;
     rd->flags = flags;
     if(!(flags & RENDER_BG_SOLID))
-        rd->bg.image = make_framebuffer(MEMSLOT_RENDERER_BG);
+        rd->bg.image = make_framebuffer();
 
     if(rd->screen) {
         if(!video_initialized) {
