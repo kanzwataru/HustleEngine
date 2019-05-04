@@ -230,7 +230,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     cd.frame_skip = 0;
 
     balloon_img = load_bmp_image("RES/BALLOON.BMP");
-    balloon_rle = malloc(4096);
+    balloon_rle = malloc(4096 * 10);
     buffer_to_rle(balloon_rle, balloon_img, 32, 32);
     pal = load_bmp_palette("RES/BALLOON.BMP");
 
