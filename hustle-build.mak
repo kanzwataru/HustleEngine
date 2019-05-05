@@ -27,17 +27,19 @@ endif
 ############################
 
 ############################
-# Include other makefiles   #
+# Include asset makefile   #
 include $(ENGINE_DIR)/makefiles/assets.mak
 ############################
 
 preclean: cleanhook
 	@[[ $(BUILD_DIR) == /* ]] || rm -Rf $(BUILD_DIR)
 	@find . -type f -name '._*' -delete
+	@$(MAKE) -C $(ENGINE_DIR)/tools clean
 	@$(MAKE) --no-print-directory assets_clean
 
 mainbuild: prebuild
 	@echo "*** Build ***"
+	@$(MAKE) -C $(ENGINE_DIR)/tools
 	@$(MAKE) --no-print-directory assets
 	@$(MAKE) --no-print-directory build
 
