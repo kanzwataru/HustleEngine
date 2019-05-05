@@ -8,7 +8,8 @@
 typedef void (*handler_t)(const Asset &, std::FILE *);
 
 static const std::map<std::string, handler_t> handlers = {
-    {"SpritesheetRLE", spritesheet::bmp2rle}
+    {"SpritesheetRLE", spritesheet::bmp2rle},
+    {"Palette", palette::bmp2pal},
 };
 
 static void help(bool verbose)
@@ -74,7 +75,7 @@ static void convert_asset(std::string name)
 
     // ensure validity
     if(asset.type == "" || !handlers.count(asset.type)) {
-        std::fprintf(stderr, "\n * Invalid asset: %s of type %s\n", asset.name.c_str(), asset.type.c_str());
+        std::fprintf(stderr, "\n * Invalid or missing asset: %s of type %s\n", asset.name.c_str(), asset.type.c_str());
         exit(1);
     }
 

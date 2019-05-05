@@ -191,7 +191,8 @@ void write_header(void)
 void flush_pak(struct Pak *pak)
 {
     char filename[2048];
-    snprintf(filename, 2048, "build/%s/%s.dat", platform, pak->name);
+    //snprintf(filename, 2048, "build/%s/%s.dat", platform, pak->name);
+    snprintf(filename, 2048, "RES/%s.dat", pak->name);
 
     write_out(pak->data, pak->size, filename);
     generate_header_for(pak);

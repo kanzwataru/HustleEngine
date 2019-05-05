@@ -42,17 +42,10 @@ void spritesheet::bmp2rle(const Asset &asset, std::FILE *out)
 
     validate_spritesheet(asset);
 
-    // get filename
-    std::string filename = "artsrc/" + asset.name + ".bmp";
-    std::FILE *fp = std::fopen(filename.c_str(), "rb");
-    if(!fp) {
-        std::fprintf(stderr, "* asset file not found: %s\n", filename.c_str());
-    }
-
-    std::fclose(fp); // load_bmp_image has its own file opening
-
     // load
+    std::string filename = common::file_for_asset(asset.name, "bmp");
     image_data = load_bmp_image(filename.c_str(), &info);
+
     assert(image_data);
     assert(image_data.width == std::stoi(asset.metadata.at("width")));
     assert(image_data.height == std::stoi(asset.metadata.at("height")) * std::stoi(asset.metadata.at("count")));
@@ -65,4 +58,16 @@ void spritesheet::bmp2rle(const Asset &asset, std::FILE *out)
     write_spritesheet(asset, rle, size, out, SHEET_RLE);
 
     free(rle);
+}
+
+void palette::bmp2pal(const Asset &asset, std::FILE *out)
+{
+    uint8_t *pal_data = nullptr;
+    size_t size = 256 * 3; // assert mode 13h for now
+
+    std::string filename = common::file_for_asset(asset.name, "bmp");
+    pal_data = load_bmp_palette(filename.c_str());
+    assert(pal_data);
+
+    fwrite(pal_data, sizeof(uint8_t), size, out);
 }
