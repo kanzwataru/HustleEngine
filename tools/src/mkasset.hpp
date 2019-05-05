@@ -5,6 +5,8 @@
 
 extern "C" {
 #include "lib/aconv.h"
+
+#define INI_STOP_ON_FIRST_ERROR
 #include "extern/inih/ini.h"
 }
 

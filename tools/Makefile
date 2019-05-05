@@ -1,6 +1,7 @@
 .PHONY: all clean
 
 TARGETS  := mkfontsheet mkpak mkasset
+TARGETS  := $(patsubst %, ../bin/%, $(TARGETS))
 
 C_SRC    := $(shell find extern/ -type f -name '*.c')
 C_SRC    += $(shell find src/lib/ -type f -name '*.c')
@@ -24,11 +25,11 @@ CXX	 	 := g++
 %.o: %.cpp
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-%: src/%.o $(CXX_OBJ) $(C_OBJ)
+%: ../tools/src/%.o $(CXX_OBJ) $(C_OBJ)
 	@$(CXX) $(CXXFLAGS) $^ -o $@
 
 all: $(TARGETS)
 
 clean:
-	rm -f $(TARGETS)
-	rm -f **/*.o
+	@rm -f $(TARGETS)
+	@rm -f **/*.o

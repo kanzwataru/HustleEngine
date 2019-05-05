@@ -3,5 +3,5 @@
 
 /* Spritesheet converters */
 namespace spritesheet {
-    void bmp2rle(Asset asset, std::FILE *out);
+    void bmp2rle(const Asset &asset, std::FILE *out);
 }

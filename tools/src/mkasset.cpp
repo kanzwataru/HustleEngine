@@ -5,15 +5,15 @@
 #include "mkasset.hpp"
 #include "converters/converters.hpp"
 
-typedef void (*handler_t)(Asset, std::FILE *);
+typedef void (*handler_t)(const Asset &, std::FILE *);
 
 static const std::map<std::string, handler_t> handlers = {
     {"SpritesheetRLE", spritesheet::bmp2rle}
 };
 
-void help()
+static void help(bool verbose)
 {
-    const char *help_line =
+    const char *verbose_help_line =
     "Converts assets from their respective formats to\n"
     "HustleEngine data, including metadata specified in INI files\n"
     "\n\n"
@@ -31,21 +31,68 @@ void help()
     " mkasset foo > foo.bin\n"
     " mkasset bar > bar.bin\n";
 
-    std::fprintf(stderr, help_line);
+    const char *usage_line =
+    "HustleEngine mkasset utility\n\n"
+    "Usage: mkasset <name>\n"
+    "(pass -h for more info)";
+
+    if(verbose)
+        std::fprintf(stderr, verbose_help_line);
+    else
+        std::fprintf(stderr, usage_line);
+}
+
+static int ini_callback(void *user, const char *section, const char *name, const char *value)
+{
+    Asset *asset = (Asset *)user;
+
+    if(asset->name != section) {
+        return 1; /* keep going */
+    }
+
+    if(std::string(name) == "type") {
+        asset->type = value;
+    }
+    else {
+        asset->metadata[name] = value;
+    }
+
+    return 1;
+}
+
+static void convert_asset(std::string name)
+{
+    Asset asset;
+
+    // load asset info from ini file
+    asset.name = name;
+
+    if(ini_parse("config/assets.ini", ini_callback, &asset) < 0) {
+        std::fprintf(stderr, "\n * Can't correctly load assets.ini\n");
+        exit(1);
+    }
+
+    // ensure validity
+    if(asset.type == "" || !handlers.count(asset.type)) {
+        std::fprintf(stderr, "\n * Invalid asset: %s of type %s\n", asset.name.c_str(), asset.type.c_str());
+        exit(1);
+    }
+
+    // run handler and output to stdout
+    handlers.at(asset.type)(asset, stdout);
 }
 
 int main(int argc, char **argv)
 {
     if(argc != 2) {
-        help();
-        return 1;
+        help(false);
+        return 2;
     }
 
-    // load asset info from ini file
+    if(std::string(argv[1]) == "-h") {
+        help(true);
+        return 2;
+    }
 
-    // load asset data
-
-    // convert asset
-
-    // write asset out to stdout
+    convert_asset(argv[1]);
 }
