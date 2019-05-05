@@ -42,7 +42,7 @@ static struct FileLoadData open_bmp_file(const char *file)
     return d;
 }
 
-buffer_t *load_bmp_image(const char *file)
+buffer_t *load_bmp_image(const char *file, struct ImageInfo *out_info)
 {
     size_t x, y;
     size_t ret;
@@ -70,6 +70,11 @@ buffer_t *load_bmp_image(const char *file)
     }
 
     fclose(d.fp);
+
+    if(out_info) {
+        out_info->width = d.width;
+        out_info->height = d.height;
+    }
 
     return buf;
 }

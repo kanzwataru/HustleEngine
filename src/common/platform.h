@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include "debug.h"
 
-typedef unsigned char bool;
-#define true 1
-#define false 0
-
 /***                      ***
  ***    COMPILER CHECK    ***
  ***                      ***/
@@ -26,6 +22,10 @@ typedef unsigned char bool;
     typedef short          int16;
     typedef int            int32;
 
+    typedef unsigned char bool;
+    #define true 1
+    #define false 0
+
     typedef void __interrupt __far (*interrupt_t)(void);
 #endif
 
@@ -33,6 +33,7 @@ typedef unsigned char bool;
     #define PLATFORM_SDL
     #include <string.h>
     #include <stdint.h>
+    #include <stdbool.h>
 
     typedef uint8_t  byte;
     typedef uint16_t uint16;
