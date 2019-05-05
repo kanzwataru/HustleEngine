@@ -3,6 +3,7 @@
 #include "common/platform.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 struct FileLoadData {
     FILE *fp;

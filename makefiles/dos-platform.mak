@@ -7,7 +7,7 @@ LIBS		= #mathc.lib
 TARGET		= $(BUILD_DIR)/$(GAME_NAME).exe
 DOS_ROOT    = $(shell pwd)/$(BUILD_DIR)
 
-CFLAGS 		= -dDOS32 -bt=dos -zq -w4 -e25
+CFLAGS 		= -dDOS32 -dHUSTLE_RUNTIME -bt=dos -zq -w4 -e25
 ifeq ($(DEBUG_BUILD), 1)
 CFLAGS	   += -od -d2 -dDEBUG
 else

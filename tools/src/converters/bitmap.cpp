@@ -1,7 +1,7 @@
 #include "converters/converters.hpp"
 #include "engine/asset.h"
 
-#define MAX_RLE_SIZE 1280000
+#define RLE_MAX_SIZE 1280000
 
 static void validate_spritesheet(const Asset &asset)
 {
@@ -36,7 +36,7 @@ static void write_spritesheet(const Asset &asset, uint8_t *data, size_t size, st
 void spritesheet::bmp2rle(const Asset &asset, std::FILE *out)
 {
     uint8_t *image_data = nullptr;
-    uint8_t *rle = (uint8_t *)calloc(1, MAX_RLE_SIZE); // this is ugly and unsafe
+    uint8_t *rle = (uint8_t *)calloc(1, RLE_MAX_SIZE); // this is ugly and unsafe
     ImageInfo info = {0};
     size_t size;
 
@@ -47,12 +47,25 @@ void spritesheet::bmp2rle(const Asset &asset, std::FILE *out)
     image_data = load_bmp_image(filename.c_str(), &info);
 
     assert(image_data);
-    assert(image_data.width == std::stoi(asset.metadata.at("width")));
-    assert(image_data.height == std::stoi(asset.metadata.at("height")) * std::stoi(asset.metadata.at("count")));
+    if(!(info.width == std::stoi(asset.metadata.at("width")))) {
+        fprintf(stderr, "\n\nIn asset: %s\n", asset.name.c_str());
+        fprintf(stderr, "Width mismatch: %d <-> %d!!\n\n", info.width, std::stoi(asset.metadata.at("width")));
+        exit(1);
+    }
+
+    if(!(info.height == std::stoi(asset.metadata.at("height")) * std::stoi(asset.metadata.at("count")))) {
+        fprintf(stderr, "\n\nIn asset: %s\n", asset.name.c_str());
+        fprintf(stderr, "Height mismatch: %d <-> %d (%d * %d)\n\n",
+                info.height,
+                std::stoi(asset.metadata.at("height")) * std::stoi(asset.metadata.at("count")),
+                std::stoi(asset.metadata.at("height")),
+                std::stoi(asset.metadata.at("count")));
+        exit(1);
+    }
 
     // convert
     size = buffer_to_rle((RLEImage *)rle, image_data, info.width, info.height);
-    assert(size <= MAX_SIZE); // cringe
+    assert(size <= RLE_MAX_SIZE); // cringe
 
     // output
     write_spritesheet(asset, rle, size, out, SHEET_RLE);

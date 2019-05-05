@@ -43,6 +43,12 @@
     sprite.aseprite -> sprite.bmp -> sprite.rle -> pakb.dat
                                      audio.dat  |
                        font.ttf   -> font.rle   |
+
+
+
+    ** output pak file format **
+    uint32 size
+    byte   data[size]
 */
 #include "common/platform.h"
 #include "file.h"
@@ -183,7 +189,7 @@ void write_header(void)
     snprintf(header_all, HEADER_BUF_SIZE * 2, header_format, header_gen);
 
     const char *filename = "build/__temp__/assets.gen.h";
-    write_out(header_all, strlen(header_all), filename);
+    write_out(header_all, strlen(header_all), filename, false);
 
     printf("Wrote header -> %s\n", filename);
 }
@@ -194,13 +200,12 @@ void flush_pak(struct Pak *pak)
     //snprintf(filename, 2048, "build/%s/%s.dat", platform, pak->name);
     snprintf(filename, 2048, "RES/%s.dat", pak->name);
 
-    write_out(pak->data, pak->size, filename);
+    write_out(pak->data, pak->size, filename, true);
+    printf("Wrote pak: %s -> %s (%d bytes)\n", pak->name, filename, pak->size);
     generate_header_for(pak);
 
     pak->count = 0;
     pak->size = 0;
-
-    printf("Wrote pak: %s -> %s\n", pak->name, filename);
 }
 
 int pak_handler(void *user, const char *section, const char *name, const char *value)

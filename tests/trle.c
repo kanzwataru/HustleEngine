@@ -1,29 +1,18 @@
 #include "engine/core.h"
 #include "engine/render.h"
+#include "engine/asset.h"
 #include "platform/filesys.h"
-
-/*
-static byte test_img[] = {
-    0x14,0,   // size of structure
-    32,3,
-    16,6, 16,7,
-    8,4, 8,8, 8,7, 8,23,
-    32,1,
-    16,3, 16,7
-};
-*/
 
 static RenderData *rd;
 static RLEImage *cloud;
 static RLEImage *clipper;
-//static RLEImageMono *wclouds;
 static RLEImage *balloon;
 static Rect prev_cloud_rect, cloud_rect;
 static Rect prev_clipper_rect, clipper_rect;
-//static Rect prev_wclouds_rect, wclouds_rect;
 static Rect prev_balloon_rect, balloon_rect;
 
 static void *transientmem = NULL;
+static byte *asset_pak = NULL;
 
 #define CLIPPER_SPRITE_D    48
 
@@ -34,18 +23,9 @@ static void *transientmem = NULL;
 #define CLOUD_COL           3
 #define BALLOON_W           32
 
-/*
-static void convert_bw(buffer_t *buf, size_t size, byte bgcol, byte fgcol)
-{
-    size_t i;
-    for(i = 0; i < size; ++i) {
-        if(buf[i] != bgcol && buf[i] != fgcol)
-            buf[i] = fgcol;
-    }
-}
-*/
 static void load_stuff(void)
 {
+    /*
     buffer_t *clipper_raw, *cloud_raw, *balloon_raw;
     uint16 size;
 
@@ -59,43 +39,18 @@ static void load_stuff(void)
     buffer_to_rle(clipper, clipper_raw, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
     free(clipper_raw);
 
-/*
-    wclouds_raw = load_bmp_image("RES/CLOUDS.BMP");
-    convert_bw(wclouds_raw, WCLOUDS_SPRITE_W * CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
-    wclouds = malloc(4096 * 2);
-    size = monochrome_buffer_to_rle(wclouds, wclouds_raw, WCLOUDS_SPRITE_W, CLOUD_SPRITE_H, SKY_COL, CLOUD_COL);
-    free(wclouds_raw);
-*/
     balloon_raw = load_bmp_image("RES/BALLOON.BMP");
     balloon = calloc(1, 4096 * 10);
     size = buffer_to_rle(balloon, balloon_raw, BALLOON_W, BALLOON_W);
     free(balloon_raw);
 
     printf("size: %d\n", size);
-    //assert(size == GET_RLE_SIZE(wclouds));
+    */
+
+    cloud = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_CLOUD_SPRITESHEETRLE))->data;
+    clipper = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_CLIPPER_SPRITESHEETRLE))->data;
+    balloon = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_BALLOON_SPRITESHEETRLE))->data;
 }
-
-/*
-static void monorle_dump(RLEImageMono *rle, int width, int height)
-{
-    int pcount = 0;
-    int print_count = 0;
-
-    printf("\nMonoRLE Dump\n");
-    while(pcount < width * height) {
-        printf("(%d %d)", rle->fglen, rle->bglen);
-        if(++print_count == 4) {
-            print_count = 0;
-            printf("\n");
-        }
-
-        pcount += rle->fglen + rle->bglen;
-        ++rle;
-    }
-
-    printf("\n");
-}
-*/
 
 static void update(void)
 {
@@ -152,9 +107,7 @@ static bool input(void)
 static void quit(void)
 {
     free(transientmem);
-    free(cloud);
-    free(clipper);
-    free(balloon);
+    free(asset_pak);
     renderer_quit(rd, true);
     engine_quit();
 }
@@ -167,12 +120,6 @@ int rletest_start(void)
     engine_init();
     load_stuff();
 
-#ifdef DEBUG
-    //monorle_dump(cloud, CLOUD_SPRITE_W, CLOUD_SPRITE_H);
-    //monorle_dump(clipper, CLIPPER_SPRITE_D, CLIPPER_SPRITE_D);
-    //monorle_dump(wclouds, WCLOUDS_SPRITE_W, CLOUD_SPRITE_H);
-#endif
-
     rd = 0;
     cd.update_callback = &update;
     cd.render_callback = &render;
@@ -181,10 +128,10 @@ int rletest_start(void)
     cd.exit_handler = &quit;
 
     transientmem = malloc(64000);
+    asset_pak = load_asset_pak("RES/assets.dat");
 
-    pal = load_bmp_palette("RES/VGAPAL.BMP");
+    pal = asset_pak + ASSETS_VGAPAL_PALETTE;
     rd  = renderer_init(transientmem, 3, RENDER_BG_SOLID | RENDER_PERSIST, pal);
-    free(pal);
 
     FILL_BUFFER(rd->screen, SKY_COL);
     rd->bg.colour = SKY_COL;

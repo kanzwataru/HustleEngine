@@ -3,6 +3,6 @@
 
 #include "common/platform.h"
 
-void load_asset_pak(const char *file);
+void *load_asset_pak(const char *file);
 
 #endif

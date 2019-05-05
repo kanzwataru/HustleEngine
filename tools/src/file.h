@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <assert.h>
 
 static int file_exists(const char *file)
@@ -65,10 +66,15 @@ static uint8_t *load_file(const char *file, size_t file_size)
     return data;
 }
 
-static void write_out(uint8_t *data, size_t count, const char *file)
+static void write_out(uint8_t *data, size_t count, const char *file, bool write_size)
 {
     FILE *fp = fopen(file, "wb");
     assert(fp);
+
+    if(write_size) {
+        uint32_t size_header = count;
+        fwrite(&size_header, sizeof(uint32_t), 1, fp);
+    }
 
     fwrite(data, sizeof(uint8_t), count, fp);
 

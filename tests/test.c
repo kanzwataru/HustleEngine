@@ -5,6 +5,7 @@
 #include "engine/render.h"
 #include "engine/core.h"
 #include "engine/event.h"
+#include "engine/asset.h"
 #include "platform/filesys.h"
 
 #define SPRITE_COUNT   8
@@ -17,6 +18,7 @@ static RenderData *rd;
 static bool paused = false;
 
 static void *transientmem = NULL;
+static byte *asset_pak = NULL;
 
 //static Animation test_anim;
 
@@ -161,7 +163,6 @@ static bool input(void) {
 
 static void quit(void) {
     free(rd->sprites[1].vis.image);
-    free(rd->sprites[SPRITE_COUNT - 1].vis.rle);
 
     renderer_quit(rd, true);
     engine_quit();
@@ -217,7 +218,6 @@ void test_start(bool do_benchmark, int benchmark_times)
     CoreData cd;
     EventID e;
     RLEImage *balloon_rle;
-    buffer_t *balloon_img;
     buffer_t *pal;
 
     engine_init();
@@ -229,15 +229,22 @@ void test_start(bool do_benchmark, int benchmark_times)
     cd.exit_handler = &quit;
     cd.frame_skip = 0;
 
+    asset_pak = load_asset_pak("RES/assets.dat");
+    balloon_rle = (RLEImage *)((Spritesheet *)(asset_pak))->data;
+    pal = asset_pak + ASSETS_VGAPAL_PALETTE;
+
+    /*
     balloon_img = load_bmp_image("RES/BALLOON.BMP");
     balloon_rle = calloc(1, 4096 * 10);
     buffer_to_rle(balloon_rle, balloon_img, 32, 32);
     pal = load_bmp_palette("RES/BALLOON.BMP");
+    */
+
+
 
     transientmem = malloc(64000);
 
     rd = renderer_init(transientmem, SPRITE_COUNT, RENDER_PERSIST, pal);
-    free(pal);
     //free(balloon_img);
 
     //rd->sprites[0].anim = &test_anim;
@@ -269,13 +276,14 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[2].flags = SPRITE_ACTIVE | SPRITE_SOLID;
     rd->sprites[2].parent = &rd->sprites[1].rect;
 
+    /*
     rd->sprites[SPRITE_COUNT - 1].vis.rle = balloon_rle;
     rd->sprites[SPRITE_COUNT - 1].rect.w = 32;
     rd->sprites[SPRITE_COUNT - 1].rect.h = 32;
     rd->sprites[SPRITE_COUNT - 1].rect.x = 256;
     rd->sprites[SPRITE_COUNT - 1].rect.y = 128;
     rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_ACTIVE | SPRITE_RLE;
-
+*/  
     //animation_frames_init();
 
     FILL_BUFFER(rd->bg.image, 3);

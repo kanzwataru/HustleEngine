@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <string>
 #include <map>
+#include <cassert>
 
 extern "C" {
 #include "lib/aconv.h"

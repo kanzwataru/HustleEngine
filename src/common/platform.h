@@ -3,7 +3,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "debug.h"
+
+#ifdef HUSTLE_RUNTIME
+    typedef unsigned char bool;
+    #define true 1
+    #define false 0
+    #include "debug.h"
+#endif
 
 /***                      ***
  ***    COMPILER CHECK    ***
@@ -22,10 +28,6 @@
     typedef short          int16;
     typedef int            int32;
 
-    typedef unsigned char bool;
-    #define true 1
-    #define false 0
-
     typedef void __interrupt __far (*interrupt_t)(void);
 #endif
 
@@ -33,7 +35,6 @@
     #define PLATFORM_SDL
     #include <string.h>
     #include <stdint.h>
-    #include <stdbool.h>
 
     typedef uint8_t  byte;
     typedef uint16_t uint16;

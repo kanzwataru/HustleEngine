@@ -10,7 +10,7 @@ ifeq ($(BUILD_DIR),)
 $(error BUILD_DIR not set)
 endif
 
-HEADERS     = $(ENGINE_DIR)/src
+HEADERS    := $(ENGINE_DIR)/src $(BUILD_DIR)/__temp__
 ENGINE_SRC  = common/debug.c engine/core.c engine/event.c engine/render/render.c engine/render/rle.c platform/filesys.c
 
 BUILD_DIR         := $(BUILD_DIR)/$(TARGET_PLATFORM)

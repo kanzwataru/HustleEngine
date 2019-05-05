@@ -5,6 +5,10 @@
 #ifndef ASSET_H
 #define ASSET_H
 
+#ifdef HUSTLE_RUNTIME
+    #include "assets.gen.h"
+#endif
+
 /*
  * Spritesheet flags
 */

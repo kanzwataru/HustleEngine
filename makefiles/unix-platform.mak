@@ -18,7 +18,7 @@ CFLAGS       = -g3 -DDEBUG -Wpedantic -Wall
 else
 CFLAGS       = -O2 -Wall
 endif
-CFLAGS      += $(addprefix -I,$(HEADERS))
+CFLAGS      += $(addprefix -I,$(HEADERS)) -DHUSTLE_RUNTIME
 CXXFLAGS     = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS      = -o $(TARGET)
 
