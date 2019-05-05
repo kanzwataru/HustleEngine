@@ -230,7 +230,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     cd.frame_skip = 0;
 
     asset_pak = load_asset_pak("RES/assets.dat");
-    balloon_rle = (RLEImage *)((Spritesheet *)(asset_pak))->data;
+    balloon_rle = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_BALLOON_SPRITESHEETRLE))->data;
     pal = asset_pak + ASSETS_VGAPAL_PALETTE;
 
     /*
@@ -283,7 +283,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[SPRITE_COUNT - 1].rect.x = 256;
     rd->sprites[SPRITE_COUNT - 1].rect.y = 128;
     rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_ACTIVE | SPRITE_RLE;
-*/  
+*/
     //animation_frames_init();
 
     FILL_BUFFER(rd->bg.image, 3);
