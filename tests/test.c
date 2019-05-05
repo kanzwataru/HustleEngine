@@ -276,14 +276,13 @@ void test_start(bool do_benchmark, int benchmark_times)
     rd->sprites[2].flags = SPRITE_ACTIVE | SPRITE_SOLID;
     rd->sprites[2].parent = &rd->sprites[1].rect;
 
-    /*
     rd->sprites[SPRITE_COUNT - 1].vis.rle = balloon_rle;
     rd->sprites[SPRITE_COUNT - 1].rect.w = 32;
     rd->sprites[SPRITE_COUNT - 1].rect.h = 32;
     rd->sprites[SPRITE_COUNT - 1].rect.x = 256;
     rd->sprites[SPRITE_COUNT - 1].rect.y = 128;
     rd->sprites[SPRITE_COUNT - 1].flags = SPRITE_ACTIVE | SPRITE_RLE;
-*/
+
     //animation_frames_init();
 
     FILL_BUFFER(rd->bg.image, 3);

@@ -71,6 +71,7 @@ void spritesheet::bmp2rle(const Asset &asset, std::FILE *out)
     write_spritesheet(asset, rle, size, out, SHEET_RLE);
 
     free(rle);
+    free(image_data);
 }
 
 void palette::bmp2pal(const Asset &asset, std::FILE *out)

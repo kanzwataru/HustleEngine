@@ -40,6 +40,6 @@ size_t buffer_to_rle(RLEImage *rle, buffer_t *buf, int width, int height)
 
     //printf("* RLE done (%zu bytes)\n", count * sizeof(struct RLEChunk));
 
-    rle->size = count * sizeof(struct RLEChunk);
+    rle->size = (count * sizeof(struct RLEChunk)) + sizeof(RLEImage);
     return rle->size;
 }

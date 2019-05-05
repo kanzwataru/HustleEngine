@@ -46,6 +46,7 @@ static void load_stuff(void)
 
     printf("size: %d\n", size);
     */
+    asset_pak = load_asset_pak("RES/assets.dat");
 
     cloud = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_CLOUD_SPRITESHEETRLE))->data;
     clipper = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_CLIPPER_SPRITESHEETRLE))->data;
@@ -128,7 +129,6 @@ int rletest_start(void)
     cd.exit_handler = &quit;
 
     transientmem = malloc(64000);
-    asset_pak = load_asset_pak("RES/assets.dat");
 
     pal = asset_pak + ASSETS_VGAPAL_PALETTE;
     rd  = renderer_init(transientmem, 3, RENDER_BG_SOLID | RENDER_PERSIST, pal);
