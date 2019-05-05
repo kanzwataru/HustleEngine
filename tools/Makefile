@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-TARGETS  := mkfontsheet mkpak mkasset
+TARGETS  := mkfontsheet mkpak mkasset lsini
 TARGETS  := $(patsubst %, ../bin/%, $(TARGETS))
 
 C_SRC    := $(shell find extern/ -type f -name '*.c')

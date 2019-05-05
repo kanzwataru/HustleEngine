@@ -1,9 +1,9 @@
 .PHONY: assets assets_clean
 
-ASSETS := balloon cacp_fa clipper cloud clouds vgapal
-PAKS   := assets.dat
+ASSETS := $(shell $(ENGINE_DIR)/bin/lsini config/assets.ini)
+PAKS   := $(shell $(ENGINE_DIR)/bin/lsini config/pak.ini)
 
-PAKS   := $(patsubst %, $(BUILD_DIR)/%, $(PAKS))
+PAKS   := $(patsubst %, $(BUILD_DIR)/%.dat, $(PAKS))
 ASSBIN := $(patsubst %, build/__temp__/%.bin, $(ASSETS))
 TOOLS  := ../bin
 
