@@ -229,7 +229,7 @@ void test_start(bool do_benchmark, int benchmark_times)
     cd.exit_handler = &quit;
     cd.frame_skip = 0;
 
-    asset_pak = load_asset_pak("RES/assets.dat");
+    asset_pak = load_asset_pak("assets.dat");
     balloon_rle = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_BALLOON_SPRITESHEETRLE))->data;
     pal = asset_pak + ASSETS_VGAPAL_PALETTE;
 

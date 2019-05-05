@@ -6,14 +6,11 @@ SHELL := /bin/bash
 ifeq ($(ENGINE_DIR),)
 $(error ENGINE_DIR not set)
 endif
-ifeq ($(BUILD_DIR),)
-$(error BUILD_DIR not set)
-endif
 
-HEADERS    := $(ENGINE_DIR)/src $(BUILD_DIR)/__temp__
+HEADERS    := $(ENGINE_DIR)/src build/__temp__
 ENGINE_SRC  = common/debug.c engine/core.c engine/event.c engine/render/render.c engine/render/rle.c platform/filesys.c
 
-BUILD_DIR         := $(BUILD_DIR)/$(TARGET_PLATFORM)
+BUILD_DIR         := build/$(TARGET_PLATFORM)
 OBJ_DIR 		   = $(BUILD_DIR)/tmp/objs
 SRC          	   = $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
 OBJS		       = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
@@ -29,12 +26,19 @@ endif
 # ************************** #
 ############################
 
+############################
+# Include other makefiles   #
+include $(ENGINE_DIR)/makefiles/assets.mak
+############################
+
 preclean: cleanhook
 	@[[ $(BUILD_DIR) == /* ]] || rm -Rf $(BUILD_DIR)
 	@find . -type f -name '._*' -delete
+	@$(MAKE) --no-print-directory assets_clean
 
 mainbuild: prebuild
 	@echo "*** Build ***"
+	@$(MAKE) --no-print-directory assets
 	@$(MAKE) --no-print-directory build
 
 all: postbuild

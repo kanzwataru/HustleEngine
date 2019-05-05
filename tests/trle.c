@@ -46,7 +46,7 @@ static void load_stuff(void)
 
     printf("size: %d\n", size);
     */
-    asset_pak = load_asset_pak("RES/assets.dat");
+    asset_pak = load_asset_pak("assets.dat");
 
     cloud = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_CLOUD_SPRITESHEETRLE))->data;
     clipper = (RLEImage *)((Spritesheet *)(asset_pak + ASSETS_CLIPPER_SPRITESHEETRLE))->data;

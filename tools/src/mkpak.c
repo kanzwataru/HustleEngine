@@ -116,7 +116,7 @@ int asset_handler(void *user, const char *section, const char *name, const char 
         asset->data = load_file(filename, asset->size);
         snprintf(asset->name, NAME_SIZE, "%s", section);
 
-        printf("Read asset: %s\n", section);
+        fprintf(stderr, "Read asset: %s\n", section);
     }
 
     /* note down the type */
@@ -191,17 +191,20 @@ void write_header(void)
     const char *filename = "build/__temp__/assets.gen.h";
     write_out(header_all, strlen(header_all), filename, false);
 
-    printf("Wrote header -> %s\n", filename);
+    fprintf(stderr, "Wrote header -> %s\n", filename);
 }
 
 void flush_pak(struct Pak *pak)
 {
     char filename[2048];
     //snprintf(filename, 2048, "build/%s/%s.dat", platform, pak->name);
-    snprintf(filename, 2048, "RES/%s.dat", pak->name);
+    //snprintf(filename, 2048, "/%s.dat", pak->name);
 
-    write_out(pak->data, pak->size, filename, true);
-    printf("Wrote pak: %s -> %s (%d bytes)\n", pak->name, filename, pak->size);
+    //write_out(pak->data, pak->size, filename, true);
+    uint32_t out_size = pak->size;
+    fwrite(&out_size, sizeof(out_size), 1, stdout);
+    fwrite(pak->data, sizeof(byte), pak->size, stdout);
+    fprintf(stderr, "Wrote pak: %s (%d bytes)\n", pak->name, pak->size);
     generate_header_for(pak);
 
     pak->count = 0;
@@ -246,22 +249,24 @@ int pak_handler(void *user, const char *section, const char *name, const char *v
 
 void help(void)
 {
-    puts("HustleEngine mkpak utility\n\n"
-         "Usage: mkpak [target platform] [root dir]\n");
+    fprintf(stderr, "HustleEngine mkpak utility\n\n"
+                    "Usage: mkpak\n");
 }
 
 int main(int argc, char **argv)
 {
+    /*
     if(argc != 3) {
         help();
         return 1;
-    }
+    } */
 
-    platform = argv[1];
-    printf("Creating pak files for platform: %s\n\n", platform);
+    //platform = argv[1];
+    //printf("Creating pak files for platform: %s\n\n", platform);
+    fprintf(stderr, "Creating pak files...\n");
 
-    const char *root_dir = argv[2];
-    assert(chdir(root_dir) == 0);
+    //const char *root_dir = argv[2];
+    //assert(chdir(root_dir) == 0);
 
     /* load assets */
     assets_capacity = 512;

@@ -11,9 +11,7 @@
 GAME_NAME		:= htest
 GAME_INCLUDE	:= .
 GAME_SRC		:= main.c simplet.c test.c trle.c tasset.c
-#GAME_SRC		:= simplet.c
 ENGINE_DIR		:= ..
-BUILD_DIR       := build
 
 # *** include the engine's makefile *** #
 include $(ENGINE_DIR)/hustle-build.mak  #
@@ -26,7 +24,6 @@ prebuild:
 postbuild: mainbuild
 	@# things that should happen after the compilation
 	@echo "** Postbuild **"
-	rsync -av RES/ $(BUILD_DIR)/RES/
 
 cleanhook:
 	@# add to the `make clean` target
