@@ -1,9 +1,9 @@
 .PHONY: assets assets_clean
 
-ASSETS := $(shell $(ENGINE_DIR)/bin/lsini config/assets.ini)
-PAKS   := $(shell $(ENGINE_DIR)/bin/lsini config/pak.ini)
+ASSETS  = $(shell $(ENGINE_DIR)/bin/lsini config/assets.ini)
+PAK     = $(shell $(ENGINE_DIR)/bin/lsini config/pak.ini)
 
-PAKS   := $(patsubst %, $(BUILD_DIR)/%.dat, $(PAKS))
+PAKS    = $(patsubst %, $(BUILD_DIR)/%.dat, $(PAK))
 ASSBIN := $(patsubst %, build/__temp__/%.bin, $(ASSETS))
 TOOLS  := ../bin
 
