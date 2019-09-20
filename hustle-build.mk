@@ -1,4 +1,4 @@
-.PHONY: all engine assets tools game clean cleanhook prebuild postbuild run
+.PHONY: all engine assets tools game clean cleanhook prebuild postbuild run debug
 .DEFAULT_GOAL := all
 
 ENGINE_DIR  := $(realpath $(ENGINE_DIR))
@@ -27,7 +27,7 @@ clean: cleanhook
 	@rm -Rf $(BUILD_DIR)
 	@find . -type f -name '._*' -delete
 
-run: all
+debug: platform_debug
 
 game: assets
 
