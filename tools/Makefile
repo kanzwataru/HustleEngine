@@ -10,10 +10,10 @@ MKMAK_SRC	:= mkmak.cpp
 
 INCLUDE		:= src/
 
-CC		:= gcc
-CXX		:= g++
+CC			:= gcc
+CXX			:= g++
 
-LDFLAGS		:= 
+LDFLAGS		:=
 CFLAGS		:= -O2 -Wall
 CXXFLAGS	:= $(CFLAGS) -std=c++14
 
@@ -41,6 +41,6 @@ $(BIN_DIR)/mkpak: $(MKPAK_OBJ)
 $(BIN_DIR)/mkmak: $(MKMAK_OBJ)
 	@mkdir -p `dirname $@`
 	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
-	
+
 clean:
 	@rm -Rf build/*

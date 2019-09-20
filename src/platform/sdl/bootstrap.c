@@ -1,6 +1,6 @@
-#include "common/common.h"
+#include "common/platform.h"
 #include "platform/bootstrap.h"
-#include "sdlplatform.h"
+#include "nativeplatform.h"
 
 #include <stdlib.h>
 #include <stdio.h>

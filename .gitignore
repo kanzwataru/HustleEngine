@@ -1,8 +1,5 @@
-*/build/*
-*/bin/*
-bin/*
-build/*
-tests/build/*
+bin
+build
 *.DS_Store
 *.CFG
 *.EXE

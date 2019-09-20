@@ -12,9 +12,10 @@ GAME_NAME		:= livereload
 GAME_INCLUDE	:= src
 GAME_SRC		:= src/livereload.c
 ENGINE_DIR		:= ../..
+DEFINES			:=
 
 # *** include the engine's makefile *** #
-include $(ENGINE_DIR)/hustle-build.mak  #
+include $(ENGINE_DIR)/hustle-build.mk  #
 # ************************************* #
 
 prebuild:
