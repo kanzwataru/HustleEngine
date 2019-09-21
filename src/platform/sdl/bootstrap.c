@@ -11,6 +11,7 @@ static struct PlatformData platform_data = {0};
 static struct Game game_table;
 static bool sdl_loaded = false;
 static void *lib_handle = NULL;
+static void *memory = NULL;
 
 static void warn(const char *err_msg)
 {
@@ -46,7 +47,7 @@ static bool load_game(void)
         return false;
     }
 
-    handshake(&game_table, NULL);
+    handshake(&game_table, memory);
 
     return true;
 }
@@ -65,7 +66,7 @@ static void sdl_init(void)
 
     sdl_loaded = true;
 
-    platform_data.window = SDL_CreateWindow(
+    platform_data.window_handle = SDL_CreateWindow(
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
@@ -73,14 +74,14 @@ static void sdl_init(void)
         0
     );
 
-    platform_data.renderer = SDL_CreateRenderer(platform_data.window, -1, SDL_RENDERER_PRESENTVSYNC);
+    platform_data.render_handle = SDL_CreateRenderer(platform_data.window_handle, -1, SDL_RENDERER_PRESENTVSYNC);
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
 }
 
 static void sdl_quit(void)
 {
-    if(platform_data.window)
-        SDL_DestroyWindow(platform_data.window);
+    if(platform_data.window_handle)
+        SDL_DestroyWindow(platform_data.window_handle);
 
     SDL_Quit();
 
@@ -134,6 +135,12 @@ static void cleanup(void)
 int main(int argc, char **argv)
 {
     atexit(cleanup);
+
+    memory = malloc(33000000);
+    if(!memory)
+        err("Could not allocate memory");
+
+    game_table.platform = &platform_data;
 
     sdl_init();
     if(!load_game())

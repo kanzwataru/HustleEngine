@@ -3,9 +3,21 @@
 
 #include <SDL2/SDL.h>
 
+struct EngineData {
+    uint16 flags;
+    uint16 subsystems;
+};
+
+struct RenderData {
+    uint16 flags;
+};
+
 struct PlatformData {
-    SDL_Window   *window;
-    SDL_Renderer *renderer;
+    SDL_Window   *window_handle;
+    SDL_Renderer *render_handle;
+
+    struct EngineData engine;
+    struct RenderData renderer;
 };
 
 #endif

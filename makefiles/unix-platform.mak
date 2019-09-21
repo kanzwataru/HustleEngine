@@ -1,7 +1,7 @@
 .PHONY: platform_build platform_run platform_debug
 CC			:= gcc
 
-ENGINE_SRC  +=
+ENGINE_SRC  += engine/sdl/engine.c engine/sdl/render.c
 DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=so HE_GAME_NAME=$(GAME_NAME)
 CORE_SRC	:= platform/sdl/bootstrap.c
 
