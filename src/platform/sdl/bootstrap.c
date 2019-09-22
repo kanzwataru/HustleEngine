@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define GAME_LIB "./game." STRINGIFY(HE_LIB_EXT)
+#define GAME_LIB "./game.running." STRINGIFY(HE_LIB_EXT)
+#define GAME_ORIG_LIB "./game." STRINGIFY(HE_LIB_EXT)
 
 static struct PlatformData platform_data = {0};
 static struct Game game_table;
@@ -32,7 +33,12 @@ static void err(const char *err_msg)
 static bool load_game(void)
 {
     if(lib_handle) {
-        SDL_UnloadObject(GAME_LIB);
+        SDL_UnloadObject(lib_handle);
+    }
+
+    if(system("cp " GAME_ORIG_LIB " " GAME_LIB) != 0) {
+        warn("Failed to copy game library");
+        return false;
     }
 
     lib_handle = SDL_LoadObject(GAME_LIB);
@@ -54,7 +60,16 @@ static bool load_game(void)
 
 static void recompile(void)
 {
+    puts("*** game library recompile ***");
 
+    if(system("cd " STRINGIFY(HE_MAKE_DIR) " && make") != 0) {
+        fprintf(stderr, "*** game library compilation failed ***");
+        return;
+    }
+
+    puts("*** game library compiled ***");
+
+    load_game();
 }
 
 static void sdl_init(void)

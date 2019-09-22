@@ -2,7 +2,7 @@
 CC			:= gcc
 
 ENGINE_SRC  += engine/sdl/engine.c engine/sdl/render.c
-DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=so HE_GAME_NAME=$(GAME_NAME)
+DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=so HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
 CORE_SRC	:= platform/sdl/bootstrap.c
 
 CORE_TARGET := $(BUILD_DIR)/$(GAME_NAME)
