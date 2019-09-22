@@ -14,7 +14,7 @@ struct RenderData {
 
 struct PlatformData {
     SDL_Window   *window_handle;
-    SDL_Renderer *render_handle;
+    SDL_GLContext gl_context;
 
     struct EngineData engine;
     struct RenderData renderer;

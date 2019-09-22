@@ -1,7 +1,8 @@
 .PHONY: platform_build platform_run platform_debug
 CC			:= gcc
 
-ENGINE_SRC  += engine/sdl/engine.c engine/sdl/render.c
+INCLUDE		+= $(ENGINE_DIR)/src/extern/glad/include
+ENGINE_SRC  += engine/sdl/engine.c engine/sdl/render.c extern/glad/src/glad.c
 DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=so HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
 CORE_SRC	:= platform/sdl/bootstrap.c
 

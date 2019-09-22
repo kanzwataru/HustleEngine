@@ -81,22 +81,30 @@ static void sdl_init(void)
 
     sdl_loaded = true;
 
+    SDL_GL_LoadLibrary(NULL);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+
     platform_data.window_handle = SDL_CreateWindow(
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         320, 200,
-        0
+        SDL_WINDOW_OPENGL
     );
 
-    platform_data.render_handle = SDL_CreateRenderer(platform_data.window_handle, -1, SDL_RENDERER_PRESENTVSYNC);
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+    platform_data.gl_context = SDL_GL_CreateContext(platform_data.window_handle);
+
+    SDL_GL_SetSwapInterval(1);
 }
 
 static void sdl_quit(void)
 {
-    if(platform_data.window_handle)
+    if(platform_data.window_handle) {
+        SDL_GL_DeleteContext(platform_data.gl_context);
         SDL_DestroyWindow(platform_data.window_handle);
+    }
 
     SDL_Quit();
 
