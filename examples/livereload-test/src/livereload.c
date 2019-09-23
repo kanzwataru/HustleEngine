@@ -3,8 +3,11 @@
 #include "engine/engine.h"
 #include "engine/render.h"
 
+#include <math.h>
+
 struct GameData {
     Rect a;
+    int  counter;
 };
 
 static struct GameData *g;
@@ -14,6 +17,8 @@ void init(void) {
     g->a.y = 40;
     g->a.w = 64;
     g->a.h = 64;
+
+    g->counter = 0;
 }
 
 bool input(void) {
@@ -21,7 +26,8 @@ bool input(void) {
 }
 
 void update(void) {
-
+    g->a.x = (sin((float)g->counter++) * 0.5 + 0.5) * 320;
+    g->a.y = (cos((float)g->counter++) * 0.5 + 0.5) * 320;
 }
 
 void render(void) {

@@ -90,7 +90,7 @@ static void sdl_init(void)
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        320, 200,
+        WIDTH, HEIGHT,
         SDL_WINDOW_OPENGL
     );
 
@@ -101,8 +101,11 @@ static void sdl_init(void)
 
 static void sdl_quit(void)
 {
-    if(platform_data.window_handle) {
+    if(platform_data.gl_context) {
         SDL_GL_DeleteContext(platform_data.gl_context);
+    }
+
+    if(platform_data.window_handle) {
         SDL_DestroyWindow(platform_data.window_handle);
     }
 
@@ -139,6 +142,8 @@ static void game_loop(void)
         game_table.input();
         game_table.update();
         game_table.render();
+
+        //SDL_GL_SwapWindow(platform_data.window_handle);
     }
 
     game_table.quit();
