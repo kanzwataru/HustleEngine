@@ -24,6 +24,6 @@ void gl_upload_model(Model *model, const float *verts)
 void gl_draw_model(Model *model)
 {
     glBindVertexArray(model->vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, model->vert_count);
     check_gl_error();
 }

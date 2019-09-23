@@ -14,7 +14,7 @@ static const char *planar_vert_src =
 "   vec4 pos = vec4(in_pos.xyz, 1.0f);\n"
 "   vec4 pixel_space = model * pos;\n"
 "   vec4 screen_space = vec4(pixel_space.x / screen_size.x, pixel_space.y / screen_size.y, pixel_space.z, pixel_space.w);\n"
-"   vec4 ndc_space = vec4(screen_space.x * 2 - 1, screen_space.y * 2 - 1, screen_space.z, screen_space.w);\n"
+"   vec4 ndc_space = vec4(screen_space.x * 2 - 1, (1 - screen_space.y) * 2 - 1, screen_space.z, screen_space.w);\n"
 
 "   gl_Position = ndc_space;\n"
 "}\n\0";

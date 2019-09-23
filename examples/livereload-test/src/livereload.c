@@ -3,11 +3,12 @@
 #include "engine/engine.h"
 #include "engine/render.h"
 
-#include <math.h>
+#include <stdio.h>
 
 struct GameData {
     Rect a;
     int  counter;
+    Point dir;
 };
 
 static struct GameData *g;
@@ -19,6 +20,9 @@ void init(void) {
     g->a.h = 64;
 
     g->counter = 0;
+    
+    g->dir.x = 1;
+    g->dir.y = 1;
 }
 
 bool input(void) {
@@ -26,13 +30,24 @@ bool input(void) {
 }
 
 void update(void) {
-    g->a.x = (sin((float)g->counter++) * 0.5 + 0.5) * 320;
-    g->a.y = (cos((float)g->counter++) * 0.5 + 0.5) * 320;
+    g->a.x += g->dir.x;
+    g->a.y += g->dir.y;
+    
+    if(g->a.x > 320 - g->a.w)
+        g->dir.x = -1;
+    if(g->a.x < 0)
+        g->dir.x = 1;
+    if(g->a.y > 200 - g->a.h)
+        g->dir.y = -1;
+    if(g->a.y < 0)
+        g->dir.y = 1;
+    
+    printf("%d %d\n", g->a.x, g->a.y);
 }
 
 void render(void) {
     renderer_clear(16);
-    renderer_draw_rect(0, g->a, 64);
+    renderer_draw_rect(0, g->a, 255);
 
     renderer_flip();
 }
