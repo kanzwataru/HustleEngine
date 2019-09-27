@@ -13,6 +13,11 @@ struct GameData {
     Point dir;
 };
 
+static const buffer_t palette[] = {
+    128, 70, 70,
+    255, 128, 128,
+};
+
 static struct GameData *g;
 
 void init(void) {
@@ -25,6 +30,7 @@ void init(void) {
 
     g->dir.x = 1;
     g->dir.y = 1;
+
 }
 
 bool input(void) {
@@ -48,8 +54,10 @@ void update(void) {
 }
 
 void render(void) {
-    renderer_clear(16);
-    renderer_draw_rect(0, g->a, 255);
+    renderer_set_palette(palette, 0, 2);
+    
+    renderer_clear(0);
+    renderer_draw_rect(0, g->a, 1);
 
     renderer_flip();
 }

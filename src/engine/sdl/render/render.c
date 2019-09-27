@@ -48,8 +48,8 @@ void renderer_init(PlatformData *pd)
     glGenTextures(1, &rd->palette_tex);
     glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, PALETTE_COLORS, 0, GL_RGB, GL_UNSIGNED_BYTE, rd->palette);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void renderer_reloaded(PlatformData *pd)
@@ -69,7 +69,10 @@ void renderer_quit(PlatformData *pd)
 
 void renderer_clear(byte clear_col)
 {
-    glClearColor((float)clear_col / 255.0f, 0.5f, 0.5f, 1.0f);
+//    glClearColor((float)clear_col / 255.0f, 0.5f, 0.5f, 1.0f);
+    byte *col = rd->palette + clear_col;
+
+    glClearColor((float)col[0] / 255, (float)col[1] / 255, (float)col[2] / 255, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -91,7 +94,7 @@ void renderer_flip(void)
     gl_set_framebuffer(&rd->indexed_buf);
 }
 
-void renderer_set_palette(buffer_t *pal, byte offset, byte count)
+void renderer_set_palette(const buffer_t *pal, byte offset, byte count)
 {
     memcpy(rd->palette + (offset * 3), pal + (offset * 3), count * 3);
 
@@ -120,8 +123,9 @@ void renderer_draw_rect(Framebuffer *buf, Rect xform, byte color)
     GLint screen_size_loc = glGetUniformLocation(rd->flat_shader, "screen_size");
 
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, model_matrix);
-    glUniform3f(color_loc, (float)color / 255.0f, 0.5f, 0.5f);
+    glUniform3f(color_loc, (float)color / 255.0f, 0.0f, 0.0f);
     glUniform2f(screen_size_loc, WIDTH, HEIGHT);
 
     gl_draw_model(&rd->quad);
 }
+
