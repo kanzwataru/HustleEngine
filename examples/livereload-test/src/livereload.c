@@ -6,6 +6,8 @@
 #include <stdio.h>
 
 struct GameData {
+    struct Game *game;
+
     Rect a;
     int  counter;
     Point dir;
@@ -20,7 +22,7 @@ void init(void) {
     g->a.h = 64;
 
     g->counter = 0;
-    
+
     g->dir.x = 1;
     g->dir.y = 1;
 }
@@ -32,7 +34,7 @@ bool input(void) {
 void update(void) {
     g->a.x += g->dir.x;
     g->a.y += g->dir.y;
-    
+
     if(g->a.x > 320 - g->a.w)
         g->dir.x = -1;
     if(g->a.x < 0)
@@ -41,7 +43,7 @@ void update(void) {
         g->dir.y = -1;
     if(g->a.y < 0)
         g->dir.y = 1;
-    
+
     //printf("%d %d\n", g->a.x, g->a.y);
 }
 
@@ -53,11 +55,12 @@ void render(void) {
 }
 
 void quit(void) {
-
+    engine_quit(g->game->platform);
 }
 
 void HANDSHAKE_FUNCTION_NAME(struct Game *game, void *memory_chunk) {
     g = (struct GameData *)memory_chunk;
+    g->game = game;
 
     game->init = init;
     game->input = input;

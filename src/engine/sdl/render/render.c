@@ -3,14 +3,6 @@
 #include "gl.h"
 #include "shaders.h"
 
-struct Texture {
-
-};
-
-struct Framebuffer {
-
-};
-
 static struct PlatformData *platform;
 static struct RenderData *rd;
 
@@ -46,10 +38,12 @@ void renderer_init(PlatformData *pd)
 
     rd->quad.vert_count = 6;
     rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
+    rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
+    rd->indexed_buf = gl_create_framebuffer((Rect){0, 0, WIDTH, HEIGHT});
 
-    glViewport(0, 0, WIDTH, HEIGHT);
+    gl_set_framebuffer(&rd->indexed_buf);
     gl_upload_model(&rd->quad, quad);
-    
+
     /* palette texture */
     glGenTextures(1, &rd->palette_tex);
     glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
@@ -69,6 +63,8 @@ void renderer_reloaded(PlatformData *pd)
 void renderer_quit(PlatformData *pd)
 {
     glDeleteTextures(1, &rd->palette_tex);
+    gl_delete_model(&rd->quad);
+    gl_delete_framebuffer(&rd->indexed_buf);
 }
 
 void renderer_clear(byte clear_col)
@@ -79,13 +75,26 @@ void renderer_clear(byte clear_col)
 
 void renderer_flip(void)
 {
+    Framebuffer back_buf = {{0, 0, WIDTH, HEIGHT}, 0, 0, {0}};
+
+    gl_set_framebuffer(&back_buf);
+    glClearColor(0,0,0,0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(rd->post_shader);
+    glBindTexture(GL_TEXTURE_2D, rd->indexed_buf.col_buf.id);
+
+    gl_draw_model(&rd->quad);
+
     SDL_GL_SwapWindow(platform->window_handle);
+
+    gl_set_framebuffer(&rd->indexed_buf);
 }
 
 void renderer_set_palette(buffer_t *pal, byte offset, byte count)
 {
     memcpy(rd->palette + (offset * 3), pal + (offset * 3), count * 3);
-    
+
     glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, PALETTE_COLORS, 0, GL_RGB, GL_UNSIGNED_BYTE, rd->palette);
 }

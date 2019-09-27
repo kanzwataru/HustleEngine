@@ -10,6 +10,7 @@
     #include <stdbool.h>
     #include <stdint.h>
     #include <stdio.h>
+    #include <assert.h>
 
     typedef uint8_t     buffer_t;
     typedef uint8_t     byte;
