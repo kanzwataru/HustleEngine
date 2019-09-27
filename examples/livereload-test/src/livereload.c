@@ -42,7 +42,7 @@ void update(void) {
     if(g->a.y < 0)
         g->dir.y = 1;
     
-    printf("%d %d\n", g->a.x, g->a.y);
+    //printf("%d %d\n", g->a.x, g->a.y);
 }
 
 void render(void) {
