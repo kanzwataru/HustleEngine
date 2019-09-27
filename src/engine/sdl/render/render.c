@@ -49,6 +49,13 @@ void renderer_init(PlatformData *pd)
 
     glViewport(0, 0, WIDTH, HEIGHT);
     gl_upload_model(&rd->quad, quad);
+    
+    /* palette texture */
+    glGenTextures(1, &rd->palette_tex);
+    glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, PALETTE_COLORS, 0, GL_RGB, GL_UNSIGNED_BYTE, rd->palette);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void renderer_reloaded(PlatformData *pd)
@@ -61,7 +68,7 @@ void renderer_reloaded(PlatformData *pd)
 
 void renderer_quit(PlatformData *pd)
 {
-
+    glDeleteTextures(1, &rd->palette_tex);
 }
 
 void renderer_clear(byte clear_col)
@@ -73,6 +80,19 @@ void renderer_clear(byte clear_col)
 void renderer_flip(void)
 {
     SDL_GL_SwapWindow(platform->window_handle);
+}
+
+void renderer_set_palette(buffer_t *pal, byte offset, byte count)
+{
+    memcpy(rd->palette + (offset * 3), pal + (offset * 3), count * 3);
+    
+    glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, PALETTE_COLORS, 0, GL_RGB, GL_UNSIGNED_BYTE, rd->palette);
+}
+
+void renderer_get_palette(buffer_t *pal, byte offset, byte count)
+{
+    memcpy(pal + (offset * 3), rd->palette + (offset * 3), count * 3);
 }
 
 void renderer_draw_rect(Framebuffer *buf, Rect xform, byte color)

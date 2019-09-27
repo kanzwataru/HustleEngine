@@ -14,7 +14,10 @@ struct EngineData {
 
 struct RenderData {
     uint16 flags;
-
+    
+    byte palette[256 * 3];
+    textureid_t palette_tex;
+    
     Model quad;
     shaderid_t flat_shader;
 };
