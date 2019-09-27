@@ -14,7 +14,7 @@ void gl_upload_model(Model *model, const float *verts)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, VERT_SIZE * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     //glBindVertexArray(0);
@@ -50,13 +50,11 @@ struct Framebuffer gl_create_framebuffer(Rect size)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb.col_buf.id, 0);
 
-    /*
     glGenRenderbuffers(1, &fb.depth_buf);
     glBindRenderbuffer(GL_RENDERBUFFER, fb.depth_buf);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, size.w, size.h);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fb.depth_buf);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        */
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         fprintf(stderr, "Framebuffer not complete!\n");
@@ -64,6 +62,7 @@ struct Framebuffer gl_create_framebuffer(Rect size)
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    check_gl_error();
 
     return fb;
 }

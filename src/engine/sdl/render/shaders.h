@@ -40,7 +40,7 @@ static const char *post_vert_src =
 "void main() {\n"
 "   gl_Position = vec4(in_pos.x * 2 - 1, (1 - in_pos.y) * 2 - 1, in_pos.z, 1.0);\n"
 //"   gl_Position = vec4(in_pos.x, in_pos.y, 0.0, 1.0);\n"
-"   uv = in_uv;\n"
+"   uv = in_uv * vec2(1, -1);\n"
 "}\n\0";
 
 static const char *post_palette_frag_src =
@@ -51,6 +51,6 @@ static const char *post_palette_frag_src =
 "uniform sampler2D indexed_pass;\n"
 
 "void main() {\n"
-//"   frag_col = texture(indexed_pass, uv);\n"
-"   frag_col = vec4(uv.x, uv.y, 0, 1);\n"
+"   frag_col = texture(indexed_pass, uv);\n"
+//"   frag_col = vec4(uv.x, uv.y, 0, 1);\n"
 "}\n\0";
