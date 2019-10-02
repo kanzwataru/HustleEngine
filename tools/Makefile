@@ -2,11 +2,12 @@
 
 BIN_DIR 	:= build/bin
 OBJ_DIR 	:= build/temp
-TARGETS		:= mkasset mkpak mkmak
+TARGETS		:= mkasset mkpak mkmak mkbuildconf
 
 MKASSET_SRC	:= mkasset.cpp
 MKPAK_SRC	:= mkpak.cpp
 MKMAK_SRC	:= mkmak.cpp
+MKBUILDCONF_SRC := mkbuildconf.cpp
 
 INCLUDE		:= src/
 
@@ -15,13 +16,14 @@ CXX			:= g++
 
 LDFLAGS		:=
 CFLAGS		:= -O2 -Wall
-CXXFLAGS	:= $(CFLAGS) -std=c++14
+CXXFLAGS	:= $(CFLAGS) -std=c++17
 
 # internal #
 TARGETS		:= $(patsubst %, $(BIN_DIR)/%, $(TARGETS))
 MKASSET_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKASSET_SRC))
 MKPAK_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKPAK_SRC))
 MKMAK_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKMAK_SRC))
+MKBUILDCONF_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKBUILDCONF_SRC))
 # ######## #
 
 all: $(TARGETS)
@@ -39,6 +41,10 @@ $(BIN_DIR)/mkpak: $(MKPAK_OBJ)
 	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 
 $(BIN_DIR)/mkmak: $(MKMAK_OBJ)
+	@mkdir -p `dirname $@`
+	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
+
+$(BIN_DIR)/mkbuildconf: $(MKBUILDCONF_OBJ)
 	@mkdir -p `dirname $@`
 	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
 
