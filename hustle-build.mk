@@ -17,6 +17,7 @@ $(SETTINGS): $(MKSETTINGS)
 	@$(ENGINE_DIR)/tools/bin/mkbuildconf $@
 
 $(MKSETTINGS):
+	@echo "** Tools **"
 	@cd $(ENGINE_DIR)/tools && $(MAKE) --no-print-directory
 
 tools:
