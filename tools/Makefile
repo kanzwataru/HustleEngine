@@ -20,7 +20,8 @@ OUT			= $(patsubst %,bin/%, $(TARGETS))
 all: $(OUT)
 
 clean:
-	rm -Rf bin
+	@rm -Rf bin
+	@echo "Cleaned tools"
 
 bin/%.o: src/%.c
 	@mkdir -p `dirname $@`

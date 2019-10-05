@@ -17,10 +17,10 @@ $(SETTINGS): $(MKSETTINGS)
 	@$(ENGINE_DIR)/tools/bin/mkbuildconf $@
 
 $(MKSETTINGS):
-	@cd $(ENGINE_DIR)/tools && $(MAKE)
+	@cd $(ENGINE_DIR)/tools && $(MAKE) --no-print-directory
 
 tools:
-	@cd $(ENGINE_DIR)/tools && $(MAKE)
+	@cd $(ENGINE_DIR)/tools && $(MAKE) --no-print-directory
 
 ifneq ($(MAKECMDGOALS), clean)
 include $(SETTINGS)
@@ -31,14 +31,13 @@ run: platform_run
 clean: cleanhook
 	@rm -Rf $(BUILD_DIR)
 	@find . -type f -name '._*' -delete
-	@cd $(ENGINE_DIR)/tools && $(MAKE) clean
+	@echo "Cleaned build"
+	@cd $(ENGINE_DIR)/tools && $(MAKE) --no-print-directory clean
 
 debug: platform_debug
 
 game: assets $(SETTINGS)
-	@echo "Built game"
 
 assets: engine
 
 engine: prebuild tools platform_build
-	@echo "Built engine"

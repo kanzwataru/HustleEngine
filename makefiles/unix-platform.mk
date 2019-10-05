@@ -38,12 +38,14 @@ $(OBJ_DIR)/%.o: %.c
 $(CORE_TARGET): $(CORE_OBJ)
 	@mkdir -p `dirname $@`
 	@$(CC) $(LDFLAGS) $^ -o $(CORE_TARGET)
+	@echo "UNIX engine core -> $(CORE_TARGET)"
 
 $(LIB_TARGET): $(OBJ)
 	@touch $(dir $@)/lock
 	@mkdir -p `dirname $@`
 	@$(CC) $(LDFLAGS) -shared -fPIC $^ -o $(LIB_TARGET)
 	@rm $(dir $@)/lock
+	@echo "UNIX game library -> $(LIB_TARGET)"
 
 platform_build: $(CORE_TARGET) $(LIB_TARGET)
 

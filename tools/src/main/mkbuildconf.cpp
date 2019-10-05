@@ -136,8 +136,10 @@ int main(int argc, char **argv)
 
     Settings build_settings = build_settings_defaults;
 
+    puts("\n\n\n*****************************");
     ask_settings(build_settings);
     dump_settings(build_settings);
+    puts("*****************************\n\n");
 
     std::string make_fragment = generate_make_fragment(build_settings);
 
