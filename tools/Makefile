@@ -1,52 +1,36 @@
-.phony: all clean
+.PHONY: all clean
+.PRECIOUS: bin/%.o
 
-BIN_DIR 	:= build/bin
-OBJ_DIR 	:= build/temp
-TARGETS		:= mkasset mkpak mkmak mkbuildconf
+SRCDIRS 	= asset
+TARGETS 	= $(patsubst src/main/%.cpp, %, $(wildcard src/main/*.cpp))
 
-MKASSET_SRC	:= mkasset.cpp
-MKPAK_SRC	:= mkpak.cpp
-MKMAK_SRC	:= mkmak.cpp
-MKBUILDCONF_SRC := mkbuildconf.cpp
+SRC			= $(foreach dir, $(SRCDIRS), $(wildcard src/$(dir)/*.c) $(wildcard src/$(dir)/*.cpp))
+HDR			= $(foreach dir, $(SRCDIRS), $(wildcard src/$(dir)/*.h) $(wildcard src/$(dir)/*.hpp))
+OBJ			= $(filter %.o, $(patsubst %.cpp, bin/%.o, $(SRC)) $(patsubst %.c, bin/%.o, $(SRC))) 
 
-INCLUDE		:= src/
+CC			= gcc
+CXX			= g++
+CFLAGS		= -O2 -Wpedantic -Wall -Werror -Isrc
+CXXFLAGS	= $(CFLAGS) -std=c++17
+LDFLAGS 	= -lm
 
-CC			:= gcc
-CXX			:= g++
+MAINC		= $(patsubst %,src/main/%.cpp,$(TARGETS))
+OUT			= $(patsubst %,bin/%, $(TARGETS))
 
-LDFLAGS		:=
-CFLAGS		:= -O2 -Wall
-CXXFLAGS	:= $(CFLAGS) -std=c++17
-
-# internal #
-TARGETS		:= $(patsubst %, $(BIN_DIR)/%, $(TARGETS))
-MKASSET_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKASSET_SRC))
-MKPAK_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKPAK_SRC))
-MKMAK_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKMAK_SRC))
-MKBUILDCONF_OBJ	:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(MKBUILDCONF_SRC))
-# ######## #
-
-all: $(TARGETS)
-
-$(OBJ_DIR)/%.o: src/%.cpp
-	@mkdir -p `dirname $@`
-	@$(CXX) -c $(CXXFLAGS) $^ -o $@
-
-$(BIN_DIR)/mkasset: $(MKASSET_OBJ)
-	@mkdir -p `dirname $@`
-	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
-
-$(BIN_DIR)/mkpak: $(MKPAK_OBJ)
-	@mkdir -p `dirname $@`
-	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
-
-$(BIN_DIR)/mkmak: $(MKMAK_OBJ)
-	@mkdir -p `dirname $@`
-	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
-
-$(BIN_DIR)/mkbuildconf: $(MKBUILDCONF_OBJ)
-	@mkdir -p `dirname $@`
-	@$(CXX) -o $@ $^ $(CXXFLAGS) $(LDFLAGS)
+all: $(OUT)
 
 clean:
-	@rm -Rf build/*
+	rm -Rf bin
+
+bin/%.o: src/%.c
+	@mkdir -p `dirname $@`
+	@$(CC) $(CFLAGS) -c $^ -o $@
+
+bin/%.o: src/%.cpp
+	@mkdir -p `dirname $@`
+	@$(CXX) $(CXXFLAGS) -c $^ -o $@
+
+bin/%: bin/main/%.o $(OBJ) $(HDR)
+	@mkdir -p `dirname $@`
+	@$(CXX) $(CFLAGS) $(LDFLAGS) $< $(OBJ) -o $@
+	@echo "Built target: $@"
