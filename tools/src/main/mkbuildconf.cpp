@@ -7,12 +7,53 @@
 #include <string>
 
 using Choices = std::vector<std::string>;
-using Value = std::variant<bool, std::string, Choices>;
-using Settings = std::vector<std::pair<std::string, Value>>;
+
+class Option {
+    Choices choices;
+    std::string value;
+
+public:
+    std::string name;
+
+    Option(std::string name, Choices choices) : choices(choices), name(name) {
+        if(choices.size() != 0)
+            value = choices[0];
+    }   
+
+    bool ask_set() {
+        printf("%s\n", name.c_str());
+    
+        for(size_t i = 0; i < choices.size(); ++i) {
+            printf("\t(%zu) %s\n", i, choices[i].c_str());
+        }   
+
+        printf("[0..%zu]: ", choices.size() - 1); 
+        int num = getchar() - '0';
+
+        if(size_t(num) < choices.size()) {
+            value = choices[num];
+
+            return true;
+        }   
+        else {
+            return false;
+        }   
+    }
+
+    void dump() const {
+        printf("%s: %s\n", name.c_str(), value.c_str());
+    }
+
+    std::string get() const {
+        return value;
+    }
+};
+
+using Settings = std::vector<Option>;
 
 Settings build_settings_defaults = {
-    {"TARGET_PLATFORM", Choices{"unix", "dos"}},
-    {"DEBUG_BUILD", false},
+    {"TARGET_PLATFORM", {"unix", "dos"}},
+    {"DEBUG_BUILD", {"false", "true"}},
 };
 
 namespace io {
@@ -30,13 +71,12 @@ std::string generate_make_fragment(Settings settings)
 
     output.append(header);
 
-    for(const auto &[name, value] : settings) {
+    for(const auto &option : settings) {
         output.append("\n");
-        output.append(name);
+        output.append(option.name);
         output.append(" ?= ");
-
-        assert(std::holds_alternative<std::string>(value));
-        output.append(std::get<std::string>(value));
+        
+        output.append(option.get());
     }
 
     output.append("\n");
@@ -49,49 +89,11 @@ void ask_settings(Settings &settings)
 {
     puts("Configure Settings...");
 
-    for(auto &[name, value] : settings) {
+    for(auto &option : settings) {
         printf("\n");
-        while(true) {
-            if(std::holds_alternative<bool>(value)) {
-                printf("%s [1, 0]: ", name.c_str());
-
-                int num = getchar() - '0';
-                if(num == 1 || num == 0) {
-                    value = std::to_string(num);
-
-                    break;
-                }
-            }
-            else if(std::holds_alternative<Choices>(value)) {
-                const auto &choices = std::get<Choices>(value);
-
-                printf("%s\n", name.c_str());
-
-                for(size_t i = 0; i < choices.size(); ++i) {
-                    printf("    (%zu) %s\n", i, choices[i].c_str());
-                }
-
-                printf("[0..%zu]: ", choices.size() - 1);
-                int num = getchar() - '0';
-
-                if(size_t(num) < choices.size()) {
-                    std::string option = choices[num];
-                    value = option;
-
-                    break;
-                }
-            }
-            else if(std::holds_alternative<std::string>(value)) {
-                printf("%s [%s]: \n", name.c_str(), std::get<std::string>(value).c_str());
-
-                char buf[512];
-                if(fgets(buf, sizeof(buf), stdin)) {
-                    buf[sizeof(buf) - 1] = '\0';
-                    value = std::string(buf);
-
-                    break;
-                }
-            }
+        bool answered = false;
+        while(!answered) {
+            answered = option.ask_set();
             io::input_flush();
         }
         io::input_flush();
@@ -102,20 +104,8 @@ void ask_settings(Settings &settings)
 
 void dump_settings(const Settings &settings)
 {
-    for(auto &[name, value] : settings) {
-        if(auto *v = std::get_if<bool>(&value)) {
-            printf("%s: %d\n", name.c_str(), int(*v));
-        }
-        if(auto *v = std::get_if<Choices>(&value)) {
-            printf("%s: ...\n", name.c_str());
-
-            for(const auto &choice : *v) {
-                printf("\t%s\n", choice.c_str());
-            }
-        }
-        if(auto *v = std::get_if<std::string>(&value)) {
-            printf("%s: %s\n", name.c_str(), v->c_str());
-        }
+    for(auto &option : settings) {
+        option.dump();
     }
 }
 

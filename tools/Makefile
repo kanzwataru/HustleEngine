@@ -11,7 +11,7 @@ OBJ			= $(filter %.o, $(patsubst %.cpp, bin/%.o, $(SRC)) $(patsubst %.c, bin/%.o
 CC			= gcc
 CXX			= g++
 CFLAGS		= -O2 -Wpedantic -Wall -Werror -Isrc
-CXXFLAGS	= $(CFLAGS) -std=c++17
+CXXFLAGS	= $(CFLAGS) -std=c++11
 LDFLAGS 	= -lm
 
 MAINC		= $(patsubst %,src/main/%.cpp,$(TARGETS))
