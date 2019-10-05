@@ -1,7 +1,3 @@
-/*
-
-
-*/
 #include <cassert>
 #include <cstdio>
 #include <cstdint>
@@ -44,6 +40,7 @@ std::string generate_make_fragment(Settings settings)
     }
 
     output.append("\n");
+    output.append("include $(ENGINE_DIR)/makefiles/$(TARGET_PLATFORM)-platform.mk");
 
     return output;
 }
