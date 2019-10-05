@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <fstream>
 #include <vector>
-#include <variant>
 #include <string>
 
 using Choices = std::vector<std::string>;
@@ -81,6 +80,7 @@ std::string generate_make_fragment(Settings settings)
 
     output.append("\n");
     output.append("include $(ENGINE_DIR)/makefiles/$(TARGET_PLATFORM)-platform.mk");
+    output.append("\n");
 
     return output;
 }
@@ -91,9 +91,10 @@ void ask_settings(Settings &settings)
 
     for(auto &option : settings) {
         printf("\n");
-        bool answered = false;
-        while(!answered) {
-            answered = option.ask_set();
+        while(true) {
+            if(option.ask_set())
+                break;
+
             io::input_flush();
         }
         io::input_flush();
