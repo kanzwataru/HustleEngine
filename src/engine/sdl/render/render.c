@@ -17,22 +17,6 @@ static const float quad[] = {
     0, 0, 0,    0, 0
 };
 
-/*
-static const float identity_matrix[] = {
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1
-};
-
-static const float screen_matrix[] = {
-    1.0 / (float)WIDTH, 0, 0, 0,
-    0, 1.0  (float)HEIGHT, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1
-};
-*/
-
 void renderer_init(PlatformData *pd)
 {
     renderer_reloaded(pd);
@@ -40,9 +24,9 @@ void renderer_init(PlatformData *pd)
     rd->quad.vert_count = 6;
     rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
     rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
-    rd->indexed_buf = gl_create_framebuffer((Rect){0, 0, WIDTH, HEIGHT});
+    rd->pixel_target = gl_create_framebuffer((Rect){0, 0, WIDTH, HEIGHT});
 
-    gl_set_framebuffer(&rd->indexed_buf);
+    gl_set_framebuffer(&rd->pixel_target);
     gl_upload_model(&rd->quad, quad);
 
     /* palette texture */
@@ -65,7 +49,7 @@ void renderer_quit(PlatformData *pd)
 {
     glDeleteTextures(1, &rd->palette_tex);
     gl_delete_model(&rd->quad);
-    gl_delete_framebuffer(&rd->indexed_buf);
+    gl_delete_framebuffer(&rd->pixel_target);
 }
 
 void renderer_clear(byte clear_col)
@@ -86,13 +70,13 @@ void renderer_flip(void)
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(rd->post_shader);
-    glBindTexture(GL_TEXTURE_2D, rd->indexed_buf.col_buf.id);
+    glBindTexture(GL_TEXTURE_2D, rd->pixel_target.col_buf.id);
 
     gl_draw_model(&rd->quad);
 
     SDL_GL_SwapWindow(platform->window_handle);
 
-    gl_set_framebuffer(&rd->indexed_buf);
+    gl_set_framebuffer(&rd->pixel_target);
 }
 
 void renderer_set_palette(const buffer_t *pal, byte offset, byte count)
