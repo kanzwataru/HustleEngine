@@ -1,3 +1,4 @@
+#include "internal.h"
 #include "engine/engine.h"
 #include "engine/render.h"
 #include "platform/sdl/nativeplatform.h"
