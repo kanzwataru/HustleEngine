@@ -4,7 +4,7 @@
 ENGINE_DIR  := $(realpath $(ENGINE_DIR))
 BUILD_DIR	:= $(PWD)/build/$(TARGET_PLATFORM)
 OBJ_DIR		:= $(BUILD_DIR)/transient/obj
-INCLUDE		:= $(ENGINE_DIR)/src/ $(GAME_INCLUDE)
+HEADERS		:= $(ENGINE_DIR)/src/ $(GAME_HEADERS)
 ENGINE_SRC	:=
 DEFINES		+=
 SETTINGS     = $(BUILD_DIR)/settings.mk

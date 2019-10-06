@@ -20,6 +20,23 @@
     typedef int32_t     int32;
 #endif
 
+#ifdef HE_PLATFORM_DOS
+    #include <stdio.h>
+    #include <dos.h>
+    #include <conio.h>
+    #include <assert.h>
+
+    typedef unsigned char   buffer_t;
+    typedef unsigned char   byte;
+    typedef unsigned short  uint16;
+    typedef short           int16;
+    typedef unsigned int    uint32;
+    typedef int             int32;
+
+    typedef int             bool;
+    enum bool_vals_t { true = 1, false = 0 };
+#endif
+
 /* common definitions */
 typedef struct PlatformData PlatformData;
 

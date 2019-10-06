@@ -1,7 +1,7 @@
 .PHONY: platform_build platform_run platform_debug
 CC			:= gcc
 
-INCLUDE		+= $(ENGINE_DIR)/src/extern/glad/include
+HEADERS		+= $(ENGINE_DIR)/src/extern/glad/include
 ENGINE_SRC  += engine/sdl/engine/engine.c engine/sdl/render/render.c extern/glad/src/glad.c $\
 			   engine/sdl/render/gl.c engine/sdl/render/gl_shader.c
 DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=so HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
@@ -15,7 +15,7 @@ OBJ     	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 CORE_OBJ	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CORE_SRC))
 CORE_SRC	:= $(addprefix $(ENGINE_DIR)/src/,$(CORE_SRC))
 
-CFLAGS		:= -Wall -fPIC $(addprefix -I,$(INCLUDE)) $(addprefix -D,$(DEFINES))
+CFLAGS		:= -Wall -fPIC $(addprefix -I,$(HEADERS)) $(addprefix -D,$(DEFINES))
 LDFLAGS		:= -lSDL2
 
 ######################################################
