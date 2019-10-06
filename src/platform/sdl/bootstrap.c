@@ -8,7 +8,7 @@
 #define GAME_LIB "./game.running." STRINGIFY(HE_LIB_EXT)
 #define GAME_ORIG_LIB "./game." STRINGIFY(HE_LIB_EXT)
 
-static struct PlatformData platform_data = {0};
+static struct PlatformData platform = {0};
 static struct Game game_table;
 static bool sdl_loaded = false;
 static void *lib_handle = NULL;
@@ -86,27 +86,27 @@ static void sdl_init(void)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-    platform_data.window_handle = SDL_CreateWindow(
+    platform.window_handle = SDL_CreateWindow(
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        WIDTH, HEIGHT,
+        platform.screen_size.w, platform.screen_size.h,
         SDL_WINDOW_OPENGL
     );
 
-    platform_data.gl_context = SDL_GL_CreateContext(platform_data.window_handle);
+    platform.gl_context = SDL_GL_CreateContext(platform.window_handle);
 
     SDL_GL_SetSwapInterval(1);
 }
 
 static void sdl_quit(void)
 {
-    if(platform_data.gl_context) {
-        SDL_GL_DeleteContext(platform_data.gl_context);
+    if(platform.gl_context) {
+        SDL_GL_DeleteContext(platform.gl_context);
     }
 
-    if(platform_data.window_handle) {
-        SDL_DestroyWindow(platform_data.window_handle);
+    if(platform.window_handle) {
+        SDL_DestroyWindow(platform.window_handle);
     }
 
     SDL_Quit();
@@ -143,7 +143,7 @@ static void game_loop(void)
         game_table.update();
         game_table.render();
 
-        //SDL_GL_SwapWindow(platform_data.window_handle);
+        //SDL_GL_SwapWindow(platform.window_handle);
     }
 
     game_table.quit();
@@ -168,7 +168,10 @@ int main(int argc, char **argv)
     if(!memory)
         err("Could not allocate memory");
 
-    game_table.platform = &platform_data;
+    platform.screen_size = (Rect){0, 0, WIDTH * 2, HEIGHT * 2};
+    platform.target_size = (Rect){0, 0, WIDTH, HEIGHT};
+    
+    game_table.platform = &platform;
 
     sdl_init();
     if(!load_game())

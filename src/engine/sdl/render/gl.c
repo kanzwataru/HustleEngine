@@ -67,6 +67,13 @@ struct Framebuffer gl_create_framebuffer(Rect size)
     return fb;
 }
 
+struct Framebuffer gl_get_backbuffer(Rect size)
+{
+    struct Framebuffer back_buf = {{0, 0, size.w, size.h}, 0, 0, {0}};
+    
+    return back_buf;
+}
+
 void gl_set_framebuffer(struct Framebuffer *fb)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fb->id);

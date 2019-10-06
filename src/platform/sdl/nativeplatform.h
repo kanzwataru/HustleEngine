@@ -12,6 +12,9 @@ struct PlatformData {
     SDL_Window   *window_handle;
     SDL_GLContext gl_context;
 
+    Rect screen_size;
+    Rect target_size;
+    
     struct EngineData engine;
     struct RenderData renderer;
 };

@@ -20,13 +20,14 @@ static const float quad[] = {
 void renderer_init(PlatformData *pd)
 {
     renderer_reloaded(pd);
-
+    
     rd->quad.vert_count = 6;
     rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
     rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
-    rd->pixel_target = gl_create_framebuffer((Rect){0, 0, WIDTH, HEIGHT});
+    rd->target_buf = gl_create_framebuffer(platform->target_size);
+    rd->back_buf = gl_get_backbuffer(platform->screen_size);
 
-    gl_set_framebuffer(&rd->pixel_target);
+    gl_set_framebuffer(&rd->target_buf);
     gl_upload_model(&rd->quad, quad);
 
     /* palette texture */
@@ -49,7 +50,7 @@ void renderer_quit(PlatformData *pd)
 {
     glDeleteTextures(1, &rd->palette_tex);
     gl_delete_model(&rd->quad);
-    gl_delete_framebuffer(&rd->pixel_target);
+    gl_delete_framebuffer(&rd->target_buf);
 }
 
 void renderer_clear(byte clear_col)
@@ -63,20 +64,18 @@ void renderer_clear(byte clear_col)
 
 void renderer_flip(void)
 {
-    Framebuffer back_buf = {{0, 0, WIDTH, HEIGHT}, 0, 0, {0}};
-
-    gl_set_framebuffer(&back_buf);
+    gl_set_framebuffer(&rd->back_buf);
     glClearColor(0,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(rd->post_shader);
-    glBindTexture(GL_TEXTURE_2D, rd->pixel_target.col_buf.id);
+    glBindTexture(GL_TEXTURE_2D, rd->target_buf.col_buf.id);
 
     gl_draw_model(&rd->quad);
 
     SDL_GL_SwapWindow(platform->window_handle);
 
-    gl_set_framebuffer(&rd->pixel_target);
+    gl_set_framebuffer(&rd->target_buf);
 }
 
 void renderer_set_palette(const buffer_t *pal, byte offset, byte count)

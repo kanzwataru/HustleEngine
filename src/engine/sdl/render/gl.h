@@ -35,6 +35,7 @@ void gl_delete_model(Model *model);
 void gl_draw_model(Model *model);
 
 struct Framebuffer gl_create_framebuffer(Rect size);
+struct Framebuffer gl_get_backbuffer(Rect size);
 void gl_set_framebuffer(struct Framebuffer *fb);
 void gl_delete_framebuffer(struct Framebuffer *fb);
 

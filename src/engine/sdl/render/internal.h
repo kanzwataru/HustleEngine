@@ -7,9 +7,10 @@ struct RenderData {
 
     byte palette[256 * 3];
     textureid_t palette_tex;
-
+   
     Model quad;
-    struct Framebuffer pixel_target;
+    struct Framebuffer target_buf;
+    struct Framebuffer back_buf;
     shaderid_t flat_shader;
     shaderid_t post_shader;
 };
