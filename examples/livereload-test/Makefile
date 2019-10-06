@@ -8,7 +8,7 @@
 # in the engine's makefiles.
 #
 
-GAME_NAME		:= livereload
+GAME_NAME		:= live
 GAME_INCLUDE	:= src
 GAME_SRC		:= src/livereload.c
 ENGINE_DIR		:= ../..
