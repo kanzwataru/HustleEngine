@@ -20,7 +20,7 @@ LDFLAGS		:= -lSDL2
 
 ######################################################
 # build settings
-ifeq ($(DEBUG_BUILD), 1)
+ifeq ($(DEBUG_BUILD), true)
 CFLAGS		+= -O0 -g3 -DDEBUG -Wpedantic
 else
 CFLAGS		+= -O2 -Werror
