@@ -12,26 +12,26 @@
 #ifndef ASSET_STRUCTS_H
 #include "common/platform.h"
 
-typedef struct Tileset {
+struct Tileset {
     uint16 width;
     uint16 height;
     uint16 flags;
     uint16 size;
     byte data[1];   /* extends past struct */
-} Tileset;
+};
 
-typedef struct Tilemap {
+struct Tilemap {
     uint16 dimensions;
     uint16 flags;
     uint16 count;
     uint16 size;
     byte data[1];   /* extends past struct */
-} Tilemap;
+};
 
-typedef struct Texture {
+struct Texture {
     uint16 flags;
     uint16 size;
     byte data[1];   /* extends past struct */
-} Texture;
+};
 
 #endif

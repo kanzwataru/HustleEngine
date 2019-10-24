@@ -17,7 +17,7 @@ static const float quad[] = {
     0, 0, 0,    0, 0
 };
 
-void renderer_init(PlatformData *pd)
+void renderer_init(struct PlatformData *pd)
 {
     renderer_reloaded(pd);
     
@@ -38,7 +38,7 @@ void renderer_init(PlatformData *pd)
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-void renderer_reloaded(PlatformData *pd)
+void renderer_reloaded(struct PlatformData *pd)
 {
     platform = pd;
     rd = &platform->renderer;
@@ -46,7 +46,7 @@ void renderer_reloaded(PlatformData *pd)
     gladLoadGLLoader(SDL_GL_GetProcAddress);
 }
 
-void renderer_quit(PlatformData *pd)
+void renderer_quit(struct PlatformData *pd)
 {
     glDeleteTextures(1, &rd->palette_tex);
     gl_delete_model(&rd->quad);
@@ -91,7 +91,7 @@ void renderer_get_palette(buffer_t *pal, byte offset, byte count)
     memcpy(pal + (offset * 3), rd->palette + (offset * 3), count * 3);
 }
 
-void renderer_draw_rect(Framebuffer *buf, Rect xform, byte color)
+void renderer_draw_rect(struct Framebuffer *buf, Rect xform, byte color)
 {
     glUseProgram(rd->flat_shader);
 

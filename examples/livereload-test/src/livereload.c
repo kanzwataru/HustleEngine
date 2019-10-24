@@ -55,7 +55,7 @@ void update(void) {
 
 void render(void) {
     renderer_set_palette(palette, 0, 2);
-    
+
     renderer_clear(0);
     renderer_draw_rect(0, g->a, 1);
 

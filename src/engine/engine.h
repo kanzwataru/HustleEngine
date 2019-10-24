@@ -7,8 +7,8 @@ enum ESubsystems {
     SUBSYS_RENDERER,
 };
 
-void engine_init(PlatformData *pd, enum ESubsystems subsystems);
-void engine_reloaded(PlatformData *pd);
-void engine_quit(PlatformData *pd);
+void engine_init(struct PlatformData *pd, enum ESubsystems subsystems);
+void engine_reloaded(struct PlatformData *pd);
+void engine_quit(struct PlatformData *pd);
 
 #endif

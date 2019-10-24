@@ -4,7 +4,7 @@
 #include "common/platform.h"
 
 #define HANDSHAKE_FUNCTION_NAME game_loaded
-typedef struct PlatformData PlatformData;
+struct PlatformData;
 
 struct Game {
     void (*init)(void);
@@ -16,7 +16,7 @@ struct Game {
     bool running;
     bool initialized;
 
-    PlatformData *platform;
+    struct PlatformData *platform;
 };
 
 typedef int (*GameHandshadeFunction)(struct Game *game, void *memory);

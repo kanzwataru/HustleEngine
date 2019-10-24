@@ -37,7 +37,7 @@
     enum bool_vals_t { true = 1, false = 0 };
 #endif
 
-/* common definitions */
-typedef struct PlatformData PlatformData;
+/* common forward-declares */
+struct PlatformData;
 
 #endif

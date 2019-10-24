@@ -2,7 +2,7 @@
 #include "gl_debug.h"
 #include <stdio.h>
 
-void gl_upload_model(Model *model, const float *verts)
+void gl_upload_model(struct Model *model, const float *verts)
 {
     glGenVertexArrays(1, &model->vao);
     glGenBuffers(1, &model->vbo);
@@ -22,14 +22,14 @@ void gl_upload_model(Model *model, const float *verts)
     check_gl_error();
 }
 
-void gl_draw_model(Model *model)
+void gl_draw_model(struct Model *model)
 {
     glBindVertexArray(model->vao);
     glDrawArrays(GL_TRIANGLES, 0, model->vert_count);
     check_gl_error();
 }
 
-void gl_delete_model(Model *model)
+void gl_delete_model(struct Model *model)
 {
     glDeleteVertexArrays(1, &model->vao);
     glDeleteBuffers(1, &model->vbo);
@@ -70,7 +70,7 @@ struct Framebuffer gl_create_framebuffer(Rect size)
 struct Framebuffer gl_get_backbuffer(Rect size)
 {
     struct Framebuffer back_buf = {{0, 0, size.w, size.h}, 0, 0, {0}};
-    
+
     return back_buf;
 }
 

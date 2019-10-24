@@ -6,7 +6,7 @@
 static struct PlatformData *platform;
 static struct EngineData *engine;
 
-void engine_init(PlatformData *pd, enum ESubsystems subsystems)
+void engine_init(struct PlatformData *pd, enum ESubsystems subsystems)
 {
     platform = pd;
     engine = &platform->engine;
@@ -16,7 +16,7 @@ void engine_init(PlatformData *pd, enum ESubsystems subsystems)
         renderer_init(pd);
 }
 
-void engine_reloaded(PlatformData *pd)
+void engine_reloaded(struct PlatformData *pd)
 {
     platform = pd;
     engine = &platform->engine;
@@ -25,7 +25,7 @@ void engine_reloaded(PlatformData *pd)
         renderer_reloaded(pd);
 }
 
-void engine_quit(PlatformData *pd)
+void engine_quit(struct PlatformData *pd)
 {
     //if(engine->subsystems & SUBSYS_RENDERER)
         renderer_quit(pd);

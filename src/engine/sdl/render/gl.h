@@ -21,18 +21,18 @@ struct Framebuffer {
 
 typedef GLuint shaderid_t;
 typedef GLuint textureid_t;
-typedef struct Model {
+struct Model {
     //float *verts;
     uint32 vert_count;
     GLuint vao;
     GLuint vbo;
-} Model;
+};
 
 shaderid_t gl_compile_shader(const char *vert_src, const char *frag_src);
 
-void gl_upload_model(Model *model, const float *verts);
-void gl_delete_model(Model *model);
-void gl_draw_model(Model *model);
+void gl_upload_model(struct Model *model, const float *verts);
+void gl_delete_model(struct Model *model);
+void gl_draw_model(struct Model *model);
 
 struct Framebuffer gl_create_framebuffer(Rect size);
 struct Framebuffer gl_get_backbuffer(Rect size);

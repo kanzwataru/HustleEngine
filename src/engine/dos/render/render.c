@@ -7,7 +7,7 @@
 
 volatile buffer_t *vga_mem = (volatile buffer_t *)0xA0000;
 
-void renderer_init(PlatformData *pd)
+void renderer_init(struct PlatformData *pd)
 {
     _asm {
         mov ax, 0x0013
@@ -15,7 +15,7 @@ void renderer_init(PlatformData *pd)
     }
 }
 
-void renderer_quit(PlatformData *pd)
+void renderer_quit(struct PlatformData *pd)
 {
     _asm {
         mov ax, 0x0003
@@ -23,7 +23,7 @@ void renderer_quit(PlatformData *pd)
     }
 }
 
-void renderer_reloaded(PlatformData *pd) {}
+void renderer_reloaded(struct PlatformData *pd) {}
 
 void renderer_clear(byte clear_col)
 {
@@ -52,7 +52,7 @@ void renderer_get_palette(buffer_t *pal, byte offset, byte count)
 
 }
 
-void renderer_draw_rect(Framebuffer *buf, Rect xform, byte color)
+void renderer_draw_rect(struct Framebuffer *buf, Rect xform, byte color)
 {
     int x, y;
 
