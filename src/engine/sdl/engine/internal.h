@@ -5,6 +5,8 @@
 struct EngineData {
     uint16 flags;
     uint16 subsystems;
-}; 
+
+    unsigned long long timer_start;
+};
 
 #endif
