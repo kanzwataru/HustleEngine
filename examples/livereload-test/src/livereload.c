@@ -33,8 +33,7 @@ void init(void) {
 
 }
 
-bool input(void) {
-    return true;
+void input(void) {
 }
 
 void update(void) {

@@ -8,7 +8,7 @@ struct PlatformData;
 
 struct Game {
     void (*init)(void);
-    bool (*input)(void);
+    void (*input)(void);
     void (*update)(void);
     void (*render)(void);
     void (*quit)(void);

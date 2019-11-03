@@ -30,7 +30,7 @@ void init(void)
     gametable->running = false;
 }
 
-bool input(void) { return true; }
+void input(void) {}
 void update(void) {}
 void render(void) {}
 void quit(void) {}
