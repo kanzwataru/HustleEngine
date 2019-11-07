@@ -1,7 +1,6 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdint>
-#include <fstream>
 #include <vector>
 #include <string>
 
@@ -17,26 +16,26 @@ public:
     Option(std::string name, Choices choices) : choices(choices), name(name) {
         if(choices.size() != 0)
             value = choices[0];
-    }   
+    }
 
     bool ask_set() {
         printf("%s\n", name.c_str());
-    
+
         for(size_t i = 0; i < choices.size(); ++i) {
             printf("\t(%zu) %s\n", i, choices[i].c_str());
-        }   
+        }
 
-        printf("[0..%zu]: ", choices.size() - 1); 
+        printf("[0..%zu]: ", choices.size() - 1);
         int num = getchar() - '0';
 
         if(size_t(num) < choices.size()) {
             value = choices[num];
 
             return true;
-        }   
+        }
         else {
             return false;
-        }   
+        }
     }
 
     void dump() const {
@@ -74,7 +73,7 @@ std::string generate_make_fragment(Settings settings)
         output.append("\n");
         output.append(option.name);
         output.append(" ?= ");
-        
+
         output.append(option.get());
     }
 
@@ -134,9 +133,9 @@ int main(int argc, char **argv)
 
     std::string make_fragment = generate_make_fragment(build_settings);
 
-    std::ofstream file(argv[1]);
-    file << make_fragment;
-    file.close();
+    std::FILE *file = std::fopen(argv[1], "w");
+    std::fwrite(make_fragment.c_str(), 1, make_fragment.size(), file);
+    std::fclose(file);
 
     return 0;
 }
