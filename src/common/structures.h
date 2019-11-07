@@ -4,12 +4,12 @@
 #include "common/platform.h"
 
 typedef struct Point {
-    int16 x, y;
+    int16_t x, y;
 } Point;
 
 typedef struct Rect {
-    int16 x, y;
-    int16 w, h;
+    int16_t x, y;
+    int16_t w, h;
 } Rect;
 
 #endif

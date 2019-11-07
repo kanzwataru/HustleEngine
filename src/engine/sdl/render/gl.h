@@ -23,7 +23,7 @@ typedef GLuint shaderid_t;
 typedef GLuint textureid_t;
 struct Model {
     //float *verts;
-    uint32 vert_count;
+    uint32_t vert_count;
     GLuint vao;
     GLuint vbo;
 };

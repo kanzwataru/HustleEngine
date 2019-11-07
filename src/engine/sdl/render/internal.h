@@ -3,8 +3,8 @@
 #include "engine/sdl/render/gl.h"
 
 struct RenderData {
-    bool   initialized;
-    uint16 flags;
+    bool     initialized;
+    uint16_t flags;
 
     byte palette[256 * 3];
     textureid_t palette_tex;

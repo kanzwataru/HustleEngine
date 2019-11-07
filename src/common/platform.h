@@ -14,10 +14,6 @@
 
     typedef uint8_t     buffer_t;
     typedef uint8_t     byte;
-    typedef uint16_t    uint16;
-    typedef int16_t     int16;
-    typedef uint32_t    uint32;
-    typedef int32_t     int32;
 #endif
 
 #ifdef HE_PLATFORM_DOS
@@ -28,10 +24,10 @@
 
     typedef unsigned char   buffer_t;
     typedef unsigned char   byte;
-    typedef unsigned short  uint16;
-    typedef short           int16;
-    typedef unsigned int    uint32;
-    typedef int             int32;
+    typedef unsigned short  uint16_t;
+    typedef short           int16_t;
+    typedef unsigned int    uint32_t;
+    typedef int             int32_t;
 
     typedef int             bool;
     enum bool_vals_t { true = 1, false = 0 };

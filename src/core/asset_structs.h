@@ -13,24 +13,24 @@
 #include "common/platform.h"
 
 struct Tileset {
-    uint16 width;
-    uint16 height;
-    uint16 flags;
-    uint16 size;
+    uint16_t width;
+    uint16_t height;
+    uint16_t flags;
+    uint16_t size;
     byte data[1];   /* extends past struct */
 };
 
 struct Tilemap {
-    uint16 dimensions;
-    uint16 flags;
-    uint16 count;
-    uint16 size;
+    uint16_t dimensions;
+    uint16_t flags;
+    uint16_t count;
+    uint16_t size;
     byte data[1];   /* extends past struct */
 };
 
 struct Texture {
-    uint16 flags;
-    uint16 size;
+    uint16_t flags;
+    uint16_t size;
     byte data[1];   /* extends past struct */
 };
 
