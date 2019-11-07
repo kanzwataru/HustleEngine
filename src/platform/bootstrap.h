@@ -3,9 +3,6 @@
 
 #include "common/platform.h"
 
-#define HANDSHAKE_FUNCTION_NAME game_loaded
-struct PlatformData;
-
 struct Game {
     void (*init)(void);
     void (*input)(void);
@@ -16,6 +13,7 @@ struct Game {
     bool running;
 };
 
-typedef int (*GameHandshadeFunction)(struct Game *game, void *memory);
+#define HANDSHAKE_FUNCTION_NAME game_loaded
+typedef int (*game_handshake_func_t)(struct Game *game, void *memory);
 
 #endif

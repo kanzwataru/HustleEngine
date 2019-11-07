@@ -48,7 +48,7 @@ static bool load_game(void)
         return false;
     }
 
-    GameHandshadeFunction handshake = SDL_LoadFunction(lib_handle, STRINGIFY(HANDSHAKE_FUNCTION_NAME));
+    game_handshake_func_t handshake = SDL_LoadFunction(lib_handle, STRINGIFY(HANDSHAKE_FUNCTION_NAME));
     if(!handshake) {
         warn(SDL_GetError());
         return false;
