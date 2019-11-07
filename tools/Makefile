@@ -6,7 +6,7 @@ TARGETS 	= $(patsubst src/main/%.cpp, %, $(wildcard src/main/*.cpp))
 
 SRC			= $(foreach dir, $(SRCDIRS), $(wildcard src/$(dir)/*.c) $(wildcard src/$(dir)/*.cpp))
 HDR			= $(foreach dir, $(SRCDIRS), $(wildcard src/$(dir)/*.h) $(wildcard src/$(dir)/*.hpp))
-OBJ			= $(filter %.o, $(patsubst %.cpp, bin/%.o, $(SRC)) $(patsubst %.c, bin/%.o, $(SRC))) 
+OBJ			= $(filter %.o, $(patsubst %.cpp, bin/%.o, $(SRC)) $(patsubst %.c, bin/%.o, $(SRC)))
 
 CC			= gcc
 CXX			= g++
@@ -25,7 +25,7 @@ clean:
 
 bin/%.o: src/%.c
 	@mkdir -p `dirname $@`
-	@$(CC) $(CFLAGS) -c $^ -o $@
+	@$(CC) $(CFLAGS) -std=c99 -c $^ -o $@
 
 bin/%.o: src/%.cpp
 	@mkdir -p `dirname $@`
