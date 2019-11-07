@@ -20,8 +20,7 @@ $(MKSETTINGS):
 	@echo "** Tools **"
 	@cd $(ENGINE_DIR)/tools && $(MAKE) --no-print-directory
 
-tools:
-	@cd $(ENGINE_DIR)/tools && $(MAKE) --no-print-directory
+tools: $(MKSETTINGS)
 
 ifneq ($(MAKECMDGOALS), clean)
 include $(SETTINGS)
