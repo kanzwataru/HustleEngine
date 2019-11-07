@@ -44,12 +44,4 @@ void HANDSHAKE_FUNCTION_NAME(struct Game *game, void *memory_chunk)
     game->update = update;
     game->render = render;
     game->quit = quit;
-
-    if(!game->initialized) {
-        engine_init(game->platform, SUBSYS_RENDERER);
-        game->initialized = true;
-    }
-    else {
-        engine_reloaded(game->platform);
-    }
 }

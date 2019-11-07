@@ -9,10 +9,6 @@
 struct Texture;
 struct Framebuffer;
 
-void renderer_init(struct PlatformData *pd);
-void renderer_reloaded(struct PlatformData *pd);
-void renderer_quit(struct PlatformData *pd);
-
 void renderer_clear(byte clear_col);
 void renderer_flip(void);
 void renderer_set_palette(const buffer_t *pal, byte offset, byte count);

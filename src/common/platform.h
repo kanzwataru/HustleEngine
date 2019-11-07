@@ -37,7 +37,4 @@
     enum bool_vals_t { true = 1, false = 0 };
 #endif
 
-/* common forward-declares */
-struct PlatformData;
-
 #endif

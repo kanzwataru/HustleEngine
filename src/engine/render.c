@@ -1,5 +1,4 @@
 #include "internal.h"
-#include "engine/init.h"
 #include "engine/render.h"
 #include "platform/sdl/nativeplatform.h"
 #include "gl.h"
@@ -20,30 +19,31 @@ static const float quad[] = {
 
 void renderer_init(struct PlatformData *pd)
 {
+    renderer_reloaded(pd);
+    
+    rd->quad.vert_count = 6;
+    rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
+    rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
+    rd->target_buf = gl_create_framebuffer(platform->target_size);
+    rd->back_buf = gl_get_backbuffer(platform->screen_size);
+
+    gl_set_framebuffer(&rd->target_buf);
+    gl_upload_model(&rd->quad, quad);
+
+    /* palette texture */
+    glGenTextures(1, &rd->palette_tex);
+    glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, PALETTE_COLORS, 0, GL_RGB, GL_UNSIGNED_BYTE, rd->palette);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
+void renderer_reloaded(struct PlatformData *pd)
+{
     platform = pd;
     rd = &platform->renderer;
 
     gladLoadGLLoader(SDL_GL_GetProcAddress);
-
-    if(!rd->initialized) {
-        rd->quad.vert_count = 6;
-        rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
-        rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
-        rd->target_buf = gl_create_framebuffer(platform->target_size);
-        rd->back_buf = gl_get_backbuffer(platform->screen_size);
-
-        gl_set_framebuffer(&rd->target_buf);
-        gl_upload_model(&rd->quad, quad);
-
-        /* palette texture */
-        glGenTextures(1, &rd->palette_tex);
-        glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
-        glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, PALETTE_COLORS, 0, GL_RGB, GL_UNSIGNED_BYTE, rd->palette);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        rd->initialized = true;
-    }
 }
 
 void renderer_quit(struct PlatformData *pd)
@@ -51,8 +51,6 @@ void renderer_quit(struct PlatformData *pd)
     glDeleteTextures(1, &rd->palette_tex);
     gl_delete_model(&rd->quad);
     gl_delete_framebuffer(&rd->target_buf);
-
-    rd->initialized = false;
 }
 
 void renderer_clear(byte clear_col)
@@ -114,3 +112,4 @@ void renderer_draw_rect(struct Framebuffer *buf, Rect xform, byte color)
 
     gl_draw_model(&rd->quad);
 }
+

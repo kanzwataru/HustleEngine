@@ -3,6 +3,7 @@
 #include "engine/sdl/render/gl.h"
 
 struct RenderData {
+    bool   initialized;
     uint16 flags;
 
     byte palette[256 * 3];

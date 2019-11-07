@@ -14,9 +14,6 @@ struct Game {
     void (*quit)(void);
 
     bool running;
-    bool initialized;
-
-    struct PlatformData *platform;
 };
 
 typedef int (*GameHandshadeFunction)(struct Game *game, void *memory);

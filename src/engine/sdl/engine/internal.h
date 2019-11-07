@@ -3,8 +3,8 @@
 #include "common/platform.h"
 
 struct EngineData {
+    bool   initialized;
     uint16 flags;
-    uint16 subsystems;
 
     unsigned long long timer_start;
 };

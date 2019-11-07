@@ -1,5 +1,6 @@
 #include "common/platform.h"
 #include "platform/bootstrap.h"
+#include "engine/init.h"
 #include "nativeplatform.h"
 
 #include <stdlib.h>
@@ -53,7 +54,10 @@ static bool load_game(void)
         return false;
     }
 
+    init_func_t engine_init = SDL_LoadFunction(lib_handle, "engine_init");
+
     handshake(&game_table, memory);
+    engine_init(&platform);
 
     return true;
 }
@@ -151,6 +155,9 @@ static void game_loop(void)
 
 static void cleanup(void)
 {
+    init_func_t engine_quit = SDL_LoadFunction(lib_handle, "engine_quit");
+    engine_quit(&platform);
+
     if(lib_handle && sdl_loaded) {
         SDL_UnloadObject(lib_handle);
     }
@@ -170,8 +177,6 @@ int main(int argc, char **argv)
 
     platform.screen_size = (Rect){0, 0, WIDTH * 2, HEIGHT * 2};
     platform.target_size = (Rect){0, 0, WIDTH, HEIGHT};
-    
-    game_table.platform = &platform;
 
     sdl_init();
     if(!load_game())

@@ -1,4 +1,5 @@
 #include "internal.h"
+#include "engine/init.h"
 #include <mem.h>
 #include <stdlib.h>
 
@@ -23,14 +24,12 @@ void renderer_quit(struct PlatformData *pd)
     }
 }
 
-void renderer_reloaded(struct PlatformData *pd) {}
-
 void renderer_clear(byte clear_col)
 {
     /* wait for vsync first */
     while(inp(INPUT_STATUS_0) & 8) {}
     while(!(inp(INPUT_STATUS_0) & 8)) {}
-    
+
     memset((void *)vga_mem, clear_col, 320 * 200);
 }
 
@@ -63,4 +62,3 @@ void renderer_draw_rect(struct Framebuffer *buf, Rect xform, byte color)
         }
     }
 }
-

@@ -1,4 +1,5 @@
 #include "common/platform.h"
+#include "engine/init.h"
 #include "platform/bootstrap.h"
 #include "nativeplatform.h"
 
@@ -14,6 +15,7 @@ extern int HANDSHAKE_FUNCTION_NAME(struct Game *game, void *memory);
 
 static void cleanup(void)
 {
+    engine_quit(&platform);
     free(memory);
 }
 
@@ -29,14 +31,14 @@ int main(int argc, char **argv)
 {
     memset(&game_table, 0, sizeof(game_table));
     memset(&platform, 0, sizeof(platform));
-    
+
     memory = malloc(3000);
     if(!memory)
         err("Bad alloc");
 
     /* initialize game */
-    game_table.platform = &platform;
     HANDSHAKE_FUNCTION_NAME(&game_table, memory);
+    engine_init(&platform);
     game_table.running = true;
     game_table.init();
 
@@ -54,4 +56,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
