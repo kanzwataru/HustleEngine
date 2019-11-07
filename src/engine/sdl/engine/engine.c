@@ -12,7 +12,7 @@ void engine_init(struct PlatformData *pd, enum ESubsystems subsystems)
     engine = &platform->engine;
     engine->subsystems = subsystems;
 
-    //if(engine->subsystems & SUBSYS_RENDERER)
+    if(engine->subsystems & SUBSYS_RENDERER)
         renderer_init(pd);
 }
 
@@ -21,13 +21,13 @@ void engine_reloaded(struct PlatformData *pd)
     platform = pd;
     engine = &platform->engine;
 
-    //if(engine->subsystems & SUBSYS_RENDERER)
+    if(engine->subsystems & SUBSYS_RENDERER)
         renderer_reloaded(pd);
 }
 
 void engine_quit(struct PlatformData *pd)
 {
-    //if(engine->subsystems & SUBSYS_RENDERER)
+    if(engine->subsystems & SUBSYS_RENDERER)
         renderer_quit(pd);
 }
 

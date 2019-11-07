@@ -4,7 +4,7 @@
 #include "common/platform.h"
 
 enum ESubsystems {
-    SUBSYS_RENDERER,
+    SUBSYS_RENDERER = 0x01,
 };
 
 void engine_init(struct PlatformData *pd, enum ESubsystems subsystems);
