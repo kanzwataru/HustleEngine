@@ -14,6 +14,7 @@ struct RenderData {
     struct Framebuffer back_buf;
     shaderid_t flat_shader;
     shaderid_t post_shader;
+    shaderid_t sprite_shader;
 };
 
 #endif

@@ -12,7 +12,7 @@
 #ifndef ASSET_STRUCTS_H
 #include "common/platform.h"
 
-struct Tileset {
+struct TilesetAsset {
     uint16_t width;
     uint16_t height;
     uint16_t flags;
@@ -20,7 +20,7 @@ struct Tileset {
     byte data[1];   /* extends past struct */
 };
 
-struct Tilemap {
+struct TilemapAsset {
     uint16_t dimensions;
     uint16_t flags;
     uint16_t count;
@@ -28,7 +28,7 @@ struct Tilemap {
     byte data[1];   /* extends past struct */
 };
 
-struct Texture {
+struct TextureAsset {
     uint16_t flags;
     uint16_t size;
     byte data[1];   /* extends past struct */

@@ -4,6 +4,7 @@
 #include "common/platform.h"
 #include "common/structures.h"
 #include "glad/glad.h"
+#include "gl_debug.h"
 
 #define VERT_SIZE               3 + 2   /* position, uv */
 

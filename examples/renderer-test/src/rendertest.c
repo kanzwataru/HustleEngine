@@ -9,6 +9,9 @@ struct GameData {
 
     uint16_t counter;
     Rect bouncing_rect;
+    Rect spinning_rect;
+
+    buffer_t test_texture[16 * 16];
 };
 
 static struct GameData *g;
@@ -27,9 +30,16 @@ void init(void)
 
     renderer_set_palette(g->palette, 0, 255);
 
+    /* initialize test texture */
+    for(i = 0; i < PALETTE_COLORS; ++i) {
+        g->test_texture[i] = i;
+    }
+
     /* initialize scene */
     g->bouncing_rect.w = 32;
     g->bouncing_rect.h = 32;
+    g->spinning_rect.w = 16;
+    g->spinning_rect.h = 16;
 }
 
 void input(void) {}
@@ -39,13 +49,18 @@ void update(void)
 
     g->bouncing_rect.x = 32;
     g->bouncing_rect.y = 64 + (32.0f * sin((float)g->counter * 0.05f));
+
+    g->spinning_rect.x = 128 + (16.0f * sin((float)g->counter * 0.01f));
+    g->spinning_rect.y = 64 + (16.0f * cos((float)g->counter * 0.01f));
 }
 
 void render(void)
 {
-    renderer_clear(0);
+    renderer_clear(30);
 
-    renderer_draw_rect(g->bouncing_rect, 18);
+    renderer_draw_rect(g->bouncing_rect, 12);
+    renderer_draw_texture(g->test_texture, g->spinning_rect);
+
     renderer_flip();
 }
 

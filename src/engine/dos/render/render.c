@@ -64,3 +64,15 @@ void renderer_draw_rect(Rect xform, byte color)
         }
     }
 }
+
+void renderer_draw_texture(void *texture, Rect xform)
+{
+    register buffer_t *buf = backbuf + (xform.y * 320 + xform.x);
+
+    while(xform.h --> 0) {
+        memcpy(buf, texture, xform.w);
+
+        buf += 320;
+        texture = (char *)texture + xform.w;
+    }
+}

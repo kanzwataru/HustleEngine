@@ -31,6 +31,20 @@ static const char *flat_frag_src =
 "   frag_col = texture(palette, color.r);\n"
 "}\n\0";
 
+static const char *sprite_frag_src =
+"#version 330 core\n"
+"in vec2 uv;\n"
+"out vec4 frag_col;\n"
+
+"uniform sampler1D palette;\n"
+"uniform sampler2D sprite;\n"
+
+"void main()\n"
+"{\n"
+"   vec4 id = texture(sprite, uv);\n"
+"   frag_col = texture(palette, id.r);\n"
+"}\n\0";
+
 static const char *post_vert_src =
 "#version 330 core\n"
 "layout (location = 0) in vec3 in_pos;\n"
