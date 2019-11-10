@@ -9,14 +9,8 @@
 static volatile buffer_t *vga_mem = (volatile buffer_t *)0xA0000;
 static buffer_t backbuf[320 * 200];
 
-static struct Framebuffer backbuffer_fb;
-
 void renderer_init(struct PlatformData *pd)
 {
-    Point size = {320, 200};
-    backbuffer_fb.buf = backbuf;
-    backbuffer_fb.size = size;
-
     _asm {
         mov ax, 0x0013
         int 0x10
@@ -59,19 +53,14 @@ void renderer_get_palette(buffer_t *pal, byte offset, byte count)
 
 }
 
-struct Framebuffer *renderer_get_backbuffer(void)
-{
-    return &backbuffer_fb;
-}
-
-void renderer_draw_rect(struct Framebuffer *buf, Rect xform, byte color)
+void renderer_draw_rect(Rect xform, byte color)
 {
     int x, y;
 
     for(y = xform.y; y < xform.y + xform.h; ++y) {
         for(x = xform.x; x < xform.x + xform.w; ++x) {
-            if(x > 0 && x < buf->size.x && y > 0 && y < buf->size.y)
-                buf->buf[y * 320 + x] = color;
+            if(x > 0 && x < 320 && y > 0 && y < 200)
+                backbuf[y * 320 + x] = color;
         }
     }
 }

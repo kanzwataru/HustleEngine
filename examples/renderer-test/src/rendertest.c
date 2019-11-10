@@ -43,12 +43,9 @@ void update(void)
 
 void render(void)
 {
-    struct Framebuffer *backbuf;
-
-    backbuf = renderer_get_backbuffer();
     renderer_clear(0);
 
-    renderer_draw_rect(backbuf, g->bouncing_rect, 18);
+    renderer_draw_rect(g->bouncing_rect, 18);
     renderer_flip();
 }
 

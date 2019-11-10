@@ -93,14 +93,8 @@ void renderer_get_palette(buffer_t *pal, byte offset, byte count)
     memcpy(pal + (offset * 3), rd->palette + (offset * 3), count * 3);
 }
 
-struct Framebuffer *renderer_get_backbuffer(void)
+void renderer_draw_rect(Rect xform, byte color)
 {
-    return &rd->target_buf;
-}
-
-void renderer_draw_rect(struct Framebuffer *buf, Rect xform, byte color)
-{
-    gl_set_framebuffer(buf);
     glUseProgram(rd->flat_shader);
 
     float model_matrix[] = {
