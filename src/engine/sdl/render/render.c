@@ -128,16 +128,19 @@ void renderer_draw_texture(void *texture, Rect xform)
 
     glUseProgram(rd->sprite_shader);
 
+    glActiveTexture(GL_TEXTURE0 + 1);
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, xform.w, xform.h, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-
+    GLint sprite_tex_loc = glGetUniformLocation(rd->sprite_shader, "sprite");
+    glUniform1i(sprite_tex_loc, 1);
     draw_quad(rd->sprite_shader, xform);
-    //renderer_draw_rect(xform, 255);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &id);
+
+    glActiveTexture(GL_TEXTURE0);
 }
