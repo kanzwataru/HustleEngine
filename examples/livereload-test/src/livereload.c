@@ -91,12 +91,13 @@ void update(void) {
 
 void render(void) {
     int i = 0;
+    struct Framebuffer *backbuf = renderer_get_backbuffer();
 
     renderer_set_palette(palette, 0, 2);
     renderer_clear(0);
 
     for(i = 0; i < g->cube_num; ++i) {
-        renderer_draw_rect(0, g->cubes[i].rect, 1);
+        renderer_draw_rect(backbuf, g->cubes[i].rect, 1);
     }
 
     renderer_flip();
