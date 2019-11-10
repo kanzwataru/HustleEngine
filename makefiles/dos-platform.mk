@@ -12,8 +12,8 @@ DEFINES		+= HE_PLATFORM_DOS
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
 OBJ     	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 
-CFLAGS		:= -bt=dos -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(HEADERS)) $(addprefix -d,$(DEFINES))
-LDFLAGS		:= -bt=dos -l=$(EXTENDER) -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -6r -mf -zq
+CFLAGS		:= -bt=dos -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(HEADERS)) $(addprefix -d,$(DEFINES))
+LDFLAGS		:= -bt=dos -l=$(EXTENDER) -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -4s -mf -zq
 
 ######################################################
 # build settings
