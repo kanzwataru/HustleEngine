@@ -1,20 +1,38 @@
 #include <cstdio>
+#include <map>
+#include <string>
+
 #include "asset/convert.hpp"
-#include "asset_config.h"
+
+extern "C" {
+    #include "asset_config.h"
+}
+
+typedef int (*conversion_handler)(const char *);
+std::map<std::string, conversion_handler> converters = {
+    {"Texture", texture_convert}
+};
+
+void help(void)
+{
+    fprintf(stderr, "mkasset [type] [name] > [out file]\n");
+}
 
 int main(int argc, char **argv)
 {
-    printf("Hello from mkasset!\n");
-
-    for(int i = 0; i < config_size(Texture); ++i) {
-        printf("Texture\n");
-        printf("\tname:%s\n", config_get(Texture)[i].name);
-        printf("\tpath:%s\n", config_get(Texture)[i].path);
+    if(argc < 3) {
+        help();
+        return 1;
     }
 
-    for(int i = 0; i < config_size(Palette); ++i) {
-        printf("Palette\n");
-        printf("\tname:%s\n", config_get(Palette)[i].name);
-        printf("\tpath:%s\n", config_get(Palette)[i].path);
+    const char *type = argv[1];
+    const char *name = argv[2];
+
+    if(converters.count(type)) {
+        return converters[type](name);
+    }
+    else {
+        fprintf(stderr, "type: %s is not supported\n", type);
+        return 1;
     }
 }

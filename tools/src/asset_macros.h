@@ -2,7 +2,7 @@
 
 /* for program using configs */
 #define config_get(_type)   _type##_assets
-#define config_size(_type)  _type##_count
+#define config_count(_type) _type##_count
 
 /* for config file */
 #ifdef THIS_IS_CONFIG_FILE
@@ -23,4 +23,4 @@
 /* for config header */
 #define config_declare(_type) \
     extern struct _type *_type##_assets; \
-    extern int _type##_count;
+    extern int _type##_count
