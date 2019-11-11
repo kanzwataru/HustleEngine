@@ -14,3 +14,13 @@ struct Palette {
     const char *path;
 };
 config_declare(Palette);
+
+struct Package {
+    const char *name;
+    const char **contents;
+};
+config_declare(Package);
+
+#define do_all(_func) \
+    _func(Texture); \
+    _func(Palette);

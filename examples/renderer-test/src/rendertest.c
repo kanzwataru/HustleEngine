@@ -1,3 +1,5 @@
+#include "assets_main.gen.h"
+#include "core/asset.h"
 #include "hustle.h"
 #include "platform/bootstrap.h"
 
@@ -10,8 +12,11 @@ struct GameData {
     uint16_t counter;
     Rect bouncing_rect;
     Rect spinning_rect;
+    Rect roy_rect;
 
     buffer_t test_texture[16 * 16];
+
+    byte asset_pak[512000];
 };
 
 static struct GameData *g;
@@ -19,6 +24,11 @@ static struct GameData *g;
 void init(void)
 {
     int i;
+    struct TextureAsset *roy;
+
+    /* load pak file */
+    asset_load_pak(g->asset_pak, "main.dat");
+    roy = asset_get(ROY, Texture, g->asset_pak);
 
     /* initialize palette */
     for(i = 0; i < PALETTE_COLORS * 3; i += 3) {
@@ -40,6 +50,12 @@ void init(void)
     g->bouncing_rect.h = 32;
     g->spinning_rect.w = 16;
     g->spinning_rect.h = 16;
+    g->roy_rect.x = 8;
+    g->roy_rect.y = 8;
+    g->roy_rect.w = roy->width;
+    g->roy_rect.h = roy->height;
+
+    printf("wat: %d\n", *(uint32_t *)g->asset_pak);
 }
 
 void input(void) {}
@@ -56,8 +72,11 @@ void update(void)
 
 void render(void)
 {
+    struct TextureAsset *roy = asset_get(ROY, Texture, g->asset_pak);
+
     renderer_clear(30);
 
+    renderer_draw_texture(roy->data, g->roy_rect);
     renderer_draw_rect(g->bouncing_rect, 12);
     renderer_draw_texture(g->test_texture, g->spinning_rect);
 

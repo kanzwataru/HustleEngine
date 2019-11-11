@@ -13,11 +13,11 @@
 #include "common/platform.h"
 
 struct TilesetAsset {
-    uint16_t width;
-    uint16_t height;
+    uint16_t width;  /* width of each tile */
+    uint16_t height; /* height of each tile */
     uint16_t flags;
-    uint16_t size;
-    byte data[1];   /* extends past struct */
+    uint16_t count;  /* amount of tiles */
+    byte data[1];    /* extends past struct */
 };
 
 struct TilemapAsset {
@@ -25,13 +25,15 @@ struct TilemapAsset {
     uint16_t flags;
     uint16_t count;
     uint16_t size;
-    byte data[1];   /* extends past struct */
+    byte data[1];    /* extends past struct */
 };
 
 struct TextureAsset {
+    uint16_t width;  /* width of texture */
+    uint16_t height; /* height of texture */
     uint16_t flags;
-    uint16_t size;
-    byte data[1];   /* extends past struct */
+    uint16_t size;   /* in bytes */
+    byte data[1];    /* extends past struct */
 };
 
 #endif
