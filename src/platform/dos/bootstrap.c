@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     memset(&game_table, 0, sizeof(game_table));
     memset(&platform, 0, sizeof(platform));
 
-    memory = malloc(3000);
+    memory = malloc(8000000); /* 8MB for now */
     if(!memory)
         err("Bad alloc");
 

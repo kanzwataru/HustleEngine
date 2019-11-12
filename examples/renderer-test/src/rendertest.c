@@ -54,8 +54,6 @@ void init(void)
     g->roy_rect.y = 8;
     g->roy_rect.w = roy->width;
     g->roy_rect.h = roy->height;
-
-    printf("wat: %d\n", *(uint32_t *)g->asset_pak);
 }
 
 void input(void) {}

@@ -63,11 +63,10 @@ int main(int argc, char **argv)
     fprintf(stdout, "#define ASSETS_%s_GEN_H\n\n", to_upper(name).c_str());
 
     /* write out empty pak header */
-    size_t top = 0;
     uint32_t pak_size = 0;
     fwrite(&pak_size, sizeof(pak_size), 1, out);
 
-    top += sizeof(pak_size);
+    size_t top = 0;
     for(size_t i = 0; i < content_count(pak); ++i) {
         /* get asset name */
         std::string asset_name = pak->contents[i];
@@ -105,7 +104,7 @@ int main(int argc, char **argv)
     /* go back and rewrite the pak header */
     pak_size = top - sizeof(pak_size);
     rewind(out);
-    fwrite(&top, sizeof(pak_size), 1, out);
+    fwrite(&pak_size, sizeof(pak_size), 1, out);
 
     fclose(out);
 
