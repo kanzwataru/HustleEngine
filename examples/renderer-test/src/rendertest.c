@@ -25,6 +25,7 @@ void init(void)
 {
     int i;
     struct TextureAsset *roy;
+    struct PaletteAsset *pal;
 
     /* load pak file */
     asset_load_pak(g->asset_pak, "main.dat");
@@ -38,7 +39,9 @@ void init(void)
         g->palette[i + 2] = i + 128;
     }
 
-    renderer_set_palette(g->palette, 0, 255);
+    //renderer_set_palette(g->palette, 0, 255);
+    pal = asset_get(PAL, Palette, g->asset_pak);
+    renderer_set_palette(pal->data, 0, pal->col_count);
 
     /* initialize test texture */
     for(i = 0; i < PALETTE_COLORS; ++i) {

@@ -88,9 +88,9 @@ uint8_t *load_bmp_palette(const char *file)
     assert(palette);
 
     for(i = 0; i < d.col_num * 3; i+= 3) {
-        palette[i + 2] = fgetc(d.fp) >> 2;
-        palette[i + 1] = fgetc(d.fp) >> 2;
-        palette[i + 0] = fgetc(d.fp) >> 2;
+        palette[i + 2] = fgetc(d.fp);
+        palette[i + 1] = fgetc(d.fp);
+        palette[i + 0] = fgetc(d.fp);
         fgetc(d.fp);
     }
 

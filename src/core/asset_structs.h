@@ -36,4 +36,9 @@ struct TextureAsset {
     byte data[1];    /* extends past struct */
 };
 
+struct PaletteAsset {
+    byte col_count;  /* number of colours - 1 */
+    byte data[1];    /* extends past struct */
+};
+
 #endif
