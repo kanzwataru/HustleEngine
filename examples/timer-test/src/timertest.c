@@ -9,7 +9,7 @@ static int spin_wheels(void)
     volatile int foo = 1;
     volatile int *p_foo;
 
-    for(i = 0; i < 3200 * 3200; ++i) {
+    for(i = 0; i < 320 * 200; ++i) {
         p_foo = &foo;
         *p_foo *= *p_foo;
     }
@@ -27,7 +27,9 @@ void init(void)
 
     printf("Speed is: %f ms\n", result);
 
+#ifndef HE_PLATFORM_DOS
     gametable->running = false;
+#endif
 }
 
 void input(void) {}

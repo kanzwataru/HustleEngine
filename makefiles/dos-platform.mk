@@ -6,11 +6,14 @@ TARGET 		:= $(BUILD_DIR)/$(GAME_NAME).exe
 DOS_ROOT	:= $(abspath $(BUILD_DIR))
 
 HEADERS		+=
-ENGINE_SRC  += engine/dos/engine/engine.c engine/dos/render/render.c platform/dos/bootstrap.c
+ENGINE_SRC  += engine/dos/engine/engine.c \
+			   engine/dos/engine/timer.s  \
+ 			   engine/dos/render/render.c \
+			   platform/dos/bootstrap.c
 DEFINES		+= HE_PLATFORM_DOS
 
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
-OBJ     	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
+OBJ     	:= $(filter %.o, $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.s,$(OBJ_DIR)/%.o,$(SRC)))
 
 CFLAGS		:= -bt=dos -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(HEADERS)) $(addprefix -d,$(DEFINES))
 LDFLAGS		:= -bt=dos -l=$(EXTENDER) -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -4s -mf -zq
@@ -40,6 +43,10 @@ $(OBJ_DIR)/%.o: %.c
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $^ -fo=$@
 
+$(OBJ_DIR)/%.o: %.s
+	@mkdir -p `dirname $@`
+	@nasm -f obj $^ -o $@
+
 $(TARGET): $(OBJ) $(BUILD_DIR)/$(EXTENDER).exe
 	@mkdir -p `dirname $@`
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $(CORE_TARGET)
@@ -51,7 +58,7 @@ platform_build: $(TARGET)
 	@rm $(EXTENDER).exe
 
 platform_run: all
-	@dosbox -c "Z:" -c "mount F $(DOS_ROOT)" -c "F:" -c "$(GAME_NAME).exe"	
+	@dosbox -c "Z:" -c "mount F $(DOS_ROOT)" -c "F:" -c "$(GAME_NAME).exe"
 
 platform_debug: all
 	@echo "No debugging available for this platform"

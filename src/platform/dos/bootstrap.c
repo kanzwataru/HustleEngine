@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     game_table.init();
 
     /* game loop */
-    while(!kbhit()) {
+    while(!kbhit() && game_table.running) {
         game_table.input();
         game_table.update();
         game_table.render();
