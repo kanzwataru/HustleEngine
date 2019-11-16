@@ -103,7 +103,7 @@ int spritesheet_convert(const char *name)
     fwrite(header, sizeof(header), 1, stdout);
     fwrite(&flags, sizeof(flags), 1, stdout);
     fwrite(&base_offset, sizeof(base_offset), 1, stdout);
-    fwrite(&offset_table[0], offset_table.size(), 1, stdout);
+    fwrite(&offset_table[0], sizeof(uint16_t), offset_table.size(), stdout);
 
     fwrite(bmp, 1, image_info.width * image_info.height, stdout);
 
