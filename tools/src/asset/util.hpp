@@ -4,6 +4,9 @@ extern "C" {
     #include "asset_config.h"
 }
 
+#define stringify_a(_x) #_x
+#define stringify(_x)   stringify_a(_x)
+
 template <typename T>
 const T *config_find_in(const char *name, const T *config_type, size_t count) {
     if(count == 0) {

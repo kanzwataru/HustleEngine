@@ -14,12 +14,24 @@ begin(Palette)
 },
 end(Palette)
 
+begin(Spritesheet)
+{
+    .name      = "char_run",
+    .path      = "data/char_run.bmp",
+    .width     = 8,
+    .height    = 16,
+    .count     = 6,
+    .frameskip = 3
+},
+end(Spritesheet)
+
 begin(Package)
 {
     .name = "main",
     .contents = (const char *[]){
         "roy",
         "pal",
+        "char_run",
         0,
     }
 }

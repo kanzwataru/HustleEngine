@@ -41,4 +41,14 @@ struct PaletteAsset {
     byte data[1];    /* extends past struct */
 };
 
+struct SpritesheetAsset {
+    byte width;               /* width of sprites */
+    byte height;              /* height of sprites */
+    byte count;               /* number of sprites */
+    byte frameskip;           /* frames to skip when animating */
+    uint16_t flags;
+    uint16_t base_offset;     /* offset past offset_table where the first texture can be found */
+    uint16_t offset_table[1]; /* extends past struct */
+};
+
 #endif

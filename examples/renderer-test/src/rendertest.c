@@ -5,6 +5,13 @@
 
 #include <math.h>
 
+struct Sprite {
+    size_t spritesheet_os;
+    int current_frame;
+    int frameskip;  /* this ought to be global */
+    Rect rect;
+};
+
 struct GameData {
     struct Game *game;
     buffer_t palette[PALETTE_COLORS * 3];
@@ -14,12 +21,31 @@ struct GameData {
     Rect spinning_rect;
     Rect roy_rect;
 
+    struct Sprite sprite;
+
     buffer_t test_texture[16 * 16];
 
     byte asset_pak[512000];
 };
 
 static struct GameData *g;
+
+static void update_sprite(struct Sprite *spr)
+{
+    struct SpritesheetAsset *sheet = asset_get_direct(spr->spritesheet_os, Spritesheet, g->asset_pak);
+    if(spr->frameskip-- < 0) {
+        if(++spr->current_frame > sheet->count) {
+            spr->current_frame = 0;
+        }
+        spr->frameskip = sheet->frameskip;
+    }
+}
+
+static void draw_sprite(struct Sprite *spr)
+{
+    struct SpritesheetAsset *sheet = asset_get_direct(spr->spritesheet_os, Spritesheet, g->asset_pak);
+    renderer_draw_texture(asset_sprite_get_frame(sheet, spr->current_frame), spr->rect);
+}
 
 void init(void)
 {
@@ -57,6 +83,13 @@ void init(void)
     g->roy_rect.y = 8;
     g->roy_rect.w = roy->width;
     g->roy_rect.h = roy->height;
+
+    g->sprite.spritesheet_os = ASSET_CHAR_RUN;
+    g->sprite.current_frame = 0;
+    g->sprite.rect.x = 200;
+    g->sprite.rect.y = 64;
+    g->sprite.rect.w = asset_get_direct(g->sprite.spritesheet_os, Spritesheet, g->asset_pak)->width;
+    g->sprite.rect.h = asset_get_direct(g->sprite.spritesheet_os, Spritesheet, g->asset_pak)->height;
 }
 
 void input(void) {}
@@ -69,6 +102,8 @@ void update(void)
 
     g->spinning_rect.x = 128 + (16.0f * sin((float)g->counter * 0.01f));
     g->spinning_rect.y = 64 + (16.0f * cos((float)g->counter * 0.01f));
+
+    update_sprite(&g->sprite);
 }
 
 void render(void)
@@ -80,6 +115,7 @@ void render(void)
     renderer_draw_texture(roy->data, g->roy_rect);
     renderer_draw_rect(g->bouncing_rect, 12);
     renderer_draw_texture(g->test_texture, g->spinning_rect);
+    draw_sprite(&g->sprite);
 
     renderer_flip();
 }

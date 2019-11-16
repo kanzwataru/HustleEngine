@@ -11,7 +11,8 @@ extern "C" {
 typedef int (*conversion_handler)(const char *);
 std::map<std::string, conversion_handler> converters = {
     {"Texture", texture_convert},
-    {"Palette", palette_convert}
+    {"Palette", palette_convert},
+    {"Spritesheet", spritesheet_convert}
 };
 
 void help(void)
