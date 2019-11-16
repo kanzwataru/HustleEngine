@@ -2,10 +2,18 @@
 CC			:= gcc
 
 HEADERS		+= $(ENGINE_DIR)/src/extern/glad/include
-ENGINE_SRC  += engine/sdl/engine/engine.c engine/sdl/render/render.c extern/glad/src/glad.c $\
-			   engine/sdl/render/gl.c engine/sdl/render/gl_shader.c
+
+EXTERN_SRC  := extern/glad/src/glad.c
+
+ENGINE_SRC  += engine/sdl/engine/engine.c \
+ 			   engine/sdl/render/render.c \
+			   engine/sdl/render/gl.c \
+			   engine/sdl/render/gl_shader.c \
+			   $(EXTERN_SRC)
+
 DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=so HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
-CORE_SRC	:= platform/sdl/bootstrap.c
+CORE_SRC	:= platform/sdl/bootstrap.c \
+			   $(EXTERN_SRC)
 
 CORE_TARGET := $(BUILD_DIR)/$(GAME_NAME)
 LIB_TARGET	:= $(BUILD_DIR)/game.so
@@ -16,7 +24,7 @@ CORE_OBJ	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CORE_SRC))
 CORE_SRC	:= $(addprefix $(ENGINE_DIR)/src/,$(CORE_SRC))
 
 CFLAGS		:= -Wall -fPIC $(addprefix -I,$(HEADERS)) $(addprefix -D,$(DEFINES))
-LDFLAGS		:= -lSDL2
+LDFLAGS		:= -lSDL2 -ldl
 
 ######################################################
 # build settings
