@@ -34,7 +34,7 @@ static void update_sprite(struct Sprite *spr)
 {
     struct SpritesheetAsset *sheet = asset_get_direct(spr->spritesheet_os, Spritesheet, g->asset_pak);
     if(spr->frameskip-- < 0) {
-        if(++spr->current_frame > sheet->count) {
+        if(++spr->current_frame == sheet->count) {
             spr->current_frame = 0;
         }
         spr->frameskip = sheet->frameskip;
@@ -44,7 +44,8 @@ static void update_sprite(struct Sprite *spr)
 static void draw_sprite(struct Sprite *spr)
 {
     struct SpritesheetAsset *sheet = asset_get_direct(spr->spritesheet_os, Spritesheet, g->asset_pak);
-    renderer_draw_texture(asset_sprite_get_frame(sheet, spr->current_frame), spr->rect);
+    buffer_t *buf = asset_sprite_get_frame(sheet, spr->current_frame);
+    renderer_draw_texture(buf, spr->rect);
 }
 
 void init(void)
@@ -80,13 +81,13 @@ void init(void)
     g->spinning_rect.w = 16;
     g->spinning_rect.h = 16;
     g->roy_rect.x = 8;
-    g->roy_rect.y = 8;
+    //g->roy_rect.y = 8;
     g->roy_rect.w = roy->width;
     g->roy_rect.h = roy->height;
 
     g->sprite.spritesheet_os = ASSET_CHAR_RUN;
     g->sprite.current_frame = 0;
-    g->sprite.rect.x = 200;
+    //g->sprite.rect.x = 200;
     g->sprite.rect.y = 64;
     g->sprite.rect.w = asset_get_direct(g->sprite.spritesheet_os, Spritesheet, g->asset_pak)->width;
     g->sprite.rect.h = asset_get_direct(g->sprite.spritesheet_os, Spritesheet, g->asset_pak)->height;
@@ -102,6 +103,10 @@ void update(void)
 
     g->spinning_rect.x = 128 + (16.0f * sin((float)g->counter * 0.01f));
     g->spinning_rect.y = 64 + (16.0f * cos((float)g->counter * 0.01f));
+
+    g->roy_rect.y = 8 + (4.0f * sin((float) g->counter * 0.05f));
+
+    g->sprite.rect.x = 200 + (8.0f * sin((float) g->counter * 0.02f));
 
     update_sprite(&g->sprite);
 }
