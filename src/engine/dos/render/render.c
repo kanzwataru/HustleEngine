@@ -57,11 +57,20 @@ void renderer_draw_rect(Rect xform, byte color)
 {
     int x, y;
 
+    /*
     for(y = xform.y; y < xform.y + xform.h; ++y) {
         for(x = xform.x; x < xform.x + xform.w; ++x) {
             if(x > 0 && x < 320 && y > 0 && y < 200)
                 backbuf[y * 320 + x] = color;
         }
+    }
+    */
+    register buffer_t *buf = backbuf + (xform.y * 320 + xform.x);
+
+    while(xform.h --> 0) {
+        memset(buf, color, xform.w);
+
+        buf += 320;
     }
 }
 

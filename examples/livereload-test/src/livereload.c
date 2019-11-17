@@ -1,5 +1,4 @@
 #include "hustle.h"
-#include "common/structures.h"
 #include "platform/bootstrap.h"
 #include "engine/engine.h"
 #include "engine/render.h"
@@ -112,6 +111,9 @@ void update(void) {
 }
 
 void render(void) {
+    Rect player_clipped;
+    Point player_offset;
+    Rect screen_rect = { 0, 0, 320, 200 }; /* TODO: this should be global somewhere */
     int i = 0;
 
     renderer_set_palette(palette, 0, 3);
@@ -121,7 +123,8 @@ void render(void) {
         renderer_draw_rect(g->cubes[i].rect, 1);
     }
 
-    renderer_draw_rect(g->player_cube, 2);
+    if(math_clip_rect(g->player_cube, &screen_rect, &player_offset, &player_clipped))
+        renderer_draw_rect(player_clipped, 2);
 
     renderer_flip();
 }

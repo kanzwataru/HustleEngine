@@ -12,4 +12,6 @@ typedef struct Rect {
     int16_t w, h;
 } Rect;
 
+bool math_clip_rect(Rect rect, const Rect * const bounds, Point *out_offset, Rect *out_rect);
+
 #endif

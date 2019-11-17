@@ -2,7 +2,7 @@
 #define GL_H
 
 #include "common/platform.h"
-#include "common/structures.h"
+#include "common/mathlib.h"
 #include "glad/glad.h"
 #include "gl_debug.h"
 

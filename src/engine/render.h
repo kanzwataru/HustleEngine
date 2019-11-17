@@ -2,7 +2,7 @@
 #define RENDER_H
 
 #include "common/platform.h"
-#include "common/structures.h"
+#include "common/mathlib.h"
 
 #define PALETTE_COLORS  256
 

@@ -2,7 +2,7 @@
 #define HUSTLE_H
 
 #include "common/platform.h"
-#include "common/structures.h"
+#include "common/mathlib.h"
 #include "engine/render.h"
 #include "engine/engine.h"
 #include "engine/input.h"

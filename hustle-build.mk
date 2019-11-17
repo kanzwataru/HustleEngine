@@ -6,7 +6,8 @@ ENGINE_DIR  := $(realpath $(ENGINE_DIR))
 BUILD_DIR	:= $(PWD)/build/$(TARGET_PLATFORM)
 OBJ_DIR		:= $(BUILD_DIR)/transient/obj
 HEADERS		:= $(ENGINE_DIR)/src/ $(GAME_HEADERS) $(BUILD_DIR)/transient/gen
-ENGINE_SRC	:= core/asset.c
+ENGINE_SRC	:= core/asset.c \
+			   common/mathlib.c
 DEFINES		+=
 SETTINGS     = $(BUILD_DIR)/transient/make/settings.mk
 ASSET_MK	 = $(BUILD_DIR)/transient/make/assets.mk
