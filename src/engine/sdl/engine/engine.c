@@ -7,10 +7,13 @@
 static struct PlatformData *platform;
 static struct EngineData *engine;
 
+const bool *keyboard_keys;
+
 void engine_init(struct PlatformData *pd)
 {
     platform = pd;
     engine = &platform->engine;
+    keyboard_keys = (bool *)SDL_GetKeyboardState(NULL);
 
     renderer_init(pd);
 

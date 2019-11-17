@@ -5,5 +5,6 @@
 #include "common/structures.h"
 #include "engine/render.h"
 #include "engine/engine.h"
+#include "engine/input.h"
 
 #endif
