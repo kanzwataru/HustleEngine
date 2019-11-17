@@ -3,11 +3,7 @@
 
 #include "asset_structs.h"
 
-/* convinience macros
- * usage example:
-    struct TilemapAsset *map = asset_get(LEVEL_2, Tilemap, pak_file);
-    struct TextureAsset *tex = asset_get(SKY, Texture, pak_file);
-*/
+/* convinience macros */
 #define asset_get(_name, _type, _pak) \
     ((struct _type##Asset*)(_pak + ASSET_##_name))
 
