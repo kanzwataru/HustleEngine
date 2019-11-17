@@ -31,6 +31,8 @@
 
     typedef int             bool;
     enum bool_vals_t { true = 1, false = 0 };
+
+    typedef void __interrupt (*interrupt_t)(void);
 #endif
 
 #endif
