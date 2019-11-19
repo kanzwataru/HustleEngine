@@ -54,8 +54,6 @@ void init(void)
     struct TextureAsset *roy;
     struct PaletteAsset *pal;
 
-    /* load pak file */
-    asset_load_pak(g->asset_pak, "main.dat");
     roy = asset_get(ROY, Texture, g->asset_pak);
 
     /* initialize palette */
@@ -137,4 +135,7 @@ void HANDSHAKE_FUNCTION_NAME(struct Game *game, void *memory_chunk)
     game->update = update;
     game->render = render;
     game->quit = quit;
+
+    /* load pak file */
+    asset_load_pak(g->asset_pak, "main.dat");
 }
