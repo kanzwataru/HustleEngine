@@ -12,6 +12,7 @@ ENGINE_SRC  += engine/dos/engine/engine.c \
 			   platform/dos/bootstrap.c
 DEFINES		+= HE_PLATFORM_DOS
 
+HEADERS		 = $(foreach dir, $(INCLUDE_DIR), $(shell find $(dir) -name "*.h"))
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
 OBJ     	:= $(filter %.o, $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.s,$(OBJ_DIR)/%.o,$(SRC)))
 
@@ -35,11 +36,11 @@ $(BUILD_DIR)/$(EXTENDER).exe:
 	@# copy it to the current dir also, temporarily for the linker to find
 	@cp $(CC_DOS_DIR)/$(EXTENDER).exe ./$(EXTENDER).exe
 
-$(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c
+$(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c $(HEADERS)
 	@mkdir -p `dirname $@`
-	@$(CC) -c $(CFLAGS) $^ -fo=$@
+	@$(CC) -c $(CFLAGS) $< -fo=$@
 
-$(OBJ_DIR)/%.o: %.c $(ASSETS)
+$(OBJ_DIR)/%.o: %.c $(ASSETS) $(HEADERS)
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $< -fo=$@
 
