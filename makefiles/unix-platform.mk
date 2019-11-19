@@ -59,7 +59,7 @@ $(LIB_TARGET): $(OBJ)
 game: $(CORE_TARGET) $(LIB_TARGET)
 
 run: all
-	@cd $(BUILD_DIR) && ./$(GAME_NAME)
+	@cd $(BUILD_DIR) && exec ./$(GAME_NAME)
 
 debug: all
-	@cd $(BUILD_DIR) && gdb ./$(GAME_NAME)
+	@cd $(BUILD_DIR) && exec gdb ./$(GAME_NAME)
