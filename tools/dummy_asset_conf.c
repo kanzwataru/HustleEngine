@@ -9,3 +9,4 @@ end(Texture)
 
 none(Palette)
 none(Package)
+none(Spritesheet)
