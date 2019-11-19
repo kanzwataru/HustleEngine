@@ -6,6 +6,19 @@
 
 using Choices = std::vector<std::string>;
 
+namespace io {
+    void input_flush()
+    {
+        int c;
+        while((c = getchar()) != '\n' && c != EOF) {}
+    }
+	
+	void output_flush()
+	{
+		fflush(stdout);
+	}
+}
+
 class Option {
     Choices choices;
     std::string value;
@@ -26,6 +39,7 @@ public:
         }
 
         printf("[0..%zu]: ", choices.size() - 1);
+		io::output_flush();
         int num = getchar() - '0';
 
         if(size_t(num) < choices.size()) {
@@ -53,14 +67,6 @@ Settings build_settings_defaults = {
     {"TARGET_PLATFORM", {"unix", "dos"}},
     {"DEBUG_BUILD", {"false", "true"}},
 };
-
-namespace io {
-    void input_flush()
-    {
-        int c;
-        while((c = getchar()) != '\n' && c != EOF) {}
-    }
-}
 
 std::string generate_make_fragment(Settings settings)
 {

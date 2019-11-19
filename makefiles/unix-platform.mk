@@ -11,12 +11,19 @@ ENGINE_SRC  += engine/sdl/engine/engine.c \
 			   engine/sdl/render/gl_shader.c \
 			   $(EXTERN_SRC)
 
-DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=so HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
+ifeq ($(OS), Windows_NT)
+LIB_EXT		 = dll
+else
+LIB_EXT		 = so
+endif
+
+DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=$(LIB_EXT) HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
+
 CORE_SRC	:= platform/sdl/bootstrap.c \
 			   $(EXTERN_SRC)
 
 CORE_TARGET := $(BUILD_DIR)/$(GAME_NAME)
-LIB_TARGET	:= $(BUILD_DIR)/game.so
+LIB_TARGET	:= $(BUILD_DIR)/game.$(LIB_EXT)
 
 HEADERS		 = $(foreach dir, $(INCLUDE_DIR), $(shell find $(dir) -name "*.h"))
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
@@ -26,6 +33,14 @@ CORE_SRC	:= $(addprefix $(ENGINE_DIR)/src/,$(CORE_SRC))
 
 CFLAGS		:= -Wall -fPIC $(addprefix -I,$(INCLUDE_DIR)) $(addprefix -D,$(DEFINES))
 LDFLAGS		:= -lSDL2 -ldl
+
+######################################################
+# windows (mingw/msys) support
+ifeq ($(OS), Windows_NT)
+LDFLAGS		:= -lmingw32 -lSDL2main -lSDL2 -mwindows
+DEFINES		+= -Dmain=SDL_main
+endif
+######################################################
 
 ######################################################
 # build settings
@@ -46,13 +61,13 @@ $(OBJ_DIR)/%.o: %.c $(ASSETS) $(HEADERS)
 
 $(CORE_TARGET): $(CORE_OBJ)
 	@mkdir -p `dirname $@`
-	@$(CC) $(LDFLAGS) $^ -o $(CORE_TARGET)
+	@$(CC) $^ $(LDFLAGS) -o $(CORE_TARGET)
 	@echo "UNIX engine core -> $(CORE_TARGET)"
 
 $(LIB_TARGET): $(OBJ)
 	@touch $(dir $@)/lock
 	@mkdir -p `dirname $@`
-	@$(CC) $(LDFLAGS) -shared -fPIC $^ -o $(LIB_TARGET)
+	@$(CC) $^ $(LDFLAGS) -shared -fPIC -o $(LIB_TARGET)
 	@rm $(dir $@)/lock
 	@echo "UNIX game library -> $(LIB_TARGET)"
 
