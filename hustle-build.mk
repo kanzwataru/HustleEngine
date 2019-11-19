@@ -12,6 +12,7 @@ DEFINES		+=
 SETTINGS     = $(BUILD_DIR)/transient/make/settings.mk
 ASSET_MK	 = $(BUILD_DIR)/transient/make/assets.mk
 MKSETTINGS   = $(ENGINE_DIR)/tools/bin/mkbuildconf
+ASSET_HEADER = $(BUILD_DIR)/transient/gen/assets.gen.h
 
 all: $(SETTINGS) postbuild
 
@@ -25,11 +26,11 @@ $(SETTINGS): $(MKSETTINGS)
 	@mkdir -p `dirname $@`
 	@$(ENGINE_DIR)/tools/bin/mkbuildconf $@
 
-$(MKSETTINGS):
+tools:
 	@echo "** Tools **"
 	@cd $(ENGINE_DIR)/tools && $(MAKE) --no-print-directory ASSET_CONFIG_FILE=$(PWD)/$(ASSET_CONFIG_FILE)
 
-tools: $(MKSETTINGS)
+$(MKSETTINGS): tools
 
 ifneq ($(MAKECMDGOALS), clean)
 include $(SETTINGS)
@@ -45,9 +46,10 @@ clean: cleanhook
 
 debug: platform_debug
 
-game: assets engine $(SETTINGS)
+game: engine $(SETTINGS)
 
-assets: $(ASSET_MK)
+$(ASSET_HEADER): $(ASSET_MK) tools
 	@$(MAKE) --no-print-directory -f $(ASSET_MK)
+	@touch $(ASSET_HEADER) # for now
 
-engine: prebuild tools platform_build
+engine: prebuild assets platform_build

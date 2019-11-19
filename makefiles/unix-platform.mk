@@ -39,9 +39,9 @@ $(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $^ -o $@
 
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: %.c $(ASSET_HEADER)
 	@mkdir -p `dirname $@`
-	@$(CC) -c $(CFLAGS) $^ -o $@
+	@$(CC) -c $(CFLAGS) $< -o $@
 
 $(CORE_TARGET): $(CORE_OBJ)
 	@mkdir -p `dirname $@`
