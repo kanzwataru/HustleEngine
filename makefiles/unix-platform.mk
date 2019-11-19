@@ -18,6 +18,7 @@ CORE_SRC	:= platform/sdl/bootstrap.c \
 CORE_TARGET := $(BUILD_DIR)/$(GAME_NAME)
 LIB_TARGET	:= $(BUILD_DIR)/game.so
 
+HEADERS		 = $(foreach dir, $(INCLUDE_DIR), $(shell find $(dir) -name "*.h"))
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
 OBJ     	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 CORE_OBJ	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CORE_SRC))
@@ -35,11 +36,11 @@ CFLAGS		+= -O2 -Werror
 endif
 ######################################################
 
-$(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c
+$(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c $(HEADERS)
 	@mkdir -p `dirname $@`
-	@$(CC) -c $(CFLAGS) $^ -o $@
+	@$(CC) -c $(CFLAGS) $< -o $@
 
-$(OBJ_DIR)/%.o: %.c $(ASSETS)
+$(OBJ_DIR)/%.o: %.c $(ASSETS) $(HEADERS)
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $< -o $@
 
