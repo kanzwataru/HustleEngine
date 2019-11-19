@@ -7,12 +7,13 @@ extern "C" {
 void write_makefile(FILE *fp)
 {
     /* header */
+    fprintf(fp, ".PHONY: assets\n");
     fprintf(fp, "HEADER_OUT_DIR ?= $(BUILD_DIR)/transient/gen\n");
     fprintf(fp, "ASSET_OUT_DIR  ?= $(BUILD_DIR)/transient/assets\n");
     fprintf(fp, "TOOLS_BIN      ?= $(ENGINE_DIR)/tools/bin\n");
 
     /* main dependency */
-    fprintf(fp, "\nall: ");
+    fprintf(fp, "\nASSETS       := ");
     for(int i = 0; i < config_count(Package); ++i) {
         const auto *pak = config_get(Package) + i;
         fprintf(fp, "$(BUILD_DIR)/%s.dat ", pak->name);
@@ -25,7 +26,7 @@ void write_makefile(FILE *fp)
         const char **assets = pak->contents;
         if(!assets) break;
 
-        fprintf(fp, "\n$(BUILD_DIR)/%s.dat: ", pak->name);
+        fprintf(fp, "\n$(BUILD_DIR)/%s.dat: $(TOOLS_BIN)/mkpak ", pak->name);
 
         const char **p = assets;
         const char *asset_name;
@@ -62,7 +63,7 @@ void write_makefile(FILE *fp)
         auto *asset = config_get(_type) + i; \
         if(!asset) break; \
         fprintf(fp, "\n"); \
-        fprintf(fp, "$(ASSET_OUT_DIR)/%s.dat: %s\n", asset->name, asset->path); \
+        fprintf(fp, "$(ASSET_OUT_DIR)/%s.dat: $(TOOLS_BIN)/mkasset %s\n", asset->name, asset->path); \
         fprintf(fp, "\t@mkdir -p `dirname $@`\n"); \
         fprintf(fp, "\t@$(TOOLS_BIN)/mkasset " #_type " %s > $@\n", asset->name); \
         fprintf(fp,  "\t@echo \"$^ -> $@\"\n"); \

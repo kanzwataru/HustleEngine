@@ -1,11 +1,11 @@
-.PHONY: platform_build platform_run platform_debug
+.PHONY: game run debug
 CC			:= wcl386
 CC_DOS_DIR	:= $(dir $(shell which $(CC)))../binw
 EXTENDER	:= pmodew
 TARGET 		:= $(BUILD_DIR)/$(GAME_NAME).exe
 DOS_ROOT	:= $(abspath $(BUILD_DIR))
 
-HEADERS		+=
+INCLUDE_DIR		+=
 ENGINE_SRC  += engine/dos/engine/engine.c \
 			   engine/dos/engine/timer.s  \
  			   engine/dos/render/render.c \
@@ -15,7 +15,7 @@ DEFINES		+= HE_PLATFORM_DOS
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
 OBJ     	:= $(filter %.o, $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.s,$(OBJ_DIR)/%.o,$(SRC)))
 
-CFLAGS		:= -bt=dos -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(HEADERS)) $(addprefix -d,$(DEFINES))
+CFLAGS		:= -bt=dos -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(INCLUDE_DIR)) $(addprefix -d,$(DEFINES))
 LDFLAGS		:= -bt=dos -l=$(EXTENDER) -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -4s -mf -zq
 
 ######################################################
@@ -39,7 +39,7 @@ $(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $^ -fo=$@
 
-$(OBJ_DIR)/%.o: %.c $(ASSET_HEADER)
+$(OBJ_DIR)/%.o: %.c $(ASSETS)
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $< -fo=$@
 
@@ -52,13 +52,13 @@ $(TARGET): $(OBJ) $(BUILD_DIR)/$(EXTENDER).exe
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $(CORE_TARGET)
 	@echo "DOS32 binary -> $(TARGET)"
 
-platform_build: $(TARGET)
+game: $(TARGET)
 	@# clean up unnecessary crud that OpenWatcom leaves behind
 	@rm -f *.err
-	@rm $(EXTENDER).exe
+	@rm -f $(EXTENDER).exe
 
-platform_run: all
+run: all
 	@dosbox -c "Z:" -c "mount F $(DOS_ROOT)" -c "F:" -c "$(GAME_NAME).exe"
 
-platform_debug: all
+debug: all
 	@echo "No debugging available for this platform"

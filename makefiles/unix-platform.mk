@@ -1,7 +1,7 @@
-.PHONY: platform_build platform_run platform_debug
+.PHONY: game run debug
 CC			:= gcc
 
-HEADERS		+= $(ENGINE_DIR)/src/extern/glad/include
+INCLUDE_DIR	+= $(ENGINE_DIR)/src/extern/glad/include
 
 EXTERN_SRC  := extern/glad/src/glad.c
 
@@ -23,7 +23,7 @@ OBJ     	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
 CORE_OBJ	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CORE_SRC))
 CORE_SRC	:= $(addprefix $(ENGINE_DIR)/src/,$(CORE_SRC))
 
-CFLAGS		:= -Wall -fPIC $(addprefix -I,$(HEADERS)) $(addprefix -D,$(DEFINES))
+CFLAGS		:= -Wall -fPIC $(addprefix -I,$(INCLUDE_DIR)) $(addprefix -D,$(DEFINES))
 LDFLAGS		:= -lSDL2 -ldl
 
 ######################################################
@@ -39,7 +39,7 @@ $(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $^ -o $@
 
-$(OBJ_DIR)/%.o: %.c $(ASSET_HEADER)
+$(OBJ_DIR)/%.o: %.c $(ASSETS)
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $< -o $@
 
@@ -55,10 +55,10 @@ $(LIB_TARGET): $(OBJ)
 	@rm $(dir $@)/lock
 	@echo "UNIX game library -> $(LIB_TARGET)"
 
-platform_build: $(CORE_TARGET) $(LIB_TARGET)
+game: $(CORE_TARGET) $(LIB_TARGET)
 
-platform_run: all
-	@cd $(BUILD_DIR) && $(CORE_TARGET)
+run: all
+	@cd $(BUILD_DIR) && ./$(GAME_NAME)
 
-platform_debug: all
-	@cd $(BUILD_DIR) && gdb $(CORE_TARGET)
+debug: all
+	@cd $(BUILD_DIR) && gdb ./$(GAME_NAME)

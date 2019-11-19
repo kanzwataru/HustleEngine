@@ -66,7 +66,7 @@ static void recompile(void)
 {
     puts("*** game library recompile ***");
 
-    if(system("cd " STRINGIFY(HE_MAKE_DIR) " && make") != 0) {
+    if(system("cd " STRINGIFY(HE_MAKE_DIR) " && make --no-print-directory") != 0) {
         fprintf(stderr, "*** game library compilation failed ***");
         return;
     }
