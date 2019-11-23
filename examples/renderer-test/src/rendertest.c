@@ -6,7 +6,7 @@
 #include <math.h>
 
 struct Sprite {
-    size_t spritesheet_os;
+    assetid_t spritesheet;
     int current_frame;
     int frameskip;  /* this ought to be global */
     Rect rect;
@@ -32,7 +32,7 @@ static struct GameData *g;
 
 static void update_sprite(struct Sprite *spr)
 {
-    struct SpritesheetAsset *sheet = asset_get_direct(spr->spritesheet_os, Spritesheet, g->asset_pak);
+    struct SpritesheetAsset *sheet = asset_from_handle(spr->spritesheet);
     if(spr->frameskip-- < 0) {
         if(++spr->current_frame == sheet->count) {
             spr->current_frame = 0;
@@ -43,7 +43,7 @@ static void update_sprite(struct Sprite *spr)
 
 static void draw_sprite(struct Sprite *spr)
 {
-    struct SpritesheetAsset *sheet = asset_get_direct(spr->spritesheet_os, Spritesheet, g->asset_pak);
+    struct SpritesheetAsset *sheet = asset_from_handle(spr->spritesheet);
     buffer_t *buf = asset_sprite_get_frame(sheet, spr->current_frame);
     renderer_draw_texture(buf, spr->rect);
 }
@@ -83,12 +83,12 @@ void init(void)
     g->roy_rect.w = roy->width;
     g->roy_rect.h = roy->height;
 
-    g->sprite.spritesheet_os = ASSET_CHAR_RUN;
+    g->sprite.spritesheet = asset_handle_to(CHAR_RUN, Spritesheet, g->asset_pak);
     g->sprite.current_frame = 0;
     //g->sprite.rect.x = 200;
     g->sprite.rect.y = 64;
-    g->sprite.rect.w = asset_get_direct(g->sprite.spritesheet_os, Spritesheet, g->asset_pak)->width;
-    g->sprite.rect.h = asset_get_direct(g->sprite.spritesheet_os, Spritesheet, g->asset_pak)->height;
+    g->sprite.rect.w = asset_from_handle_of(g->sprite.spritesheet, Spritesheet)->width;
+    g->sprite.rect.h = asset_from_handle_of(g->sprite.spritesheet, Spritesheet)->height;
 }
 
 void input(void) {}

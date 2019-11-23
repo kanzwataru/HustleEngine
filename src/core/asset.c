@@ -24,3 +24,10 @@ void asset_load_pak(byte *asset_pak, const char *file_name)
     }
 #endif
 }
+
+struct AssetHandle asset_make_handle(uint16_t offset, byte *pak_file)
+{
+    struct AssetHandle handle = {offset, pak_file};
+
+    return handle;
+}
