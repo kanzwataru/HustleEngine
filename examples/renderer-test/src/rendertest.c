@@ -1,16 +1,8 @@
 #include "assets_main.gen.h"
-#include "core/asset.h"
 #include "hustle.h"
 #include "platform/bootstrap.h"
 
 #include <math.h>
-
-struct Sprite {
-    assetid_t spritesheet;
-    int current_frame;
-    int frameskip;  /* this ought to be global */
-    Rect rect;
-};
 
 struct GameData {
     struct Game *game;
@@ -29,24 +21,6 @@ struct GameData {
 };
 
 static struct GameData *g;
-
-static void update_sprite(struct Sprite *spr)
-{
-    struct SpritesheetAsset *sheet = asset_from_handle(spr->spritesheet);
-    if(spr->frameskip-- < 0) {
-        if(++spr->current_frame == sheet->count) {
-            spr->current_frame = 0;
-        }
-        spr->frameskip = sheet->frameskip;
-    }
-}
-
-static void draw_sprite(struct Sprite *spr)
-{
-    struct SpritesheetAsset *sheet = asset_from_handle(spr->spritesheet);
-    buffer_t *buf = asset_sprite_get_frame(sheet, spr->current_frame);
-    renderer_draw_texture(buf, spr->rect);
-}
 
 void init(void)
 {
@@ -106,7 +80,7 @@ void update(void)
 
     g->sprite.rect.x = 200 + (8.0f * sin((float) g->counter * 0.02f));
 
-    update_sprite(&g->sprite);
+    sprite_update(&g->sprite, 1);
 }
 
 void render(void)
@@ -118,7 +92,7 @@ void render(void)
     renderer_draw_texture(roy->data, g->roy_rect);
     renderer_draw_rect(g->bouncing_rect, 12);
     renderer_draw_texture(g->test_texture, g->spinning_rect);
-    draw_sprite(&g->sprite);
+    sprite_draw(&g->sprite, 1);
 
     renderer_flip();
 }

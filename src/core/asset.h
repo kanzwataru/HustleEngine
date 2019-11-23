@@ -24,9 +24,6 @@ typedef struct AssetHandle assetid_t;
 #define asset_from_handle_of(_handle, _type) \
     ((struct _type##Asset*)(_handle.pak_file + _handle.offset))
 
-#define asset_sprite_get_frame(_spritesheet, _frame) \
-    ((buffer_t *)((buffer_t *)_spritesheet->offset_table + _spritesheet->base_offset + _spritesheet->offset_table[_frame]))
-
 #define asset_handle_to(_name, _type, _pak) \
     asset_make_handle(ASSET_##_name, _pak)
 
