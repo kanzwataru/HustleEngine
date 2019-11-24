@@ -12,7 +12,9 @@ typedef int (*conversion_handler)(const char *);
 std::map<std::string, conversion_handler> converters = {
     {"Texture", texture_convert},
     {"Palette", palette_convert},
-    {"Spritesheet", spritesheet_convert}
+    {"Spritesheet", spritesheet_convert},
+    {"Tilemap", tilemap_convert},
+    {"Tileset", tileset_convert}
 };
 
 void help(void)

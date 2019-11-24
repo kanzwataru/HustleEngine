@@ -13,18 +13,18 @@
 #include "common/platform.h"
 
 struct TilesetAsset {
-    uint16_t width;  /* width of each tile */
-    uint16_t height; /* height of each tile */
+    uint16_t tile_size;
+    uint16_t count;
     uint16_t flags;
-    uint16_t count;  /* amount of tiles */
+    uint16_t _pad0;
     byte data[1];    /* extends past struct */
 };
 
 struct TilemapAsset {
-    uint16_t dimensions;
+    uint16_t width;
+    uint16_t height;
+    uint16_t tile_size;
     uint16_t flags;
-    uint16_t count;
-    uint16_t size;
     byte data[1];    /* extends past struct */
 };
 

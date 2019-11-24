@@ -10,3 +10,6 @@ end(Texture)
 none(Palette)
 none(Package)
 none(Spritesheet)
+none(Tilemap)
+none(Tileset)
+

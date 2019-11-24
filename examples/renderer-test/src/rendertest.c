@@ -14,6 +14,8 @@ struct GameData {
     Rect roy_rect;
 
     struct Sprite sprites[2];
+    Point tile_offset;
+    Point tile_offset_dirs;
 
     buffer_t test_texture[16 * 16];
 
@@ -21,6 +23,30 @@ struct GameData {
 };
 
 static struct GameData *g;
+
+static void draw_tile(struct TilemapAsset *map, struct TilesetAsset *tiles, Point offset)
+{
+    int ty, tx;
+    Rect rect;
+    Rect clipped;
+    Point tex_offset;
+    uint16_t *ids = (uint16_t *)map->data;
+    Rect bounds = {0, 0, 320, 200}; /* TODO: use a global of some kind */
+
+    assert(tiles->tile_size == map->tile_size);
+    rect.w = tiles->tile_size;
+    rect.h = tiles->tile_size;
+
+    for(ty = 0; ty < map->height; ++ty) {
+        for(tx = 0; tx < map->width; ++tx) {
+            rect.x = (tiles->tile_size * tx) - offset.x;
+            rect.y = (tiles->tile_size * ty) - offset.y;
+            if(math_clip_rect(rect, &bounds, &tex_offset, &clipped)) {
+                renderer_draw_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], clipped);
+            }
+        }
+    }
+}
 
 void init(void)
 {
@@ -69,11 +95,22 @@ void init(void)
     g->sprites[1].rect.y = 128;
     g->sprites[1].rect.w = asset_from_handle_of(g->sprites[1].spritesheet, Spritesheet)->width;
     g->sprites[1].rect.h = asset_from_handle_of(g->sprites[1].spritesheet, Spritesheet)->height;
+
+    g->tile_offset.y = 128;
+    g->tile_offset_dirs.x = -1;
+    g->tile_offset_dirs.y = 1;
 }
 
 void input(void) {}
 void update(void)
 {
+    int t_width;
+    int t_height;
+    struct TilemapAsset *map = asset_get(CITY_BG, Tilemap, g->asset_pak);
+
+    t_width = map->tile_size * map->width;
+    t_height = map->tile_size * map->height;
+
     g->counter += 1;
 
     g->bouncing_rect.x = 32;
@@ -86,15 +123,26 @@ void update(void)
 
     g->sprites[0].rect.x = 200 + (8.0f * sin((float) g->counter * 0.02f));
 
+    g->tile_offset.x += g->tile_offset_dirs.x;
+    g->tile_offset.y += g->tile_offset_dirs.y;
+    if(g->tile_offset.x > t_width - 320)
+        g->tile_offset_dirs.x = -1;
+    if(g->tile_offset.x < 0)
+        g->tile_offset_dirs.x = 1;
+    if(g->tile_offset.y > t_height - 200)
+        g->tile_offset_dirs.y = -1;
+    if(g->tile_offset.y < 0)
+        g->tile_offset_dirs.y = 1;
+
     sprite_update(&g->sprites[0], 2);
 }
 
 void render(void)
 {
     struct TextureAsset *roy = asset_get(ROY, Texture, g->asset_pak);
-
     renderer_clear(30);
 
+    draw_tile(asset_get(CITY_BG, Tilemap, g->asset_pak), asset_get(STREET, Tileset, g->asset_pak), g->tile_offset);
     renderer_draw_texture(roy->data, g->roy_rect);
     renderer_draw_rect(g->bouncing_rect, 12);
     renderer_draw_texture(g->test_texture, g->spinning_rect);

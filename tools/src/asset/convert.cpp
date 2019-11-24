@@ -1,8 +1,10 @@
+#include <cassert>
 #include <cstdlib>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <limits>
+#include <memory>
 #include "convert.hpp"
 #include "util.hpp"
 extern "C" {
@@ -106,6 +108,78 @@ int spritesheet_convert(const char *name)
     fwrite(&offset_table[0], sizeof(uint16_t), offset_table.size(), stdout);
 
     fwrite(bmp, 1, image_info.width * image_info.height, stdout);
+
+    return 0;
+}
+
+int tileset_convert(const char *name)
+{
+    const auto *set = config_find_in(name, config_get(Tileset), config_count(Tileset));
+    if(!set) {
+        fprintf(stderr, "%s not found in config\n", name);
+        return 1;
+    }
+
+    ImageInfo image_info;
+    uint8_t *bmp = load_bmp_image(set->path, &image_info);
+    if(image_info.width != set->width || image_info.height != set->height) {
+        fprintf(stderr, "\t%s: Dimension mismatch\n", name);
+        return 1;
+    }
+
+    int tile_count = (set->width / set->tile_size) * (set->height / set->tile_size);
+
+    /* write out in strip */
+    uint16_t header[4] = {
+        require_fit(uint16_t, set->tile_size),
+        require_fit(uint16_t, set->tile_size),
+        require_fit(uint16_t, tile_count),
+        0,
+    };
+
+    fwrite(&header, sizeof(header), 1, stdout);
+
+    for(int ty = 0; ty < image_info.height / set->tile_size; ++ty) {
+        for(int tx = 0; tx < image_info.width / set->tile_size; ++tx) {
+            uint8_t *line = bmp + ((ty * set->tile_size) * image_info.width + (tx * set->tile_size));
+            assert(line <= (bmp + (image_info.width * image_info.height)));
+
+            for(int y = 0; y < set->tile_size; ++y) {
+                fwrite(line, 1, set->tile_size, stdout);
+                line += image_info.width;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int tilemap_convert(const char *name)
+{
+    const auto *map = config_find_in(name, config_get(Tilemap), config_count(Tilemap));
+    if(!map) {
+        fprintf(stderr, "%s not found in config\n", name);
+        return 1;
+    }
+
+    size_t map_size = map->width * map->height;
+    size_t size = map_size * sizeof(uint16_t);
+    std::unique_ptr<uint8_t> map_data(new uint8_t[size]);
+
+    /* read in */
+    FILE *fp = fopen(map->path, "rb");
+    fread(map_data.get(), 1, size, fp);
+
+    /* write out */
+    uint16_t header[4] = {
+        require_fit(uint16_t, map->width),
+        require_fit(uint16_t, map->height),
+        require_fit(uint16_t, map->tile_size),
+        0
+    };
+    fwrite(header, sizeof(header), 1, stdout);
+    fwrite(map_data.get(), 1, size, stdout);
+    fclose(fp);
 
     return 0;
 }

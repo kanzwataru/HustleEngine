@@ -33,6 +33,26 @@ begin(Spritesheet)
 },
 end(Spritesheet)
 
+begin(Tileset)
+{
+    .name       = "street",
+    .path       = "data/street.bmp",
+    .tile_size  = 16,
+    .width      = 256,
+    .height     = 256
+},
+end(Tileset)
+
+begin(Tilemap)
+{
+    .name       = "city_bg",
+    .path       = "data/city_bg.dat",
+    .width      = 32,
+    .height     = 32,
+    .tile_size  = 16
+},
+end(Tilemap)
+
 begin(Package)
 {
     .name = "main",
@@ -41,6 +61,8 @@ begin(Package)
         "pal",
         "char_run",
         "large_run",
+        "street",
+        "city_bg",
         0,
     }
 }

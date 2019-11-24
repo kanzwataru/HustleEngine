@@ -30,7 +30,7 @@ $(SETTINGS_MK): $(TOOLS_BIN)/mkbuildconf
 	@mkdir -p `dirname $@`
 	@$(TOOLS_BIN)/mkbuildconf $@
 
-$(ASSETS_MK): $(SETTINGS_MK) $(TOOLS_BIN)/mkmak
+$(ASSETS_MK): $(SETTINGS_MK) $(TOOLS_BIN)/mkmak $(ASSET_CONFIG_FILE)
 	@mkdir -p `dirname $@`
 	@$(ENGINE_DIR)/tools/bin/mkmak >> $@
 

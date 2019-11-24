@@ -24,6 +24,22 @@ struct Spritesheet {
 };
 config_declare(Spritesheet);
 
+struct Tileset {
+    const char *name;
+    const char *path;
+    int width, height;
+    int tile_size;
+};
+config_declare(Tileset);
+
+struct Tilemap {
+    const char *name;
+    const char *path;
+    int width, height;
+    int tile_size;
+};
+config_declare(Tilemap);
+
 struct Package {
     const char *name;
     const char **contents;
@@ -33,4 +49,6 @@ config_declare(Package);
 #define do_all(_func) \
     _func(Texture); \
     _func(Palette); \
-    _func(Spritesheet);
+    _func(Spritesheet); \
+    _func(Tileset); \
+    _func(Tilemap);
