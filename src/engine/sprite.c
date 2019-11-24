@@ -28,8 +28,8 @@ void sprite_draw(struct Sprite *spr, size_t count)
     buffer_t *buf;
 
     for(i = 0; i < count; ++i) {
-        sheet = asset_from_handle(spr->spritesheet);
-        buf = get_frame(sheet, spr->current_frame);
-        renderer_draw_texture(buf, spr->rect);
+        sheet = asset_from_handle(spr[i].spritesheet);
+        buf = get_frame(sheet, spr[i].current_frame);
+        renderer_draw_texture(buf, spr[i].rect);
     }
 }

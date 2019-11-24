@@ -21,7 +21,15 @@ begin(Spritesheet)
     .width     = 8,
     .height    = 16,
     .count     = 6,
-    .frameskip = 3
+    .frameskip = 4
+},
+{
+    .name      = "large_run",
+    .path      = "data/large_run.bmp",
+    .width     = 16,
+    .height    = 32,
+    .count     = 6,
+    .frameskip = 4
 },
 end(Spritesheet)
 
@@ -32,6 +40,7 @@ begin(Package)
         "roy",
         "pal",
         "char_run",
+        "large_run",
         0,
     }
 }

@@ -13,7 +13,7 @@ struct GameData {
     Rect spinning_rect;
     Rect roy_rect;
 
-    struct Sprite sprite;
+    struct Sprite sprites[2];
 
     buffer_t test_texture[16 * 16];
 
@@ -57,12 +57,18 @@ void init(void)
     g->roy_rect.w = roy->width;
     g->roy_rect.h = roy->height;
 
-    g->sprite.spritesheet = asset_handle_to(CHAR_RUN, Spritesheet, g->asset_pak);
-    g->sprite.current_frame = 0;
-    //g->sprite.rect.x = 200;
-    g->sprite.rect.y = 64;
-    g->sprite.rect.w = asset_from_handle_of(g->sprite.spritesheet, Spritesheet)->width;
-    g->sprite.rect.h = asset_from_handle_of(g->sprite.spritesheet, Spritesheet)->height;
+    g->sprites[0].spritesheet = asset_handle_to(CHAR_RUN, Spritesheet, g->asset_pak);
+    g->sprites[0].current_frame = 0;
+    g->sprites[0].rect.y = 64;
+    g->sprites[0].rect.w = asset_from_handle_of(g->sprites[0].spritesheet, Spritesheet)->width;
+    g->sprites[0].rect.h = asset_from_handle_of(g->sprites[0].spritesheet, Spritesheet)->height;
+
+    g->sprites[1].spritesheet = asset_handle_to(LARGE_RUN, Spritesheet, g->asset_pak);
+    g->sprites[1].current_frame = 2;
+    g->sprites[1].rect.x = 64;
+    g->sprites[1].rect.y = 128;
+    g->sprites[1].rect.w = asset_from_handle_of(g->sprites[1].spritesheet, Spritesheet)->width;
+    g->sprites[1].rect.h = asset_from_handle_of(g->sprites[1].spritesheet, Spritesheet)->height;
 }
 
 void input(void) {}
@@ -78,9 +84,9 @@ void update(void)
 
     g->roy_rect.y = 8 + (4.0f * sin((float) g->counter * 0.05f));
 
-    g->sprite.rect.x = 200 + (8.0f * sin((float) g->counter * 0.02f));
+    g->sprites[0].rect.x = 200 + (8.0f * sin((float) g->counter * 0.02f));
 
-    sprite_update(&g->sprite, 1);
+    sprite_update(&g->sprites[0], 2);
 }
 
 void render(void)
@@ -92,7 +98,7 @@ void render(void)
     renderer_draw_texture(roy->data, g->roy_rect);
     renderer_draw_rect(g->bouncing_rect, 12);
     renderer_draw_texture(g->test_texture, g->spinning_rect);
-    sprite_draw(&g->sprite, 1);
+    sprite_draw(&g->sprites[0], 2);
 
     renderer_flip();
 }
