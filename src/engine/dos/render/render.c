@@ -74,6 +74,7 @@ void renderer_draw_texture(void *texture, Rect xform)
 
     if(math_clip_rect(xform, &bounds, &offset, &clipped)) {
         buf = backbuf + (clipped.y * 320 + clipped.x);
+        texture = (char *)texture + (offset.y * xform.w + offset.x);
         while(clipped.h --> 0) {
             memcpy(buf, texture, clipped.w);
 
