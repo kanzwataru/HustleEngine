@@ -13,7 +13,7 @@ struct GameData {
     Rect spinning_rect;
     Rect roy_rect;
 
-    struct Sprite sprites[2];
+    struct Sprite sprites[6];
     Point tile_offset;
     Point tile_offset_dirs;
 
@@ -28,10 +28,7 @@ static void draw_tile(struct TilemapAsset *map, struct TilesetAsset *tiles, Poin
 {
     int ty, tx;
     Rect rect;
-    Rect clipped;
-    Point tex_offset;
     uint16_t *ids = (uint16_t *)map->data;
-    Rect bounds = {0, 0, 320, 200}; /* TODO: use a global of some kind */
 
     assert(tiles->tile_size == map->tile_size);
     rect.w = tiles->tile_size;
@@ -41,9 +38,7 @@ static void draw_tile(struct TilemapAsset *map, struct TilesetAsset *tiles, Poin
         for(tx = 0; tx < map->width; ++tx) {
             rect.x = (tiles->tile_size * tx) - offset.x;
             rect.y = (tiles->tile_size * ty) - offset.y;
-            if(math_clip_rect(rect, &bounds, &tex_offset, &clipped)) {
-                renderer_draw_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], clipped);
-            }
+            renderer_draw_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], rect);
         }
     }
 }
@@ -96,6 +91,18 @@ void init(void)
     g->sprites[1].rect.w = asset_from_handle_of(g->sprites[1].spritesheet, Spritesheet)->width;
     g->sprites[1].rect.h = asset_from_handle_of(g->sprites[1].spritesheet, Spritesheet)->height;
 
+    g->sprites[2] = g->sprites[1];
+    g->sprites[2].rect.x += 32;
+
+    g->sprites[3] = g->sprites[2];
+    g->sprites[3].rect.x += 32;
+
+    g->sprites[4] = g->sprites[3];
+    g->sprites[4].rect.x += 32;
+
+    g->sprites[5] = g->sprites[4];
+    g->sprites[5].rect.x += 32;
+
     g->tile_offset.y = 128;
     g->tile_offset_dirs.x = -1;
     g->tile_offset_dirs.y = 1;
@@ -121,7 +128,14 @@ void update(void)
 
     g->roy_rect.y = 8 + (4.0f * sin((float) g->counter * 0.05f));
 
-    g->sprites[0].rect.x = 200 + (8.0f * sin((float) g->counter * 0.02f));
+    g->sprites[0].rect.x = 200 + (8.0f * sin((float)g->counter * 0.02f));
+
+    g->sprites[2].rect.w = 16 - fabs(16.0f * sin((float)g->counter * 0.02f));
+    g->sprites[3].rect.w = g->sprites[2].rect.w;
+    g->sprites[3].rect.x = 128 + (15 - g->sprites[3].rect.w);
+    g->sprites[4].rect.h = 32 - fabs(32.0f * sin((float)g->counter * 0.02f));
+    g->sprites[5].rect.h = g->sprites[4].rect.h;
+    g->sprites[5].rect.y = 128 + (32 - g->sprites[5].rect.h);
 
     g->tile_offset.x += g->tile_offset_dirs.x;
     g->tile_offset.y += g->tile_offset_dirs.y;
@@ -146,7 +160,7 @@ void render(void)
     renderer_draw_texture(roy->data, g->roy_rect);
     renderer_draw_rect(g->bouncing_rect, 12);
     renderer_draw_texture(g->test_texture, g->spinning_rect);
-    sprite_draw(&g->sprites[0], 2);
+    sprite_draw(&g->sprites[0], 6);
 
     renderer_flip();
 }

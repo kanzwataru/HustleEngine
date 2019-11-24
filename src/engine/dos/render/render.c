@@ -8,6 +8,7 @@
 
 static volatile buffer_t *vga_mem = (volatile buffer_t *)0xA0000;
 static buffer_t backbuf[320 * 200];
+static const Rect bounds = {0, 0, 320, 200};
 
 void renderer_init(struct PlatformData *pd)
 {
@@ -56,15 +57,6 @@ void renderer_get_palette(buffer_t *pal, byte offset, byte count)
 void renderer_draw_rect(Rect xform, byte color)
 {
     int x, y;
-
-    /*
-    for(y = xform.y; y < xform.y + xform.h; ++y) {
-        for(x = xform.x; x < xform.x + xform.w; ++x) {
-            if(x > 0 && x < 320 && y > 0 && y < 200)
-                backbuf[y * 320 + x] = color;
-        }
-    }
-    */
     register buffer_t *buf = backbuf + (xform.y * 320 + xform.x);
 
     while(xform.h --> 0) {
@@ -76,12 +68,17 @@ void renderer_draw_rect(Rect xform, byte color)
 
 void renderer_draw_texture(void *texture, Rect xform)
 {
-    register buffer_t *buf = backbuf + (xform.y * 320 + xform.x);
+    register buffer_t *buf;
+    Rect clipped;
+    Point offset;
 
-    while(xform.h --> 0) {
-        memcpy(buf, texture, xform.w);
+    if(math_clip_rect(xform, &bounds, &offset, &clipped)) {
+        buf = backbuf + (clipped.y * 320 + clipped.x);
+        while(clipped.h --> 0) {
+            memcpy(buf, texture, clipped.w);
 
-        buf += 320;
-        texture = (char *)texture + xform.w;
+            buf += 320;
+            texture = (char *)texture + xform.w;
+        }
     }
 }
