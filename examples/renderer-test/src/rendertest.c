@@ -160,7 +160,7 @@ void render(void)
     renderer_draw_texture(roy->data, g->roy_rect);
     renderer_draw_rect(g->bouncing_rect, 12);
     renderer_draw_texture(g->test_texture, g->spinning_rect);
-    sprite_draw(&g->sprites[0], 6);
+    sprite_draw(&g->sprites[0], 2);
 
     renderer_flip();
 }
