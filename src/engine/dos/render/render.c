@@ -28,15 +28,14 @@ void renderer_quit(struct PlatformData *pd)
 
 void renderer_clear(byte clear_col)
 {
-    /* wait for vsync first */
-    while(inp(INPUT_STATUS_0) & 8) {}
-    while(!(inp(INPUT_STATUS_0) & 8)) {}
-
     memset((void *)backbuf, clear_col, 320 * 200);
 }
 
 void renderer_flip(void)
 {
+    while(inp(INPUT_STATUS_0) & 8) {}
+    while(!(inp(INPUT_STATUS_0) & 8)) {}
+
     memcpy((void *)vga_mem, backbuf, 320 * 200);
 }
 
