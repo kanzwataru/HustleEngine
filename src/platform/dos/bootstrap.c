@@ -1,5 +1,6 @@
 #include "common/platform.h"
 #include "engine/init.h"
+#include "engine/input.h"
 #include "platform/bootstrap.h"
 #include "nativeplatform.h"
 
@@ -44,6 +45,9 @@ int main(int argc, char **argv)
 
     /* game loop */
     while(!kbhit() && game_table.running) {
+        if(keyboard_keys[KEY_ESC]) {
+            game_table.running = false;
+        }
         game_table.input();
         game_table.update();
         game_table.render();
