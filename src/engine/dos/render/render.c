@@ -70,15 +70,29 @@ void renderer_draw_texture(void *texture, Rect xform)
     register buffer_t *buf;
     Rect clipped;
     Point offset;
+    int x;
 
     if(math_clip_rect(xform, &bounds, &offset, &clipped)) {
         buf = backbuf + (clipped.y * 320 + clipped.x);
         texture = (char *)texture + (offset.y * xform.w + offset.x);
+
+        /*
         while(clipped.h --> 0) {
             memcpy(buf, texture, clipped.w);
 
             buf += 320;
             texture = (char *)texture + xform.w;
+        }
+        */
+        while(clipped.h --> 0) {
+            for(x = 0; x < clipped.w; ++x) {
+                if(((buffer_t *)texture)[x] != 0) {
+                    buf[x] = ((buffer_t *)texture)[x];
+                }
+            }
+
+            buf += 320;
+            texture = (buffer_t *)texture + xform.w;
         }
     }
 }

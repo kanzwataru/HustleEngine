@@ -41,8 +41,10 @@ static const char *sprite_frag_src =
 
 "void main()\n"
 "{\n"
-"   vec4 id = texture(sprite, uv);\n"
-"   frag_col = texture(palette, id.r);\n"
+"   float id = texture(sprite, uv).r;\n"
+"   if(id == 0)\n"
+"       discard;\n"
+"   frag_col = texture(palette, id);\n"
 "}\n\0";
 
 static const char *post_vert_src =
