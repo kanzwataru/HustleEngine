@@ -130,12 +130,14 @@ void update(void)
 
     g->sprites[0].rect.x = 200 + (8.0f * sin((float)g->counter * 0.02f));
 
+    /*
     g->sprites[2].rect.w = 16 - fabs(16.0f * sin((float)g->counter * 0.02f));
     g->sprites[3].rect.w = g->sprites[2].rect.w;
     g->sprites[3].rect.x = 128 + (15 - g->sprites[3].rect.w);
     g->sprites[4].rect.h = 32 - fabs(32.0f * sin((float)g->counter * 0.02f));
     g->sprites[5].rect.h = g->sprites[4].rect.h;
     g->sprites[5].rect.y = 128 + (32 - g->sprites[5].rect.h);
+    */
 
     g->tile_offset.x += g->tile_offset_dirs.x;
     g->tile_offset.y += g->tile_offset_dirs.y;
