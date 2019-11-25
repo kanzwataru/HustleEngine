@@ -122,7 +122,7 @@ void renderer_draw_rect(Rect xform, byte color)
     draw_quad(rd->flat_shader, xform);
 }
 
-void renderer_draw_texture(void *texture, Rect xform)
+void renderer_draw_texture(const buffer_t *texture, Rect xform)
 {
     GLuint id;
 

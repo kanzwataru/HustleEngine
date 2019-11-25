@@ -65,7 +65,7 @@ void renderer_draw_rect(Rect xform, byte color)
     }
 }
 
-void renderer_draw_texture(void *texture, Rect xform)
+void renderer_draw_texture(const buffer_t *texture, Rect xform)
 {
     register buffer_t *buf;
     Rect clipped;
@@ -74,7 +74,7 @@ void renderer_draw_texture(void *texture, Rect xform)
 
     if(math_clip_rect(xform, &bounds, &offset, &clipped)) {
         buf = backbuf + (clipped.y * 320 + clipped.x);
-        texture = (char *)texture + (offset.y * xform.w + offset.x);
+        texture += (offset.y * xform.w + offset.x);
 
         /*
         while(clipped.h --> 0) {
@@ -86,13 +86,13 @@ void renderer_draw_texture(void *texture, Rect xform)
         */
         while(clipped.h --> 0) {
             for(x = 0; x < clipped.w; ++x) {
-                if(((buffer_t *)texture)[x] != 0) {
-                    buf[x] = ((buffer_t *)texture)[x];
+                if(texture[x] != 0) {
+                    buf[x] = texture[x];
                 }
             }
 
             buf += 320;
-            texture = (buffer_t *)texture + xform.w;
+            texture += xform.w;
         }
     }
 }
