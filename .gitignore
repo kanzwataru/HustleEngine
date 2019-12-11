@@ -18,7 +18,6 @@ build
 *.swp
 ._*
 *.o
-*.dat
 *.gen.*
 
 mkfontsheet
