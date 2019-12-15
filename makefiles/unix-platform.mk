@@ -45,7 +45,7 @@ endif
 ######################################################
 # build settings
 ifeq ($(DEBUG_BUILD), true)
-CFLAGS		+= -O0 -g3 -DDEBUG -Wpedantic
+CFLAGS		+= -O0 -g3 -DDEBUG
 else
 CFLAGS		+= -O2 -Werror
 endif
