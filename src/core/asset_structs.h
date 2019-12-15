@@ -14,14 +14,15 @@
 #include "common/platform.h"
 
 struct TilesetAsset {
+    uint16_t id;
     uint16_t tile_size;
     uint16_t count;
     uint16_t flags;
-    uint16_t _pad0;
     byte data[1];    /* extends past struct */
 };
 
 struct TilemapAsset {
+    uint16_t id;
     uint16_t width;
     uint16_t height;
     uint16_t tile_size;
@@ -30,6 +31,7 @@ struct TilemapAsset {
 };
 
 struct TextureAsset {
+    uint16_t id;
     uint16_t width;  /* width of texture */
     uint16_t height; /* height of texture */
     uint16_t flags;
@@ -43,6 +45,7 @@ struct PaletteAsset {
 };
 
 struct SpritesheetAsset {
+    uint16_t id;
     byte width;               /* width of sprites */
     byte height;              /* height of sprites */
     byte count;               /* number of sprites */

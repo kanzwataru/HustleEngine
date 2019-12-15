@@ -1,7 +1,8 @@
 #pragma once
 
-int texture_convert(const char *name);
-int palette_convert(const char *name);
-int spritesheet_convert(const char *name);
-int tileset_convert(const char *name);
-int tilemap_convert(const char *name);
+typedef int (*conversion_handler)(const char *, uint16_t);
+int texture_convert(const char *name, uint16_t id);
+int palette_convert(const char *name, uint16_t id);
+int spritesheet_convert(const char *name, uint16_t id);
+int tileset_convert(const char *name, uint16_t id);
+int tilemap_convert(const char *name, uint16_t id);

@@ -27,7 +27,7 @@ T require_fit_impl(const char *asset_name, const char *val_name, long long man)
     return T(man);
 }
 
-int texture_convert(const char *name)
+int texture_convert(const char *name, uint16_t id)
 {
     const auto *tex = config_find_in(name, config_get(Texture), config_count(Texture));
     if(!tex) {
@@ -44,14 +44,14 @@ int texture_convert(const char *name)
 
     /* write out flat bitmap */
     uint16_t size = tex->width * tex->height;
-    uint16_t header[4] = {uint16_t(tex->width), uint16_t(tex->height), 0, size};
+    uint16_t header[5] = {id, uint16_t(tex->width), uint16_t(tex->height), 0, size};
     fwrite(&header, sizeof(header), 1, stdout);
     fwrite(bmp, 1, size, stdout);
 
     return 0;
 }
 
-int palette_convert(const char *name)
+int palette_convert(const char *name, uint16_t id)
 {
     const auto *pal = config_find_in(name, config_get(Palette), config_count(Palette));
     if(!pal) {
@@ -69,7 +69,7 @@ int palette_convert(const char *name)
     return 0;
 }
 
-int spritesheet_convert(const char *name)
+int spritesheet_convert(const char *name, uint16_t id)
 {
     const auto *spr = config_find_in(name, config_get(Spritesheet), config_count(Spritesheet));
     if(!spr) {
@@ -86,6 +86,7 @@ int spritesheet_convert(const char *name)
         return 1;
     }
 
+    uint16_t id_out = id;
     uint8_t header[4] = {
         require_fit(uint8_t, spr->width),
         require_fit(uint8_t, spr->height),
@@ -102,6 +103,7 @@ int spritesheet_convert(const char *name)
     }
 
     /* write out spritesheet */
+    fwrite(&id_out, sizeof(id_out), 1, stdout);
     fwrite(header, sizeof(header), 1, stdout);
     fwrite(&flags, sizeof(flags), 1, stdout);
     fwrite(&base_offset, sizeof(base_offset), 1, stdout);
@@ -112,7 +114,7 @@ int spritesheet_convert(const char *name)
     return 0;
 }
 
-int tileset_convert(const char *name)
+int tileset_convert(const char *name, uint16_t id)
 {
     const auto *set = config_find_in(name, config_get(Tileset), config_count(Tileset));
     if(!set) {
@@ -131,10 +133,10 @@ int tileset_convert(const char *name)
 
     /* write out in strip */
     uint16_t header[4] = {
+        require_fit(uint16_t, id),
         require_fit(uint16_t, set->tile_size),
         require_fit(uint16_t, set->tile_size),
         require_fit(uint16_t, tile_count),
-        0,
     };
 
     fwrite(&header, sizeof(header), 1, stdout);
@@ -154,7 +156,7 @@ int tileset_convert(const char *name)
     return 0;
 }
 
-int tilemap_convert(const char *name)
+int tilemap_convert(const char *name, uint16_t id)
 {
     const auto *map = config_find_in(name, config_get(Tilemap), config_count(Tilemap));
     if(!map) {
@@ -171,7 +173,8 @@ int tilemap_convert(const char *name)
     fread(map_data.get(), 1, size, fp);
 
     /* write out */
-    uint16_t header[4] = {
+    uint16_t header[5] = {
+        require_fit(uint16_t, id),
         require_fit(uint16_t, map->width),
         require_fit(uint16_t, map->height),
         require_fit(uint16_t, map->tile_size),
