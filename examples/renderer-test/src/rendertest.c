@@ -129,6 +129,7 @@ void update(void)
     g->roy_rect.y = 8 + (4.0f * sin((float) g->counter * 0.05f));
 
     g->sprites[0].rect.x = 200 + (8.0f * sin((float)g->counter * 0.02f));
+    g->sprites[1].rect.y = 200 - 32;
 
     /*
     g->sprites[2].rect.w = 16 - fabs(16.0f * sin((float)g->counter * 0.02f));
