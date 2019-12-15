@@ -2,6 +2,13 @@
 #define RENDER_INTERNAL_H
 #include "engine/sdl/render/gl.h"
 
+#define CACHE_MAX 65535
+
+struct CachedTexture {
+    bool cached;
+    textureid_t tex;
+};
+
 struct RenderData {
     bool     initialized;
     uint16_t flags;
@@ -15,6 +22,8 @@ struct RenderData {
     shaderid_t flat_shader;
     shaderid_t post_shader;
     shaderid_t sprite_shader;
+
+    struct CachedTexture cached_textures[CACHE_MAX];
 };
 
 #endif

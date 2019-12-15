@@ -68,6 +68,7 @@ void init(void)
     /* initialize test texture */
     ((struct TextureAsset *)&g->test_texture_data)->width = 16;
     ((struct TextureAsset *)&g->test_texture_data)->height = 16;
+    ((struct TextureAsset *)&g->test_texture_data)->id = 1000;
     for(i = 0; i < PALETTE_COLORS; ++i) {
         g->test_texture_data[offsetof(struct TextureAsset, data[0]) + i] = i;
     }

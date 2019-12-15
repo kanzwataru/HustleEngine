@@ -49,6 +49,7 @@ void renderer_init(struct PlatformData *pd)
 
 void renderer_quit(struct PlatformData *pd)
 {
+    renderer_clear_cache();
     glDeleteTextures(1, &rd->palette_tex);
     gl_delete_model(&rd->quad);
     gl_delete_framebuffer(&rd->target_buf);
@@ -122,8 +123,22 @@ void renderer_draw_rect(byte color, Rect xform)
     draw_quad(rd->flat_shader, xform);
 }
 
-static void draw_texture(const buffer_t *buf, int width, int height, Rect xform)
+static GLuint upload_texture(const buffer_t *buf, int width, int height)
 {
+    GLuint tex;
+
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, buf);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    return tex;
+}
+
+static void draw_texture(GLuint tex, Rect xform)
+{
+    /*
     GLuint id;
 
     glUseProgram(rd->sprite_shader);
@@ -143,16 +158,38 @@ static void draw_texture(const buffer_t *buf, int width, int height, Rect xform)
     glDeleteTextures(1, &id);
 
     glActiveTexture(GL_TEXTURE0);
+    */
+    glUseProgram(rd->sprite_shader);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    GLint sprite_tex_loc = glGetUniformLocation(rd->sprite_shader, "sprite");
+    glUniform1i(sprite_tex_loc, 1);
+    draw_quad(rd->sprite_shader, xform);
+
+    glBindTexture(GL_TEXTURE_2D, 0); /* TODO: do we need these teardowns? */
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void renderer_draw_texture(const struct TextureAsset *texture, Rect xform)
 {
-    draw_texture(texture->data, texture->width, texture->height, xform);
+    assert(texture->id < CACHE_MAX);
+
+    int id = texture->id;
+
+    if(!rd->cached_textures[id].cached) {
+        rd->cached_textures[id].tex = upload_texture(texture->data, texture->width, texture->height);
+        rd->cached_textures[id].cached = true;
+    }
+
+    draw_texture(rd->cached_textures[id].tex, xform);
 }
 
 void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *frame, Rect xform)
 {
-    draw_texture(frame, sheet->width, sheet->height, xform);
+    GLuint tex = upload_texture(frame, sheet->width, sheet->height);
+    draw_texture(tex, xform);
+    glDeleteTextures(1, &tex);
 }
 
 void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset)
@@ -169,7 +206,19 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
         for(tx = 0; tx < map->width; ++tx) {
             rect.x = (tiles->tile_size * tx) - offset.x;
             rect.y = (tiles->tile_size * ty) - offset.y;
-            draw_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], rect.w, rect.h, rect);
+            GLuint tex = upload_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], rect.w, rect.h);
+            draw_texture(tex, rect);
+            glDeleteTextures(1, &tex);
+        }
+    }
+}
+
+void renderer_clear_cache(void)
+{
+    for(int i = 0; i < CACHE_MAX; ++i) {
+        if(rd->cached_textures[i].cached) {
+            glDeleteTextures(1, &rd->cached_textures[i].tex);
+            rd->cached_textures[i].cached = false;
         }
     }
 }
