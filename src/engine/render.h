@@ -12,9 +12,6 @@ void renderer_flip(void);
 void renderer_set_palette(const buffer_t *pal, byte offset, byte count);
 void renderer_get_palette(buffer_t *pal, byte offset, byte count);
 
-void renderer_draw_rect(Rect xform, byte color);
-void renderer_draw_texture(const buffer_t *texture, Rect xform);
-
 void renderer_draw_rect(byte color, Rect xform);
 void renderer_draw_texture(const struct TextureAsset *texture, Rect xform);
 void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *frame, Rect xform);
