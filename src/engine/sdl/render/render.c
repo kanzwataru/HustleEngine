@@ -138,27 +138,6 @@ static GLuint upload_texture(const buffer_t *buf, int width, int height)
 
 static void draw_texture(GLuint tex, Rect xform)
 {
-    /*
-    GLuint id;
-
-    glUseProgram(rd->sprite_shader);
-
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, buf);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    GLint sprite_tex_loc = glGetUniformLocation(rd->sprite_shader, "sprite");
-    glUniform1i(sprite_tex_loc, 1);
-    draw_quad(rd->sprite_shader, xform);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &id);
-
-    glActiveTexture(GL_TEXTURE0);
-    */
     glUseProgram(rd->sprite_shader);
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -206,9 +185,20 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
         for(tx = 0; tx < map->width; ++tx) {
             rect.x = (tiles->tile_size * tx) - offset.x;
             rect.y = (tiles->tile_size * ty) - offset.y;
-            GLuint tex = upload_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], rect.w, rect.h);
-            draw_texture(tex, rect);
-            glDeleteTextures(1, &tex);
+
+
+            int tile_id = ids[ty * map->width + tx];
+            const buffer_t *buf = &tiles->data[(tiles->tile_size * tiles->tile_size) * tile_id];
+
+            // TODO: don't be hacky
+            int cache_id = 2000 + (1000 * tiles->id) + tile_id;
+            assert(cache_id < CACHE_MAX);
+            if(!rd->cached_textures[cache_id].cached) {
+                rd->cached_textures[cache_id].tex = upload_texture(buf, rect.w, rect.h);
+                rd->cached_textures[cache_id].cached = true;
+            }
+
+            draw_texture(rd->cached_textures[cache_id].tex, rect);
         }
     }
 }
