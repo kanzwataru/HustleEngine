@@ -10,6 +10,7 @@
     Data fields are opaque and can be platform-specific.
 */
 #ifndef ASSET_STRUCTS_H
+#define ASSET_STRUCTS_H
 #include "common/platform.h"
 
 struct TilesetAsset {
