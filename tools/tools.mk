@@ -9,7 +9,7 @@ TOOLS_INCLUDE		= $(TOOLS_DIR)/src
 
 TOOLS_CC			= gcc
 TOOLS_CXX			= g++
-TOOLS_CFLAGS		= -I$(TOOLS_INCLUDE) -O2 -Wpedantic -Wall -Werror -Isrc
+TOOLS_CFLAGS		= -I$(TOOLS_INCLUDE) -O0 -Wpedantic -Wall -Werror -Isrc
 TOOLS_CXXFLAGS		= $(TOOLS_CFLAGS) -std=c++11
 TOOLS_LDFLAGS		= -lm
 
