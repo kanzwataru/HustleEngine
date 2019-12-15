@@ -94,9 +94,15 @@ static void sdl_init(void)
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        platform.screen_size.w, platform.screen_size.h,
+        platform.screen_size.w * 2, platform.screen_size.h * 2,
+        //SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP
         SDL_WINDOW_OPENGL
     );
+
+    int w, h;
+    SDL_GetWindowSize(platform.window_handle, &w, &h);
+    platform.screen_size = (Rect){0, 0, w, h};
+    printf("%d %d\n", platform.screen_size.w, platform.screen_size.h);
 
     platform.gl_context = SDL_GL_CreateContext(platform.window_handle);
 
