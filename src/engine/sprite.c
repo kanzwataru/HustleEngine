@@ -30,6 +30,6 @@ void sprite_draw(struct Sprite *spr, size_t count)
     for(i = 0; i < count; ++i) {
         sheet = asset_from_handle(spr[i].spritesheet);
         buf = get_frame(sheet, spr[i].current_frame);
-        renderer_draw_texture(buf, spr[i].rect);
+        renderer_draw_sprite(sheet, buf, spr[i].rect);
     }
 }

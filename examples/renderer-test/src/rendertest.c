@@ -17,7 +17,7 @@ struct GameData {
     Point tile_offset;
     Point tile_offset_dirs;
 
-    buffer_t test_texture[16 * 16];
+    byte test_texture_data[sizeof(struct TextureAsset) + (16 * 16)];
 
     byte asset_pak[512000];
 };
@@ -26,6 +26,7 @@ static struct GameData *g;
 
 static void draw_tile(struct TilemapAsset *map, struct TilesetAsset *tiles, Point offset)
 {
+#if 0
     int ty, tx;
     Rect rect;
     uint16_t *ids = (uint16_t *)map->data;
@@ -41,6 +42,7 @@ static void draw_tile(struct TilemapAsset *map, struct TilesetAsset *tiles, Poin
             renderer_draw_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], rect);
         }
     }
+#endif
 }
 
 void init(void)
@@ -64,8 +66,10 @@ void init(void)
     renderer_set_palette(pal->data, 0, pal->col_count);
 
     /* initialize test texture */
+    ((struct TextureAsset *)&g->test_texture_data)->width = 16;
+    ((struct TextureAsset *)&g->test_texture_data)->height = 16;
     for(i = 0; i < PALETTE_COLORS; ++i) {
-        g->test_texture[i] = i;
+        g->test_texture_data[offsetof(struct TextureAsset, data[0]) + i] = i;
     }
 
     /* initialize scene */
@@ -159,10 +163,10 @@ void render(void)
     struct TextureAsset *roy = asset_get(ROY, Texture, g->asset_pak);
     renderer_clear(30);
 
-    draw_tile(asset_get(CITY_BG, Tilemap, g->asset_pak), asset_get(STREET, Tileset, g->asset_pak), g->tile_offset);
-    renderer_draw_texture(roy->data, g->roy_rect);
-    renderer_draw_rect(g->bouncing_rect, 12);
-    renderer_draw_texture(g->test_texture, g->spinning_rect);
+    renderer_draw_tilemap(asset_get(CITY_BG, Tilemap, g->asset_pak), asset_get(STREET, Tileset, g->asset_pak), g->tile_offset);
+    renderer_draw_texture(roy, g->roy_rect);
+    renderer_draw_rect(12, g->bouncing_rect);
+    renderer_draw_texture((struct TextureAsset *)(&g->test_texture_data), g->spinning_rect);
     sprite_draw(&g->sprites[0], 2);
 
     renderer_flip();

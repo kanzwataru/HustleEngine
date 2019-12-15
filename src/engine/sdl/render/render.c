@@ -112,7 +112,7 @@ static void draw_quad(shaderid_t shader, Rect xform)
     gl_draw_model(&rd->quad);
 }
 
-void renderer_draw_rect(Rect xform, byte color)
+void renderer_draw_rect(byte color, Rect xform)
 {
     glUseProgram(rd->flat_shader);
 
@@ -122,7 +122,7 @@ void renderer_draw_rect(Rect xform, byte color)
     draw_quad(rd->flat_shader, xform);
 }
 
-void renderer_draw_texture(const buffer_t *texture, Rect xform)
+static void draw_texture(const buffer_t *buf, int width, int height, Rect xform)
 {
     GLuint id;
 
@@ -131,7 +131,7 @@ void renderer_draw_texture(const buffer_t *texture, Rect xform)
     glActiveTexture(GL_TEXTURE0 + 1);
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, xform.w, xform.h, 0, GL_RED, GL_UNSIGNED_BYTE, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, buf);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -143,4 +143,33 @@ void renderer_draw_texture(const buffer_t *texture, Rect xform)
     glDeleteTextures(1, &id);
 
     glActiveTexture(GL_TEXTURE0);
+}
+
+void renderer_draw_texture(const struct TextureAsset *texture, Rect xform)
+{
+    draw_texture(texture->data, texture->width, texture->height, xform);
+}
+
+void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *frame, Rect xform)
+{
+    draw_texture(frame, sheet->width, sheet->height, xform);
+}
+
+void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset)
+{
+    int ty, tx;
+    Rect rect;
+    uint16_t *ids = (uint16_t *)map->data;
+
+    assert(tiles->tile_size == map->tile_size);
+    rect.w = tiles->tile_size;
+    rect.h = tiles->tile_size;
+
+    for(ty = 0; ty < map->height; ++ty) {
+        for(tx = 0; tx < map->width; ++tx) {
+            rect.x = (tiles->tile_size * tx) - offset.x;
+            rect.y = (tiles->tile_size * ty) - offset.y;
+            draw_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], rect.w, rect.h, rect);
+        }
+    }
 }
