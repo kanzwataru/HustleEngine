@@ -23,6 +23,11 @@ struct GameData {
 };
 
 static struct GameData *g;
+static const Point line_segs[] = {
+    {32, 64}, {64, 128},
+    {64, 128}, {48, 16},
+    {48, 16}, {32, 8}
+};
 
 void init(void)
 {
@@ -148,7 +153,8 @@ void render(void)
     renderer_draw_rect(12, g->bouncing_rect);
     renderer_draw_texture((struct TextureAsset *)(&g->test_texture_data), g->spinning_rect);
     sprite_draw(&g->sprites[0], 2);
-
+    renderer_draw_line(16, line_segs, sizeof(line_segs) / sizeof(Point));
+    
     renderer_flip();
 }
 

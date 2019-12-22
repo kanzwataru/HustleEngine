@@ -212,3 +212,44 @@ void renderer_clear_cache(void)
         }
     }
 }
+
+void renderer_draw_line(byte color, const Point *line, size_t count)
+{
+    assert(count > 1);
+    struct Model model;
+
+    /* TODO: don't use dynamic allocation */
+    float *line_verts = calloc(count * 5, sizeof(float)); 
+    for(size_t i = 0; i < count; ++i) {
+        line_verts[0 + (i * 5)] = line[i].x;
+        line_verts[1 + (i * 5)] = line[i].y;
+    }
+
+    model.vert_count = count;
+    gl_upload_model(&model, line_verts);
+
+    glUseProgram(rd->flat_shader);
+
+    GLint color_loc = glGetUniformLocation(rd->flat_shader, "color");
+    glUniform3f(color_loc, (float)color / 255.0f, 0.0f, 0.0f);
+
+    const float model_matrix[] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
+
+    GLint model_loc = glGetUniformLocation(rd->flat_shader, "model");
+    GLint screen_size_loc = glGetUniformLocation(rd->flat_shader, "screen_size");
+
+    glUniformMatrix4fv(model_loc, 1, GL_FALSE, model_matrix);
+    glUniform2f(screen_size_loc, WIDTH, HEIGHT);
+
+    glBindVertexArray(model.vao);
+    glDrawArrays(GL_LINES, 0, model.vert_count);
+
+    gl_delete_model(&model);
+    free(line_verts);
+}
+
