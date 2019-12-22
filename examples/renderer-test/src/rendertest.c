@@ -24,27 +24,6 @@ struct GameData {
 
 static struct GameData *g;
 
-static void draw_tile(struct TilemapAsset *map, struct TilesetAsset *tiles, Point offset)
-{
-#if 0
-    int ty, tx;
-    Rect rect;
-    uint16_t *ids = (uint16_t *)map->data;
-
-    assert(tiles->tile_size == map->tile_size);
-    rect.w = tiles->tile_size;
-    rect.h = tiles->tile_size;
-
-    for(ty = 0; ty < map->height; ++ty) {
-        for(tx = 0; tx < map->width; ++tx) {
-            rect.x = (tiles->tile_size * tx) - offset.x;
-            rect.y = (tiles->tile_size * ty) - offset.y;
-            renderer_draw_texture(&tiles->data[(tiles->tile_size * tiles->tile_size) * ids[ty * map->width + tx]], rect);
-        }
-    }
-#endif
-}
-
 void init(void)
 {
     int i;
