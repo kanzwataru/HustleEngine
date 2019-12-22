@@ -4,6 +4,7 @@
 #include "platform/dos/nativeplatform.h"
 
 #include <dos.h>
+#include <mem.h>
 
 /* input */
 #define KEYBOARD_ISR    9

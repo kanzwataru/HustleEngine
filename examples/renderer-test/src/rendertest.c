@@ -3,6 +3,7 @@
 #include "platform/bootstrap.h"
 
 #include <math.h>
+#include <stddef.h>
 
 struct GameData {
     struct Game *game;
@@ -26,7 +27,8 @@ static struct GameData *g;
 static const Point line_segs[] = {
     {32, 64}, {64, 128},
     {64, 128}, {48, 16},
-    {48, 16}, {32, 8}
+    {48, 16}, {32, 8},
+    {32, 8}, {-16, -24}
 };
 
 void init(void)
