@@ -16,8 +16,8 @@ HEADERS		 = $(foreach dir, $(INCLUDE_DIR), $(shell find $(dir) -name "*.h"))
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
 OBJ     	:= $(filter %.o, $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.s,$(OBJ_DIR)/%.o,$(SRC)))
 
-CFLAGS		:= -bt=dos -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(INCLUDE_DIR)) $(addprefix -d,$(DEFINES))
-LDFLAGS		:= -bt=dos -l=$(EXTENDER) -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -4s -mf -zq
+CFLAGS		:= -bt=dos -za99 -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(INCLUDE_DIR)) $(addprefix -d,$(DEFINES))
+LDFLAGS		:= -bt=dos -za99 -l=$(EXTENDER) -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -4s -mf -zq
 
 ######################################################
 # build settings
