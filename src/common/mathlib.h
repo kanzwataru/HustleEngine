@@ -17,6 +17,5 @@ bool math_clip_rect(Rect rect, const Rect * const bounds, Point *out_offset, Rec
 #define ABS(_v)             ((_v) > 0 ? (_v) : -(_v))
 #define CLAMP(_v, _mn, _mx) (((_v) > (_mx)) ? (_mx) : (((_v) < (_mn)) ? (_mn) : (_v))) 
 #define SGN(_a)             ((_a) > 0) - ((_a) < 0) 
-v
 
 #endif
