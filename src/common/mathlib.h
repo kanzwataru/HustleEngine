@@ -18,5 +18,7 @@ bool math_clip_rect(Rect rect, const Rect * const bounds, Point *out_offset, Rec
 #define CLAMP(_v, _mn, _mx) (((_v) > (_mx)) ? (_mx) : (((_v) < (_mn)) ? (_mn) : (_v))) 
 #define SGN(_a)             ((_a) > 0) - ((_a) < 0) 
 #define RANDRANGE(_mn, _mx) ((rand() % ((_mx) - (_mn) + 1)) + (_mn))
+#define LERP(_a, _b, _t)	 ((_a) + ((_t) * ((_b) - (_a)))) 
 
 #endif
+
