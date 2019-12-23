@@ -102,9 +102,6 @@ void renderer_draw_texture(const struct TextureAsset *texture, Rect xform)
     blit_buffer(texture->data, xform);
 }
 
-#define ABS(_v)             ((_v) > 0 ? (_v) : -(_v))
-#define CLAMP(_v, _mn, _mx) (((_v) > (_mx)) ? (_mx) : (((_v) < (_mn)) ? (_mn) : (_v))) 
-#define SGN(_a)             ((_a) > 0) - ((_a) < 0) 
 void renderer_draw_line(byte color, const Point *line, size_t count)
 {
     /* brasenheim routine lifted from: http://www.brackeen.com/vga/source/bc31/lines.c.html */
