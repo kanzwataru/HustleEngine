@@ -44,6 +44,8 @@ struct PaletteAsset {
     byte data[1];    /* extends past struct */
 };
 
+
+#define SPRITESHEET_FLAG_PLAYONCE   0x01
 struct SpritesheetAsset {
     uint16_t id;
     byte width;               /* width of sprites */
@@ -56,3 +58,4 @@ struct SpritesheetAsset {
 };
 
 #endif
+

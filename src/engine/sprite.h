@@ -11,6 +11,7 @@ struct Sprite {
     Rect rect;
 };
 
+void sprite_set_to(struct Sprite *spr, assetid_t sheet);
 void sprite_update(struct Sprite *spr, size_t count);
 void sprite_draw(struct Sprite *spr, size_t count);
 

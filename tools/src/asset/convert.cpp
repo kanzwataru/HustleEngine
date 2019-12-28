@@ -95,6 +95,9 @@ int spritesheet_convert(const char *name, uint16_t id)
     };
 
     uint16_t flags = 0;
+    if(spr->play_once)
+        flags |= 0x01;
+
     uint16_t base_offset = spr->count * sizeof(uint16_t);
 
     std::vector<uint16_t> offset_table;

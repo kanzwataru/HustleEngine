@@ -21,6 +21,7 @@ struct Spritesheet {
     int width, height;
     int count;
     int frameskip;
+    bool play_once;
 };
 config_declare(Spritesheet);
 
