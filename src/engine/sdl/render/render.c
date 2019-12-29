@@ -119,8 +119,8 @@ void renderer_draw_rect(byte color, Rect xform)
 {
     glUseProgram(rd->flat_shader);
 
-    GLint color_loc = glGetUniformLocation(rd->flat_shader, "color");
-    glUniform3f(color_loc, (float)color / 255.0f, 0.0f, 0.0f);
+    GLint color_loc = glGetUniformLocation(rd->flat_shader, "color_id");
+    glUniform1f(color_loc, (float)color / 255.0f);
 
     draw_quad(rd->flat_shader, xform);
 }

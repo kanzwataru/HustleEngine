@@ -24,11 +24,11 @@ static const char *flat_frag_src =
 "out vec4 frag_col;\n"
 
 "uniform sampler1D palette;\n"
-"uniform vec3 color;\n"
+"uniform float color_id;\n"
 
 "void main()\n"
 "{\n"
-"   frag_col = texture(palette, color.r);\n"
+"   frag_col = texture(palette, color_id);\n"
 "}\n\0";
 
 static const char *sprite_frag_src =
