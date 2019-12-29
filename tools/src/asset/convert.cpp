@@ -208,8 +208,8 @@ int font_convert(const char *name, uint16_t id)
     }
 
     /* image buffer */
-    const int font_size = 16; /* TODO: hard-coded for now */
-    const int image_width = 256;
+    const int font_size = 8; /* TODO: hard-coded for now */
+    const int image_width = 128;
     const int image_height = 128;
     const int per_line = image_width / font_size;
     
@@ -262,6 +262,11 @@ int font_convert(const char *name, uint16_t id)
         }
     }
 
+    for(int i = 0; i < image_width * image_height; ++i) {
+        /* use only 0 and 1 */
+        image_buf.get()[i] = image_buf.get()[i] == 0 ? 0 : 1;
+    }
+
     /* write out asset */
     uint8_t header[2] = {
         require_fit(uint8_t, font_size),
@@ -269,7 +274,7 @@ int font_convert(const char *name, uint16_t id)
     };
 
     fwrite(header, sizeof(header), 1, stdout);
-    
+
     if(global::platform == "unix") {
         /* write out directly as atlas texture (to use with opengl) */
         fwrite(image_buf.get(), 1, image_width * image_height, stdout);

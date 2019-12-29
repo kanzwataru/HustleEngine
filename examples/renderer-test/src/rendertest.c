@@ -61,11 +61,11 @@ void init(void)
     }
 
     /* initialize test font atlas */
-    ((struct TextureAsset *)&g->test_font_atlas)->width = 256;
+    ((struct TextureAsset *)&g->test_font_atlas)->width = 128;
     ((struct TextureAsset *)&g->test_font_atlas)->height = 128;
     ((struct TextureAsset *)&g->test_font_atlas)->id = 1001;
     struct FontAsset *font = asset_get(MED_FONT, Font, g->asset_pak);
-    memcpy(((struct TextureAsset *)&g->test_font_atlas)->data, font->data, 256 * 128);
+    memcpy(((struct TextureAsset *)&g->test_font_atlas)->data, font->data, 128 * 128);
 
     /* initialize scene */
     g->bouncing_rect.w = 32;
@@ -166,7 +166,7 @@ void render(void)
     renderer_draw_line(16, line_segs, sizeof(line_segs) / sizeof(Point));
 
     /* NOTE: temp */
-    renderer_draw_texture((struct TextureAsset *)(&g->test_font_atlas), (Rect){0, 0, 256, 128});
+    renderer_draw_texture((struct TextureAsset *)(&g->test_font_atlas), (Rect){0, 0, 128, 128});
     
     renderer_flip();
 }

@@ -57,7 +57,7 @@ begin(Font)
 {
     .name       = "med_font",
     .path       = "data/prstart.ttf",
-    .font_size  = 16
+    .font_size  = 8
 },
 end(Font)
 
