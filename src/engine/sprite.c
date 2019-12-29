@@ -23,8 +23,8 @@ void sprite_update(struct Sprite *spr, size_t count)
         sheet = asset_from_handle(spr[i].spritesheet);
         if(spr[i].frameskip-- < 0) {
             if(++spr[i].current_frame == sheet->count) {
-                if(sheet->flags | SPRITESHEET_FLAG_PLAYONCE)
-                    spr[i].current_frame--;
+                if(sheet->flags & SPRITESHEET_FLAG_PLAYONCE)
+                    spr[i].current_frame = sheet->count - 1;
                 else
                     spr[i].current_frame = 0;
             }
