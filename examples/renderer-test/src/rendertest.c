@@ -17,20 +17,27 @@ struct GameData {
     struct Sprite sprites[6];
     Point tile_offset;
     Point tile_offset_dirs;
+    Rect  text_rect;
 
     byte test_texture_data[sizeof(struct TextureAsset) + (16 * 16)];
-    byte test_font_atlas[sizeof(struct TextureAsset) + (256 * 128)];
+    //byte test_font_atlas[sizeof(struct TextureAsset) + (256 * 128)];
 
     byte asset_pak[512000];
 };
 
 static struct GameData *g;
+
 static const Point line_segs[] = {
     {32, 64}, {64, 128},
     {64, 128}, {48, 16},
     {48, 16}, {32, 8},
     {32, 8}, {-16, -24}
 };
+
+static const char *example_string =
+//"!-\n+";
+"Hello, world!\n\n"
+"qwer\ttyuiop[]|asdfghjkl;'zxcvbnm,./~";
 
 void init(void)
 {
@@ -61,11 +68,13 @@ void init(void)
     }
 
     /* initialize test font atlas */
+    /*
     ((struct TextureAsset *)&g->test_font_atlas)->width = 128;
     ((struct TextureAsset *)&g->test_font_atlas)->height = 128;
     ((struct TextureAsset *)&g->test_font_atlas)->id = 1001;
     struct FontAsset *font = asset_get(MED_FONT, Font, g->asset_pak);
     memcpy(((struct TextureAsset *)&g->test_font_atlas)->data, font->data, 128 * 128);
+    */
 
     /* initialize scene */
     g->bouncing_rect.w = 32;
@@ -130,6 +139,11 @@ void update(void)
     g->sprites[0].rect.x = 200 + (8.0f * sin((float)g->counter * 0.02f));
     g->sprites[1].rect.y = 200 - 32;
 
+    g->text_rect.x = 192;
+    g->text_rect.y = 100 + (16.0f * sin((float) g->counter * 0.01f));
+    g->text_rect.w = 96 + (24.0f * sin((float) g->counter * 0.01f));
+    g->text_rect.h = 8 + fabs(50.0f * sin((float) g->counter * 0.01f));
+
     /*
     g->sprites[2].rect.w = 16 - fabs(16.0f * sin((float)g->counter * 0.02f));
     g->sprites[3].rect.w = g->sprites[2].rect.w;
@@ -165,9 +179,14 @@ void render(void)
     sprite_draw(&g->sprites[0], 2);
     renderer_draw_line(16, line_segs, sizeof(line_segs) / sizeof(Point));
 
-    /* NOTE: temp */
+    renderer_draw_rect(12, g->text_rect);
+    renderer_draw_text(asset_get(MED_FONT, Font, g->asset_pak), example_string, 4, g->text_rect);
+    /*
+    //NOTE: temp
     renderer_draw_texture((struct TextureAsset *)(&g->test_font_atlas), (Rect){0, 0, 128, 128});
-    
+    */
+
+
     renderer_flip();
 }
 

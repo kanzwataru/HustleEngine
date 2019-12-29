@@ -30,6 +30,8 @@ void renderer_init(struct PlatformData *pd)
         rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
         rd->sprite_shader = gl_compile_shader(planar_vert_src, sprite_frag_src);
         rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
+        rd->text_shader = gl_compile_shader(planar_vert_src, text_frag_src);
+
         rd->target_buf = gl_create_framebuffer(platform->target_size);
         rd->back_buf = gl_get_backbuffer(platform->screen_size);
 
@@ -253,3 +255,94 @@ void renderer_draw_line(byte color, const Point *line, size_t count)
     free(line_verts);
 }
 
+
+void renderer_draw_text(const struct FontAsset *font, const char *str, byte color, Rect bounds)
+{
+    /* cache font if needed */
+    assert(font->id < CACHE_MAX);
+    
+    const int id = font->id;
+    
+    if(!rd->cached_textures[id].cached) {
+        rd->cached_textures[id].tex = upload_texture(font->data, font->width, font->height);
+        rd->cached_textures[id].cached = true;
+    }
+
+    const GLuint tex = rd->cached_textures[id].tex;
+
+    /* set up shader and uniforms */
+    glUseProgram(rd->text_shader);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    const float b = (float)rd->palette[(color * 3) + 0] / 255.0f;
+    const float g = (float)rd->palette[(color * 3) + 1] / 255.0f;
+    const float r = (float)rd->palette[(color * 3) + 2] / 255.0f;
+    const GLint color_loc = glGetUniformLocation(rd->text_shader, "color");
+    glUniform3f(color_loc, r, g, b);
+
+    const GLint sprite_tex_loc = glGetUniformLocation(rd->text_shader, "sprite");
+    glUniform1i(sprite_tex_loc, 1);
+
+    const GLint uv_rect_loc = glGetUniformLocation(rd->text_shader, "uv_rect");
+
+    /* do text drawing */
+    const char *c = str;
+    int x = 0;
+    int y = 0;
+    while(*c) {
+        switch(*c) {
+        case ' ':
+            ++c;
+            x += font->font_size;
+            break;
+        case '\t':
+            ++c;
+            x += font->font_size *4;
+            break;
+        case '\n':
+            y += font->font_size;
+            x = 0;
+            ++c;
+            continue;
+        default:
+            if(*c < 33)
+                ++c;
+            break;
+        }
+
+        if(x > bounds.w - font->font_size) {
+            y += font->font_size;
+            x = 0;
+        }
+
+        const Rect xform = {bounds.x + x, bounds.y + y, font->font_size, font->font_size};
+        
+        const int char_offset = *c - 33; // shift everything starting from ASCII '!'
+        const float uv_rect[] = {
+            char_offset, // NOTE: this works because of wrap-around, won't work for DOS
+            (char_offset * font->font_size) / font->height,
+            (float)font->font_size / font->width,   // this is how much to scale DOWN the uv
+            (float)font->font_size / font->height
+        };
+
+        if(xform.x + xform.w > bounds.w + bounds.x ||
+           xform.y + xform.h > bounds.y + bounds.h)
+        {
+            break;
+        }
+
+        glUniform4fv(uv_rect_loc, 1, uv_rect);
+
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glUseProgram(rd->flat_shader);
+        draw_quad(rd->text_shader, xform);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        ++c;
+        x += font->font_size;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0); /* TODO: do we need these teardowns? */
+    glActiveTexture(GL_TEXTURE0);
+}

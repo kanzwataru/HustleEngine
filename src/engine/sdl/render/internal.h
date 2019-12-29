@@ -22,6 +22,7 @@ struct RenderData {
     shaderid_t flat_shader;
     shaderid_t post_shader;
     shaderid_t sprite_shader;
+    shaderid_t text_shader;
 
     struct CachedTexture cached_textures[CACHE_MAX];
 };

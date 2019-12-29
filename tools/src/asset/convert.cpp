@@ -268,12 +268,16 @@ int font_convert(const char *name, uint16_t id)
     }
 
     /* write out asset */
-    uint8_t header[2] = {
-        require_fit(uint8_t, font_size),
-        0
+    uint16_t header[4] = {
+        require_fit(uint16_t, id),
+        require_fit(uint16_t, image_width),
+        require_fit(uint16_t, image_height),
+        0,
     };
+    uint8_t out_font_size = require_fit(uint8_t, font_size);
 
-    fwrite(header, sizeof(header), 1, stdout);
+    fwrite(&header, sizeof(header), 1, stdout);
+    fwrite(&out_font_size, sizeof(out_font_size), 1, stdout);
 
     if(global::platform == "unix") {
         /* write out directly as atlas texture (to use with opengl) */

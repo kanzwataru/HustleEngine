@@ -45,8 +45,11 @@ struct PaletteAsset {
 };
 
 struct FontAsset {
+    uint16_t id;
+    uint16_t width;  /* width of font atlas (on DOS, same as font_size) */
+    uint16_t height; /* height of font atlas */
+    uint16_t flags;
     byte font_size;
-    byte flags;
     byte data[1];
 };
 
