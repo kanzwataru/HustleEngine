@@ -179,7 +179,7 @@ void render(void)
     sprite_draw(&g->sprites[0], 2);
     renderer_draw_line(16, line_segs, sizeof(line_segs) / sizeof(Point));
 
-    renderer_draw_rect(12, g->text_rect);
+    renderer_draw_rect(1, g->text_rect);
     renderer_draw_text(asset_get(MED_FONT, Font, g->asset_pak), example_string, 4, g->text_rect);
     /*
     //NOTE: temp
