@@ -28,10 +28,15 @@ struct GameData {
 static struct GameData *g;
 
 static const Point line_segs[] = {
-    {32, 64}, {64, 128},
-    {64, 128}, {48, 16},
-    {48, 16}, {32, 8},
-    {32, 8}, {-16, -24}
+    {128, 64}, {128, 128},
+    {128, 128}, {132, 148},
+    {132, 148}, {140, 160},
+    {140, 160}, {124, 172},
+    {124, 172}, {116, 180},
+    {116, 180}, {130, 300},
+    {130, 300}, {180, 180},
+    {180, 180}, {190, 175},
+    {190, 175}, {360, 175}
 };
 
 static const char *example_string =
@@ -175,9 +180,9 @@ void render(void)
     renderer_draw_tilemap(asset_get(CITY_BG, Tilemap, g->asset_pak), asset_get(STREET, Tileset, g->asset_pak), g->tile_offset);
     renderer_draw_texture(roy, g->roy_rect);
     renderer_draw_rect(12, g->bouncing_rect);
-    renderer_draw_texture((struct TextureAsset *)(&g->test_texture_data), g->spinning_rect);
     sprite_draw(&g->sprites[0], 2);
     renderer_draw_line(16, line_segs, sizeof(line_segs) / sizeof(Point));
+    renderer_draw_texture((struct TextureAsset *)(&g->test_texture_data), g->spinning_rect);
 
     renderer_draw_rect(1, g->text_rect);
     renderer_draw_text(asset_get(MED_FONT, Font, g->asset_pak), example_string, 4, g->text_rect);
