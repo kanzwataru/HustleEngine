@@ -8,7 +8,7 @@
 
 static volatile buffer_t *vga_mem = (volatile buffer_t *)0xA0000;
 static buffer_t backbuf[320 * 200];
-static const Rect bounds = {0, 0, 320, 200};
+static const Rect screen_bounds = {0, 0, 320, 200};
 
 void renderer_init(struct PlatformData *pd)
 {
@@ -71,7 +71,7 @@ static void blit_buffer(const buffer_t *texbuf, Rect xform)
     Point offset;
     int x;
 
-    if(math_clip_rect(xform, &bounds, &offset, &clipped)) {
+    if(math_clip_rect(xform, &screen_bounds, &offset, &clipped)) {
         buf = backbuf + (clipped.y * 320 + clipped.x);
         texbuf += (offset.y * xform.w + offset.x);
 
@@ -87,6 +87,30 @@ static void blit_buffer(const buffer_t *texbuf, Rect xform)
             for(x = 0; x < clipped.w; ++x) {
                 if(texbuf[x] != 0) {
                     buf[x] = texbuf[x];
+                }
+            }
+
+            buf += 320;
+            texbuf += xform.w;
+        }
+    }
+}
+
+static void blit_buffer_col(const buffer_t *texbuf, byte color, Rect xform)
+{
+    register buffer_t *buf;
+    Rect clipped;
+    Point offset;
+    int x;
+
+    if(math_clip_rect(xform, &screen_bounds, &offset, &clipped)) {
+        buf = backbuf + (clipped.y * 320 + clipped.x);
+        texbuf += (offset.y * xform.w + offset.x);
+
+        while(clipped.h --> 0) {
+            for(x = 0; x < clipped.w; ++x) {
+                if(texbuf[x] != 0) {
+                    buf[x] = color;
                 }
             }
 
@@ -178,3 +202,56 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
     } 
 }
 
+void renderer_draw_text(const struct FontAsset *font, const char *str, byte color, Rect bounds)
+{
+    /* do text drawing */
+    const char *c = str;
+    int x = 0;
+    int y = 0;
+    while(*c) { /* TODO: make this part shared with the other platforms */
+        switch(*c) {
+        case ' ':
+            ++c;
+            x += font->font_size;
+            break;
+        case '\t':
+            ++c;
+            x += font->font_size *4;
+            break;
+        case '\n':
+            y += font->font_size;
+            x = 0;
+            ++c;
+            continue;
+        default:
+            if(*c < 33)
+                ++c;
+            break;
+        }
+
+        if(x > bounds.w - font->font_size) {
+            y += font->font_size;
+            x = 0;
+        }
+
+        Rect xform;
+        xform.x = bounds.x + x;
+        xform.y = bounds.y + y;
+        xform.w = font->font_size;
+        xform.h = font->font_size;
+        const int char_offset = *c - 33; // shift everything starting from ASCII '!'
+
+        if(xform.x + xform.w > bounds.w + bounds.x ||
+           xform.y + xform.h > bounds.y + bounds.h)
+        {
+            break;
+        }
+
+        /* TODO: use RLE to make this not snail's pace */
+        const buffer_t *texbuf = font->data + (char_offset * (font->font_size * font->font_size));
+        blit_buffer_col(texbuf, color, xform);
+
+        ++c;
+        x += font->font_size;
+    }
+}
