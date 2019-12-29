@@ -53,6 +53,14 @@ begin(Tilemap)
 },
 end(Tilemap)
 
+begin(Font)
+{
+    .name       = "med_font",
+    .path       = "data/prstart.ttf",
+    .font_size  = 16
+},
+end(Font)
+
 begin(Package)
 {
     .name = "main",
@@ -63,6 +71,7 @@ begin(Package)
         "large_run",
         "street",
         "city_bg",
+        "med_font",
         0,
     }
 }

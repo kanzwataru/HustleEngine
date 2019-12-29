@@ -12,10 +12,15 @@ extern "C" {
     #include "lib/conv.h"
 }
 
+std::string global::platform;
+
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "extern/stb_truetype.h"
+
 #define require_fit(_type, _x) require_fit_impl<_type>(name, stringify_a(_x), _x)
 
 template <typename T>
-T require_fit_impl(const char *asset_name, const char *val_name, long long man)
+static T require_fit_impl(const char *asset_name, const char *val_name, long long man)
 {
     if(man > std::numeric_limits<T>::max() || man < std::numeric_limits<T>::min()) {
         fprintf(stderr, "asset: %s value: %s does not fit in the required range: %d %d\n",
@@ -25,6 +30,21 @@ T require_fit_impl(const char *asset_name, const char *val_name, long long man)
     }
 
     return T(man);
+}
+
+static void write_as_strip(const uint8_t *buf, int width, int height, int tile_size)
+{
+    for(int ty = 0; ty < height / tile_size; ++ty) {
+        for(int tx = 0; tx < width / tile_size; ++tx) {
+            const uint8_t *line = buf + ((ty * tile_size) * width + (tx * tile_size));
+            assert(line <= (buf + (width * height)));
+
+            for(int y = 0; y < tile_size; ++y) {
+                fwrite(line, 1, tile_size, stdout);
+                line += width;
+            }
+        }
+    }
 }
 
 int texture_convert(const char *name, uint16_t id)
@@ -143,18 +163,7 @@ int tileset_convert(const char *name, uint16_t id)
     };
 
     fwrite(&header, sizeof(header), 1, stdout);
-
-    for(int ty = 0; ty < image_info.height / set->tile_size; ++ty) {
-        for(int tx = 0; tx < image_info.width / set->tile_size; ++tx) {
-            uint8_t *line = bmp + ((ty * set->tile_size) * image_info.width + (tx * set->tile_size));
-            assert(line <= (bmp + (image_info.width * image_info.height)));
-
-            for(int y = 0; y < set->tile_size; ++y) {
-                fwrite(line, 1, set->tile_size, stdout);
-                line += image_info.width;
-            }
-        }
-    }
+    write_as_strip(bmp, image_info.width, image_info.height, set->tile_size);
 
     return 0;
 }
@@ -186,6 +195,92 @@ int tilemap_convert(const char *name, uint16_t id)
     fwrite(header, sizeof(header), 1, stdout);
     fwrite(map_data.get(), 1, size, stdout);
     fclose(fp);
+
+    return 0;
+}
+
+int font_convert(const char *name, uint16_t id)
+{
+    const auto *font = config_find_in(name, config_get(Font), config_count(Font));
+    if(!font) {
+        fprintf(stderr, "%s not found in config\n", name);
+        return 1;
+    }
+
+    /* image buffer */
+    const int font_size = 16; /* TODO: hard-coded for now */
+    const int image_width = 256;
+    const int image_height = 128;
+    const int per_line = image_width / font_size;
+    
+    std::unique_ptr<uint8_t> image_buf(new uint8_t[image_width * image_height]);
+    memset(image_buf.get(), 0, image_width * image_height);
+
+    /* load font */
+    size_t size;
+    FILE *font_file = fopen(font->path, "rb");
+    fseek(font_file, 0, SEEK_END);
+    size = ftell(font_file);
+    fseek(font_file, 0, SEEK_SET);
+
+    std::unique_ptr<uint8_t> font_buf(new uint8_t[size]);
+    
+    fread(font_buf.get(), size, 1, font_file);
+    fclose(font_file);
+
+    stbtt_fontinfo info;
+    if(!stbtt_InitFont(&info, font_buf.get(), 0)) {
+        fprintf(stderr, "Could not load font %s from %s (stbtt_InitFont failed)\n", font->name, font->path);
+        return 1;
+    }
+
+    const float scale = stbtt_ScaleForPixelHeight(&info, font_size);
+
+    int x = 0;
+    int line = 0;
+
+    int ascent, descent, line_gap;
+    stbtt_GetFontVMetrics(&info, &ascent, &descent, &line_gap);
+
+    ascent *= scale;
+    descent *= scale;
+
+    /* render ASCII table to bitmap */
+    int char_count = 0;
+    for(char c = 33; c < 127; ++c) {
+        int min_x, min_y, max_x, max_y;
+        stbtt_GetCodepointBitmapBox(&info, c, scale, scale, &min_x, &min_y, &max_x, &max_y);
+
+        const int y = (line * font_size) + (ascent + min_y);
+        stbtt_MakeCodepointBitmap(&info, image_buf.get() + (x + (y * image_width)), max_x - min_x, max_y - min_y, image_width, scale, scale, c);
+    
+        x += font_size; /* assume square character, fixed width */
+        if(++char_count == per_line) {
+            char_count = 0;
+            ++line;
+            x = 0;
+        }
+    }
+
+    /* write out asset */
+    uint8_t header[2] = {
+        require_fit(uint8_t, font_size),
+        0
+    };
+
+    fwrite(header, sizeof(header), 1, stdout);
+    
+    if(global::platform == "unix") {
+        /* write out directly as atlas texture (to use with opengl) */
+        fwrite(image_buf.get(), 1, image_width * image_height, stdout);
+    }
+    else if(global::platform == "dos") {
+        /* write out in one long strip (like spritesheets) */
+        write_as_strip(image_buf.get(), image_width, image_height, font_size);
+    }
+    else {
+        assert(0);
+    }
 
     return 0;
 }

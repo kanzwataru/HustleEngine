@@ -44,6 +44,11 @@ struct PaletteAsset {
     byte data[1];    /* extends past struct */
 };
 
+struct FontAsset {
+    byte font_size;
+    byte flags;
+    byte data[1];
+};
 
 #define SPRITESHEET_FLAG_PLAYONCE   0x01
 struct SpritesheetAsset {

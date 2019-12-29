@@ -19,6 +19,7 @@ struct GameData {
     Point tile_offset_dirs;
 
     byte test_texture_data[sizeof(struct TextureAsset) + (16 * 16)];
+    byte test_font_atlas[sizeof(struct TextureAsset) + (256 * 128)];
 
     byte asset_pak[512000];
 };
@@ -58,6 +59,13 @@ void init(void)
     for(i = 0; i < PALETTE_COLORS; ++i) {
         g->test_texture_data[offsetof(struct TextureAsset, data[0]) + i] = i;
     }
+
+    /* initialize test font atlas */
+    ((struct TextureAsset *)&g->test_font_atlas)->width = 256;
+    ((struct TextureAsset *)&g->test_font_atlas)->height = 128;
+    ((struct TextureAsset *)&g->test_font_atlas)->id = 1001;
+    struct FontAsset *font = asset_get(MED_FONT, Font, g->asset_pak);
+    memcpy(((struct TextureAsset *)&g->test_font_atlas)->data, font->data, 256 * 128);
 
     /* initialize scene */
     g->bouncing_rect.w = 32;
@@ -156,6 +164,9 @@ void render(void)
     renderer_draw_texture((struct TextureAsset *)(&g->test_texture_data), g->spinning_rect);
     sprite_draw(&g->sprites[0], 2);
     renderer_draw_line(16, line_segs, sizeof(line_segs) / sizeof(Point));
+
+    /* NOTE: temp */
+    renderer_draw_texture((struct TextureAsset *)(&g->test_font_atlas), (Rect){0, 0, 256, 128});
     
     renderer_flip();
 }

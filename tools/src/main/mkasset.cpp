@@ -13,24 +13,26 @@ std::map<std::string, conversion_handler> converters = {
     {"Palette", palette_convert},
     {"Spritesheet", spritesheet_convert},
     {"Tilemap", tilemap_convert},
-    {"Tileset", tileset_convert}
+    {"Tileset", tileset_convert},
+    {"Font", font_convert}
 };
 
 void help(void)
 {
-    fprintf(stderr, "mkasset [type] [name] [id] > [out file]\n");
+    fprintf(stderr, "mkasset [platform] [type] [name] [id] > [out file]\n");
 }
 
 int main(int argc, char **argv)
 {
-    if(argc < 3) {
+    if(argc != 5) {
         help();
         return 1;
     }
 
-    const char *type = argv[1];
-    const char *name = argv[2];
-    int id = std::atoi(argv[3]);
+    global::platform = argv[1];
+    const char *type = argv[2];
+    const char *name = argv[3];
+    int id = std::atoi(argv[4]);
 
     if(converters.count(type)) {
         return converters[type](name, id);

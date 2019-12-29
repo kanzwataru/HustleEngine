@@ -67,7 +67,7 @@ void write_makefile(FILE *fp)
         fprintf(fp, "\n"); \
         fprintf(fp, "$(ASSET_OUT_DIR)/%s.dat: $(TOOLS_BIN)/mkasset %s\n", asset->name, asset->path); \
         fprintf(fp, "\t@mkdir -p `dirname $@`\n"); \
-        fprintf(fp, "\t@$(TOOLS_BIN)/mkasset " #_type " %s %d > $@\n", asset->name, asset_count++); \
+        fprintf(fp, "\t@$(TOOLS_BIN)/mkasset $(TARGET_PLATFORM) " #_type " %s %d > $@\n", asset->name, asset_count++); \
         fprintf(fp,  "\t@echo \"$^ -> $@\"\n"); \
     }
 

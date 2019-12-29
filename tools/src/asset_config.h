@@ -41,6 +41,13 @@ struct Tilemap {
 };
 config_declare(Tilemap);
 
+struct Font {
+    const char *name;
+    const char *path;
+    int font_size;
+};
+config_declare(Font);
+
 struct Package {
     const char *name;
     const char **contents;
@@ -52,4 +59,5 @@ config_declare(Package);
     _func(Palette); \
     _func(Spritesheet); \
     _func(Tileset); \
-    _func(Tilemap);
+    _func(Tilemap); \
+    _func(Font);
