@@ -10,7 +10,8 @@ TOOLS_BIN	:= $(TOOLS_DIR)/bin
 DEFINES		+=
 ENGINE_SRC	:= core/asset.c \
 			   common/mathlib.c \
-			   engine/sprite.c
+			   engine/profiling.c \
+			   engine/sprite.c \
 
 ASSET_CONFIG_FILE := config/asset_config.c
 SETTINGS_MK := $(BUILD_DIR)/transient/make/settings.mk

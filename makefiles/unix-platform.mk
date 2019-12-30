@@ -17,7 +17,8 @@ else
 LIB_EXT		 = so
 endif
 
-DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=$(LIB_EXT) HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
+DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=$(LIB_EXT) HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD) \
+			   TRACY_ENABLE
 
 CORE_SRC	:= platform/sdl/bootstrap.c \
 			   $(EXTERN_SRC)
@@ -59,15 +60,20 @@ $(OBJ_DIR)/%.o: %.c $(ASSETS) $(HEADERS)
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $< -o $@
 
+$(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.cpp
+	@mkdir -p `dirname $@`
+	@$(CXX) -c -fPIC -pthread $(addprefix -D,$(DEFINES)) $< -o $@
+
 $(CORE_TARGET): $(CORE_OBJ)
 	@mkdir -p `dirname $@`
 	@$(CC) $^ $(LDFLAGS) -o $(CORE_TARGET)
 	@echo "UNIX engine core -> $(CORE_TARGET)"
 
-$(LIB_TARGET): $(OBJ)
+$(LIB_TARGET): $(OBJ_DIR)/extern/tracy/TracyClient.o $(OBJ)
 	@touch $(dir $@)/lock
 	@mkdir -p `dirname $@`
-	@$(CC) $^ $(LDFLAGS) -shared -fPIC -o $(LIB_TARGET)
+	@#$(CC) $^ $(LDFLAGS) -shared -fPIC -o $(LIB_TARGET)
+	@$(CXX) $^ $(LDFLAGS) -shared -fPIC -pthread -o $(LIB_TARGET)
 	@rm $(dir $@)/lock
 	@echo "UNIX game library -> $(LIB_TARGET)"
 
