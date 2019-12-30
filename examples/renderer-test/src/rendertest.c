@@ -124,8 +124,7 @@ void init(void)
 void input(void) {}
 void update(void)
 {
-    PROFILE_FRAME_BEGIN()
-
+    PROFILE_SECTION_BEGIN(UPDATE)
     int t_width;
     int t_height;
     struct TilemapAsset *map = asset_get(CITY_BG, Tilemap, g->asset_pak);
@@ -172,12 +171,11 @@ void update(void)
         g->tile_offset_dirs.y = 1;
 
     sprite_update(&g->sprites[0], 2);
+    PROFILE_SECTION_END(UPDATE)
 }
 
 void render(void)
 {
-    PROFILE_SECTION_BEGIN("rendering")
-
     struct TextureAsset *roy = asset_get(ROY, Texture, g->asset_pak);
     renderer_clear(30);
 
@@ -196,11 +194,7 @@ void render(void)
     renderer_draw_texture((struct TextureAsset *)(&g->test_font_atlas), (Rect){0, 0, 128, 128});
     */
 
-    PROFILE_SECTION_END("rendering")
-
     renderer_flip();
-
-    PROFILE_FRAME_END()
 }
 
 void quit(void) {}

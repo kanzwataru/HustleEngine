@@ -2,11 +2,18 @@
 #define PROFILING_H
 
 #include "common/platform.h"
-#include "extern/tracy/TracyC.h"
 
 #define HE_PROFILING /* NOTE: temp */
 
 #ifdef HE_PROFILING
+    #ifdef HE_PLATFORM_SDL2
+        #include "extern/tracy/TracyC.h"
+    #else
+        #define TracyCZoneN(_a, _b, _c)
+        #define TracyCZoneEnd(_a)
+        #define TracyCFrameMark
+    #endif
+
     struct SectionContext {
         size_t id;
         const char *name;
@@ -21,18 +28,15 @@
         TracyCFrameMark
 
     #define PROFILE_SECTION_BEGIN(_name) \
-        struct SectionContext _profile_scoped_ctx = {    \
-            0, _name, STRINGIFY(__LINE__), __FILE__, __FUNCTION__   \
+        struct SectionContext _profile_scoped_ctx_##_name = {    \
+            0, STRINGIFY(_name), STRINGIFY(__LINE__), __FILE__, __FUNCTION__   \
         };                                               \
-        _profiling_section_begin(&_profile_scoped_ctx);  \
-        TracyCZoneN(_tracy_ctx, _name, 1);
+        _profiling_section_begin(&_profile_scoped_ctx_##_name);  \
+        TracyCZoneN(_tracy_ctx_##_name, STRINGIFY(_name), 1);
 
     #define PROFILE_SECTION_END(_name) \
-        _profiling_section_end(&_profile_scoped_ctx); \
-        TracyCZoneEnd(_tracy_ctx);
-
-    //void profiling_toggle(bool enabled);
-    //void profiling_toggle_display(bool enabled);
+        _profiling_section_end(&_profile_scoped_ctx_##_name); \
+        TracyCZoneEnd(_tracy_ctx_##_name);
 
     void _profiling_frame_start(void);
     void _profiling_section_begin(struct SectionContext *ctx);

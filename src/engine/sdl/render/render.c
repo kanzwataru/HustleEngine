@@ -1,6 +1,7 @@
 #include "internal.h"
 #include "engine/init.h"
 #include "engine/render.h"
+#include "engine/profiling.h"
 #include "platform/sdl/nativeplatform.h"
 #include "gl.h"
 #include "shaders.h"
@@ -70,6 +71,8 @@ void renderer_clear(byte clear_col)
 
 void renderer_flip(void)
 {
+    PROFILE_SECTION_BEGIN(RENDER_flip)
+
     gl_set_framebuffer(&rd->back_buf);
     glClearColor(0,0,0,0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -80,21 +83,33 @@ void renderer_flip(void)
     gl_draw_model(&rd->quad);
 
     SDL_GL_SwapWindow(platform->window_handle);
-
+    glClear(GL_COLOR_BUFFER_BIT); /* add a clear request here to force GL flush and block for VSync */
     gl_set_framebuffer(&rd->target_buf);
+    
+    PROFILE_SECTION_END(RENDER_flip)
+    PROFILE_FRAME_END()
+    PROFILE_FRAME_BEGIN()
 }
 
 void renderer_set_palette(const buffer_t *pal, byte offset, byte count)
 {
+    PROFILE_SECTION_BEGIN(RENDER_set_palette)
+    
     memcpy(rd->palette + (offset * 3), pal + (offset * 3), count * 3);
 
     glBindTexture(GL_TEXTURE_1D, rd->palette_tex);
     glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, PALETTE_COLORS, 0, GL_RGB, GL_UNSIGNED_BYTE, rd->palette);
+
+    PROFILE_SECTION_END(RENDER_set_palette)
 }
 
 void renderer_get_palette(buffer_t *pal, byte offset, byte count)
 {
+    PROFILE_SECTION_BEGIN(RENDER_get_palette)
+
     memcpy(pal + (offset * 3), rd->palette + (offset * 3), count * 3);
+
+    PROFILE_SECTION_END(RENDER_get_palette)
 }
 
 static void draw_quad(shaderid_t shader, Rect xform)
@@ -117,12 +132,16 @@ static void draw_quad(shaderid_t shader, Rect xform)
 
 void renderer_draw_rect(byte color, Rect xform)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_rect)
+
     glUseProgram(rd->flat_shader);
 
     GLint color_loc = glGetUniformLocation(rd->flat_shader, "color_id");
     glUniform1f(color_loc, (float)color / 255.0f);
 
     draw_quad(rd->flat_shader, xform);
+
+    PROFILE_SECTION_END(RENDER_draw_rect)
 }
 
 static GLuint upload_texture(const buffer_t *buf, int width, int height)
@@ -154,6 +173,8 @@ static void draw_texture(GLuint tex, Rect xform)
 
 void renderer_draw_texture(const struct TextureAsset *texture, Rect xform)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_texture)
+
     assert(texture->id < CACHE_MAX);
 
     int id = texture->id;
@@ -164,17 +185,24 @@ void renderer_draw_texture(const struct TextureAsset *texture, Rect xform)
     }
 
     draw_texture(rd->cached_textures[id].tex, xform);
+
+    PROFILE_SECTION_END(RENDER_draw_texture)
 }
 
 void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *frame, Rect xform)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_sprite)
+
     GLuint tex = upload_texture(frame, sheet->width, sheet->height);
     draw_texture(tex, xform);
     glDeleteTextures(1, &tex);
+
+    PROFILE_SECTION_END(RENDER_draw_sprite)
 }
 
 void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_tilemap)
     int ty, tx;
     Rect rect;
     uint16_t *ids = (uint16_t *)map->data;
@@ -203,6 +231,7 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
             draw_texture(rd->cached_textures[cache_id].tex, rect);
         }
     }
+    PROFILE_SECTION_END(RENDER_draw_tilemap)
 }
 
 void renderer_clear_cache(void)
@@ -217,6 +246,8 @@ void renderer_clear_cache(void)
 
 void renderer_draw_line(byte color, const Point *line, size_t count)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_line)
+
     assert(count > 1);
     struct Model model;
 
@@ -253,11 +284,15 @@ void renderer_draw_line(byte color, const Point *line, size_t count)
 
     gl_delete_model(&model);
     free(line_verts);
+
+    PROFILE_SECTION_END(RENDER_draw_line)
 }
 
 
 void renderer_draw_text(const struct FontAsset *font, const char *str, byte color, Rect bounds)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_text)
+
     /* cache font if needed */
     assert(font->id < CACHE_MAX);
     
@@ -345,4 +380,6 @@ void renderer_draw_text(const struct FontAsset *font, const char *str, byte colo
 
     glBindTexture(GL_TEXTURE_2D, 0); /* TODO: do we need these teardowns? */
     glActiveTexture(GL_TEXTURE0);
+
+    PROFILE_SECTION_END(RENDER_draw_text)
 }

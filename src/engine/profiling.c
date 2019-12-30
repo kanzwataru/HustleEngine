@@ -2,6 +2,7 @@
 
 #ifdef HE_PROFILING
 #include "engine.h"
+#include <stdio.h>
 
 struct SectionTiming {
     struct SectionContext ctx_copy;

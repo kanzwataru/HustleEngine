@@ -1,5 +1,6 @@
 #include "internal.h"
 #include "engine/init.h"
+#include "engine/profiling.h"
 #include <mem.h>
 #include <stdlib.h>
 
@@ -37,24 +38,31 @@ void renderer_flip(void)
     while(!(inp(INPUT_STATUS_0) & 8)) {}
 
     memcpy((void *)vga_mem, backbuf, 320 * 200);
+
+    PROFILE_FRAME_END()
+    PROFILE_FRAME_BEGIN()
 }
 
 void renderer_set_palette(const buffer_t *pal, byte offset, byte count)
 {
+    PROFILE_SECTION_BEGIN(RENDER_set_palette)
     int i;
 
     outp(PALETTE_INDEX, 0);
     for(i = offset; i < count * 3; ++i)
         outp(PALETTE_INDEX + 1, pal[i] >> 2);
+    
+    PROFILE_SECTION_END(RENDER_set_palette)
 }
 
 void renderer_get_palette(buffer_t *pal, byte offset, byte count)
 {
-
+    assert(0);
 }
 
 void renderer_draw_rect(byte color, Rect xform)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_rect)
     register buffer_t *buf = backbuf + (xform.y * 320 + xform.x);
 
     while(xform.h --> 0) {
@@ -62,6 +70,7 @@ void renderer_draw_rect(byte color, Rect xform)
 
         buf += 320;
     }
+    PROFILE_SECTION_END(RENDER_draw_rect)
 }
 
 static void blit_buffer(const buffer_t *texbuf, Rect xform)
@@ -122,12 +131,15 @@ static void blit_buffer_col(const buffer_t *texbuf, byte color, Rect xform)
 
 void renderer_draw_texture(const struct TextureAsset *texture, Rect xform)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_texture)
     // TODO: don't be blatantly slow
     blit_buffer(texture->data, xform);
+    PROFILE_SECTION_END(RENDER_draw_texture)
 }
 
 void renderer_draw_line(byte color, const Point *line, size_t count)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_line)
     /* brasenheim routine lifted from: http://www.brackeen.com/vga/source/bc31/lines.c.html */
     int ln, i, dx, dy, sdx, sdy, dxabs, dyabs, x, y, px, py;
     for(ln = 1; ln < count; ++ln) {
@@ -175,15 +187,19 @@ void renderer_draw_line(byte color, const Point *line, size_t count)
             }
         }
     }
+    PROFILE_SECTION_END(RENDER_draw_line)
 }
 
 void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *frame, Rect xform)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_sprite)
     blit_buffer(frame, xform);
+    PROFILE_SECTION_END(RENDER_draw_sprite)
 }
 
 void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset) 
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_tilemap)
     int ty, tx;
     Rect rect;
     const uint16_t *ids = (const uint16_t *)map->data;
@@ -199,11 +215,13 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
 
             blit_buffer(&tiles->data[(rect.w * rect.h) * ids[ty * map->width + tx]], rect);
         }
-    } 
+    }
+    PROFILE_SECTION_END(RENDER_draw_tilemap)
 }
 
 void renderer_draw_text(const struct FontAsset *font, const char *str, byte color, Rect bounds)
 {
+    PROFILE_SECTION_BEGIN(RENDER_draw_text)
     /* do text drawing */
     const char *c = str;
     int x = 0;
@@ -254,4 +272,5 @@ void renderer_draw_text(const struct FontAsset *font, const char *str, byte colo
         ++c;
         x += font->font_size;
     }
+    PROFILE_SECTION_END(RENDER_draw_text)
 }
