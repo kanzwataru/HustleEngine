@@ -23,6 +23,7 @@ struct RenderData {
     shaderid_t post_shader;
     shaderid_t sprite_shader;
     shaderid_t text_shader;
+    shaderid_t tilemap_shader;
 
     struct CachedTexture cached_textures[CACHE_MAX];
 };

@@ -26,12 +26,22 @@ void renderer_init(struct PlatformData *pd)
 
     gladLoadGLLoader(SDL_GL_GetProcAddress);
 
+    if(rd->initialized) {
+        glDeleteProgram(rd->flat_shader);
+        glDeleteProgram(rd->sprite_shader);
+        glDeleteProgram(rd->post_shader);
+        glDeleteProgram(rd->text_shader);
+        glDeleteProgram(rd->tilemap_shader);
+        renderer_clear_cache();
+    }
+    rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
+    rd->sprite_shader = gl_compile_shader(planar_vert_src, sprite_frag_src);
+    rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
+    rd->text_shader = gl_compile_shader(planar_vert_src, text_frag_src);
+    rd->tilemap_shader = gl_compile_shader(planar_vert_src, tilemap_frag_src);
+
     if(!rd->initialized) {
         rd->quad.vert_count = 6;
-        rd->flat_shader = gl_compile_shader(planar_vert_src, flat_frag_src);
-        rd->sprite_shader = gl_compile_shader(planar_vert_src, sprite_frag_src);
-        rd->post_shader = gl_compile_shader(post_vert_src, post_palette_frag_src);
-        rd->text_shader = gl_compile_shader(planar_vert_src, text_frag_src);
 
         rd->target_buf = gl_create_framebuffer(platform->target_size);
         rd->back_buf = gl_get_backbuffer(platform->screen_size);
@@ -228,26 +238,52 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
     const int max_width = 2 + pixel_to_tile(offset.x + platform->target_size.w, tiles->tile_size, map->width);
     const int max_height = 2 + pixel_to_tile(offset.y + platform->target_size.h, tiles->tile_size, map->height);
 
+    /* set up shader and uniforms */
+    if(!rd->cached_textures[tiles->id].cached) {
+        rd->cached_textures[tiles->id].tex = upload_texture(tiles->data, tiles->width, tiles->height);
+        rd->cached_textures[tiles->id].cached = true;
+    }
+
+    glUseProgram(rd->tilemap_shader);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, rd->cached_textures[tiles->id].tex);
+    const GLint sprite_tex_loc = glGetUniformLocation(rd->tilemap_shader, "sprite");
+    glUniform1i(sprite_tex_loc, 1);
+    const GLint uv_rect_loc = glGetUniformLocation(rd->tilemap_shader, "uv_rect");
+
     for(ty = pixel_to_tile(offset.y, tiles->tile_size, map->height); ty < max_height; ++ty) {
         for(tx = pixel_to_tile(offset.x, tiles->tile_size, map->width); tx < max_width; ++tx) {
             rect.x = (tiles->tile_size * tx) - offset.x;
             rect.y = (tiles->tile_size * ty) - offset.y;
 
-
             int tile_id = ids[ty * map->width + tx];
-            const buffer_t *buf = &tiles->data[(tiles->tile_size * tiles->tile_size) * tile_id];
 
-            // TODO: don't be hacky
-            int cache_id = 2000 + (1000 * tiles->id) + tile_id;
-            assert(cache_id < CACHE_MAX);
-            if(!rd->cached_textures[cache_id].cached) {
-                rd->cached_textures[cache_id].tex = upload_texture(buf, rect.w, rect.h);
-                rd->cached_textures[cache_id].cached = true;
-            }
+            const float uv_rect[4] = {
+                tile_id,
+                (tile_id * tiles->tile_size) / tiles->height,
+                (float)tiles->tile_size / tiles->width,   // this is how much to scale DOWN the uv
+                (float)tiles->tile_size / tiles->height
+            };
+            glUniform4fv(uv_rect_loc, 1, uv_rect);
+            
+            draw_quad(rd->tilemap_shader, rect);
 
-            draw_texture(rd->cached_textures[cache_id].tex, rect);
+            /*
+            // draw wireframe of quads
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glUseProgram(rd->flat_shader);
+            //draw_quad(rd->tilemap_shader, rect);
+            GLint color_loc = glGetUniformLocation(rd->flat_shader, "color_id");
+            glUniform1f(color_loc, 2 / 255.0f);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glUseProgram(rd->tilemap_shader);
+            */
         }
     }
+
+    glBindTexture(GL_TEXTURE_2D, 0); /* TODO: do we need these teardowns? */
+    glActiveTexture(GL_TEXTURE0);
+
     PROFILE_SECTION_END(RENDER_draw_tilemap)
 }
 
