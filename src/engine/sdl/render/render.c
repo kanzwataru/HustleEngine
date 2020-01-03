@@ -228,12 +228,6 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
     const int max_width = 2 + pixel_to_tile(offset.x + platform->target_size.w, tiles->tile_size, map->width);
     const int max_height = 2 + pixel_to_tile(offset.y + platform->target_size.h, tiles->tile_size, map->height);
 
-    glUseProgram(rd->sprite_shader);
-    glActiveTexture(GL_TEXTURE0 + 1);
-
-    GLint sprite_tex_loc = glGetUniformLocation(rd->sprite_shader, "sprite");
-    glUniform1i(sprite_tex_loc, 1);
-
     for(ty = pixel_to_tile(offset.y, tiles->tile_size, map->height); ty < max_height; ++ty) {
         for(tx = pixel_to_tile(offset.x, tiles->tile_size, map->width); tx < max_width; ++tx) {
             rect.x = (tiles->tile_size * tx) - offset.x;
@@ -251,15 +245,9 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
                 rd->cached_textures[cache_id].cached = true;
             }
 
-            glBindTexture(GL_TEXTURE_2D, rd->cached_textures[cache_id].tex);
-            draw_quad(rd->sprite_shader, rect);
-            //draw_texture(rd->cached_textures[cache_id].tex, rect);
+            draw_texture(rd->cached_textures[cache_id].tex, rect);
         }
     }
-
-    glBindTexture(GL_TEXTURE_2D, 0); /* TODO: do we need these teardowns? */
-    glActiveTexture(GL_TEXTURE0);
-
     PROFILE_SECTION_END(RENDER_draw_tilemap)
 }
 
