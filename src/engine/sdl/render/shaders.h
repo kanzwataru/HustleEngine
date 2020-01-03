@@ -88,3 +88,21 @@ static const char *text_frag_src =
 "   else\n"
 "       frag_col = vec4(color.rgb, 0);"
 "}\n\0";
+
+static const char *tilemap_frag_src = 
+"#version 330 core\n"
+"in vec2 uv;\n"
+"out vec4 frag_col;\n"
+
+"uniform vec4 uv_rect;\n"
+"uniform sampler1D palette;\n"
+"uniform sampler2D sprite;\n"
+
+"void main()\n"
+"{\n"
+"   vec2 scaled_uv = (uv + uv_rect.xy) * uv_rect.zw;\n"
+"   float id = texture(sprite, scaled_uv).r;\n"
+"   if(id == 0)\n"
+"       discard;\n"
+"   frag_col = texture(palette, id);\n"
+"}\n\0";

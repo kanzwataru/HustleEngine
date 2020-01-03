@@ -16,7 +16,8 @@
 struct TilesetAsset {
     uint16_t id;
     uint16_t tile_size;
-    uint16_t count;
+    uint16_t width;  /* on DOS, width == tile_size */
+    uint16_t height;
     uint16_t flags;
     byte data[1];    /* extends past struct */
 };

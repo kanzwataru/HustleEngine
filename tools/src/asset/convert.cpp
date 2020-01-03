@@ -152,18 +152,28 @@ int tileset_convert(const char *name, uint16_t id)
         return 1;
     }
 
-    int tile_count = (set->width / set->tile_size) * (set->height / set->tile_size);
-
-    /* write out in strip */
-    uint16_t header[4] = {
+    /* write out */
+    uint16_t header[5] = {
         require_fit(uint16_t, id),
         require_fit(uint16_t, set->tile_size),
-        require_fit(uint16_t, set->tile_size),
-        require_fit(uint16_t, tile_count),
+        require_fit(uint16_t, set->width),
+        require_fit(uint16_t, set->height),
+        0, //flags
     };
 
     fwrite(&header, sizeof(header), 1, stdout);
-    write_as_strip(bmp, image_info.width, image_info.height, set->tile_size);
+
+    if(global::platform == "unix") {
+        /* write out directly as atlas texture (to use with opengl) */
+        fwrite(bmp + 0, 1, image_info.width * image_info.height, stdout);
+    }
+    else if(global::platform == "dos") {
+        /* write out in one long strip (like spritesheets) */
+        write_as_strip(bmp, image_info.width, image_info.height, set->tile_size);
+    }
+    else {
+        assert(0);
+    }
 
     return 0;
 }
