@@ -14,6 +14,8 @@ static void *memory = NULL;
 
 extern int HANDSHAKE_FUNCTION_NAME(struct Game *game, void *memory);
 
+FILE *logdev; /* global */
+
 static void cleanup(void)
 {
     engine_quit(&platform);
@@ -37,6 +39,9 @@ int main(int argc, char **argv)
     if(!memory)
         err("Bad alloc");
 
+    logdev = fopen("log.txt", "w");
+    assert(logdev);
+
     /* initialize game */
     HANDSHAKE_FUNCTION_NAME(&game_table, memory);
     engine_init(&platform);
@@ -57,6 +62,8 @@ int main(int argc, char **argv)
 
     /* cleanup */
     cleanup();
+
+    fclose(logdev);
 
     return 0;
 }

@@ -36,14 +36,14 @@ void _profiling_frame_start(void)
 
 void _profiling_frame_end(void)
 {
-    printf("\nframe timings begin\n");
+    fprintf(logdev, "\nframe timings begin\n");
     for(int i = 0; i < section_top; ++i) {
         struct SectionContext *ctx = &sections[i].ctx_copy;
-        printf("\tsection: %s (at %s)\n", ctx->name, ctx->line);
-        printf("\t\tfunction '%s' in '%s'\n", ctx->func_name, ctx->file);
-        printf("\t\tmilliseconds: %f\n", sections[i].milliseconds);
+        fprintf(logdev, "\tsection: %s (at %s)\n", ctx->name, ctx->line);
+        fprintf(logdev, "\t\tfunction '%s' in '%s'\n", ctx->func_name, ctx->file);
+        fprintf(logdev, "\t\tmilliseconds: %f\n", sections[i].milliseconds);
     }
-    printf("frame timings end\n");
+    fprintf(logdev, "frame timings end\n");
 }
 
 #endif /* HE_PROFILING enabled */

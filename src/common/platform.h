@@ -14,6 +14,8 @@
 
     typedef uint8_t     buffer_t;
     typedef uint8_t     byte;
+
+    #define logdev      stdout
 #endif
 
 #ifdef HE_PLATFORM_DOS
@@ -33,6 +35,8 @@
     enum bool_vals_t { true = 1, false = 0 };
 
     typedef void __interrupt (*interrupt_t)(void);
+
+    extern FILE *logdev;
 #endif
 
 #endif
