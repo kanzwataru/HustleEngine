@@ -159,6 +159,8 @@ static GLuint upload_texture(const buffer_t *buf, int width, int height)
 
 static void draw_texture(GLuint tex, Rect xform)
 {
+    PROFILE_SECTION_BEGIN(RENDER_local_draw_texture)
+
     glUseProgram(rd->sprite_shader);
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -169,6 +171,8 @@ static void draw_texture(GLuint tex, Rect xform)
 
     glBindTexture(GL_TEXTURE_2D, 0); /* TODO: do we need these teardowns? */
     glActiveTexture(GL_TEXTURE0);
+
+    PROFILE_SECTION_END(RENDER_local_draw_texture)
 }
 
 void renderer_draw_texture(const struct TextureAsset *texture, Rect xform)

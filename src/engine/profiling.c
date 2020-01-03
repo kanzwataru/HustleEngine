@@ -1,5 +1,7 @@
 #include "profiling.h"
 
+#define TRACY_ONLY
+
 #ifdef HE_PROFILING
 #include "engine.h"
 #include <stdio.h>
@@ -9,12 +11,15 @@ struct SectionTiming {
     double milliseconds;
 };
 
+#ifndef TRACY_ONLY
 #define SECTION_MAX 512
 static struct SectionTiming sections[SECTION_MAX];
 static size_t section_top = 0;
+#endif
 
 void _profiling_section_begin(struct SectionContext *ctx)
 {
+#ifndef TRACY_ONLY
     ctx->id = section_top;
     sections[ctx->id].ctx_copy = *ctx;
 
@@ -22,20 +27,26 @@ void _profiling_section_begin(struct SectionContext *ctx)
     assert(section_top < SECTION_MAX);
 
     timer_start();
+#endif
 }
 
 void _profiling_section_end(struct SectionContext *ctx)
 {
+#ifndef TRACY_ONLY
     sections[ctx->id].milliseconds = timer_stop_get_ms();
+#endif
 }
 
 void _profiling_frame_start(void)
 {
+#ifndef TRACY_ONLY
     section_top = 0;
+#endif
 }
 
 void _profiling_frame_end(void)
 {
+#ifndef TRACY_ONLY
     fprintf(logdev, "\nframe timings begin\n");
     for(int i = 0; i < section_top; ++i) {
         struct SectionContext *ctx = &sections[i].ctx_copy;
@@ -44,6 +55,7 @@ void _profiling_frame_end(void)
         fprintf(logdev, "\t\tmilliseconds: %f\n", sections[i].milliseconds);
     }
     fprintf(logdev, "frame timings end\n");
+#endif
 }
 
 #endif /* HE_PROFILING enabled */
