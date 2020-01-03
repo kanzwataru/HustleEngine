@@ -173,6 +173,16 @@ void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *
     glDeleteTextures(1, &tex);
 }
 
+static int pixel_to_tile(int pixel, int size, int max)
+{
+    int a = (pixel / size);
+    if(a % size) a -= 1;
+    if(a < 0) a = 0;
+    if(a >= max) a = max - 1;
+
+    return a;
+}
+
 void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset)
 {
     int ty, tx;
@@ -183,8 +193,11 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
     rect.w = tiles->tile_size;
     rect.h = tiles->tile_size;
 
-    for(ty = 0; ty < map->height; ++ty) {
-        for(tx = 0; tx < map->width; ++tx) {
+    const int max_width = 2 + pixel_to_tile(offset.x + platform->target_size.w, tiles->tile_size, map->width);
+    const int max_height = 2 + pixel_to_tile(offset.y + platform->target_size.h, tiles->tile_size, map->height);
+
+    for(ty = pixel_to_tile(offset.y, tiles->tile_size, map->height); ty < max_height; ++ty) {
+        for(tx = pixel_to_tile(offset.x, tiles->tile_size, map->width); tx < max_width; ++tx) {
             rect.x = (tiles->tile_size * tx) - offset.x;
             rect.y = (tiles->tile_size * ty) - offset.y;
 
