@@ -94,6 +94,8 @@ void renderer_flip(void)
 
     SDL_GL_SwapWindow(platform->window_handle);
     glClear(GL_COLOR_BUFFER_BIT); /* add a clear request here to force GL flush and block for VSync */
+    //glFlush();
+    //glFinish();
     gl_set_framebuffer(&rd->target_buf);
     
     PROFILE_SECTION_END(RENDER_flip)
@@ -253,6 +255,8 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
 
     for(ty = pixel_to_tile(offset.y, tiles->tile_size, map->height); ty < max_height; ++ty) {
         for(tx = pixel_to_tile(offset.x, tiles->tile_size, map->width); tx < max_width; ++tx) {
+            PROFILE_SECTION_BEGIN(RENDER_local_draw_tilemap)
+            
             rect.x = (tiles->tile_size * tx) - offset.x;
             rect.y = (tiles->tile_size * ty) - offset.y;
 
@@ -278,6 +282,8 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glUseProgram(rd->tilemap_shader);
             */
+
+            PROFILE_SECTION_END(RENDER_local_draw_tilemap)
         }
     }
 
