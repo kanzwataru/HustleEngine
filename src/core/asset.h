@@ -5,7 +5,7 @@
 
 /* handle */
 struct AssetHandle {
-    uint16_t offset;
+    uint32_t offset;
     byte *pak_file;
 };
 
@@ -27,7 +27,7 @@ typedef struct AssetHandle assetid_t;
 #define asset_handle_to(_name, _type, _pak) \
     asset_make_handle(ASSET_##_name, _pak)
 
-struct AssetHandle asset_make_handle(uint16_t offset, byte *pak_file);
+struct AssetHandle asset_make_handle(uint32_t offset, byte *pak_file);
 
 /* asset loading functions */
 void asset_load_pak(byte *asset_pak, const char *file_name);
