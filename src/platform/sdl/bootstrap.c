@@ -180,6 +180,8 @@ int main(int argc, char **argv)
     memory = malloc(33000000);
     if(!memory)
         err("Could not allocate memory");
+    
+    srand(((int)argv * (int)memory));
 
     platform.screen_size = (Rect){0, 0, WIDTH * 2, HEIGHT * 2};
     platform.target_size = (Rect){0, 0, WIDTH, HEIGHT};
