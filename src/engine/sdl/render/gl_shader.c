@@ -1,5 +1,4 @@
 #include "gl.h"
-#include "gl_debug.h"
 
 static void check_shader_compilation(GLuint shader)
 {
@@ -50,8 +49,6 @@ shaderid_t gl_compile_shader(const char *vert_src, const char *frag_src)
 
     glDeleteShader(vert);
     glDeleteShader(frag);
-
-    check_gl_error();
 
     return shader;
 }
