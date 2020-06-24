@@ -120,11 +120,11 @@ void render(void) {
     renderer_clear(0);
 
     for(i = 0; i < g->cube_num; ++i) {
-        renderer_draw_rect(g->cubes[i].rect, 1);
+        renderer_draw_rect(1, g->cubes[i].rect);
     }
 
     if(math_clip_rect(g->player_cube, &screen_rect, &player_offset, &player_clipped))
-        renderer_draw_rect(player_clipped, 2);
+        renderer_draw_rect(2, player_clipped);
 
     renderer_flip();
 }

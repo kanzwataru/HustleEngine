@@ -8,6 +8,7 @@
 #include "convert.hpp"
 #include "util.hpp"
 extern "C" {
+    #include "asset_types.h"
     #include "asset_config.h"
     #include "lib/conv.h"
 }
@@ -47,6 +48,11 @@ static void write_as_strip(const uint8_t *buf, int width, int height, int tile_s
     }
 }
 
+static void write_asset_type(uint16_t asset_type)
+{
+    fwrite(&asset_type, sizeof(asset_type), 1, stdout);
+}
+
 int texture_convert(const char *name, uint16_t id)
 {
     const auto *tex = config_find_in(name, config_get(Texture), config_count(Texture));
@@ -65,6 +71,8 @@ int texture_convert(const char *name, uint16_t id)
     /* write out flat bitmap */
     uint16_t size = tex->width * tex->height;
     uint16_t header[5] = {id, uint16_t(tex->width), uint16_t(tex->height), 0, size};
+
+    write_asset_type(ASSET_Texture);
     fwrite(&header, sizeof(header), 1, stdout);
     fwrite(bmp, 1, size, stdout);
 
@@ -83,6 +91,8 @@ int palette_convert(const char *name, uint16_t id)
 
     /* write out palette */
     uint8_t size = 255;     /* assume 256-colour palette */
+
+    write_asset_type(ASSET_Palette);
     fwrite(&size, sizeof(size), 1, stdout);
     fwrite(pal_data, 1, (size + 1) * 3, stdout);
 
@@ -126,6 +136,7 @@ int spritesheet_convert(const char *name, uint16_t id)
     }
 
     /* write out spritesheet */
+    write_asset_type(ASSET_Spritesheet);
     fwrite(&id_out, sizeof(id_out), 1, stdout);
     fwrite(header, sizeof(header), 1, stdout);
     fwrite(&flags, sizeof(flags), 1, stdout);
@@ -161,6 +172,7 @@ int tileset_convert(const char *name, uint16_t id)
         0, //flags
     };
 
+    write_asset_type(ASSET_Tileset);
     fwrite(&header, sizeof(header), 1, stdout);
 
     if(global::platform == "unix") {
@@ -202,6 +214,8 @@ int tilemap_convert(const char *name, uint16_t id)
         require_fit(uint16_t, map->tile_size),
         0
     };
+
+    write_asset_type(ASSET_Tilemap);
     fwrite(header, sizeof(header), 1, stdout);
     fwrite(map_data.get(), 1, size, stdout);
     fclose(fp);
@@ -222,7 +236,7 @@ int font_convert(const char *name, uint16_t id)
     const int image_width = 128;
     const int image_height = 128;
     const int per_line = image_width / font_size;
-    
+
     std::unique_ptr<uint8_t> image_buf(new uint8_t[image_width * image_height]);
     memset(image_buf.get(), 0, image_width * image_height);
 
@@ -234,7 +248,7 @@ int font_convert(const char *name, uint16_t id)
     fseek(font_file, 0, SEEK_SET);
 
     std::unique_ptr<uint8_t> font_buf(new uint8_t[size]);
-    
+
     fread(font_buf.get(), size, 1, font_file);
     fclose(font_file);
 
@@ -263,7 +277,7 @@ int font_convert(const char *name, uint16_t id)
 
         const int y = (line * font_size) + (ascent + min_y);
         stbtt_MakeCodepointBitmap(&info, image_buf.get() + (x + (y * image_width)), max_x - min_x, max_y - min_y, image_width, scale, scale, c);
-    
+
         x += font_size; /* assume square character, fixed width */
         if(++char_count == per_line) {
             char_count = 0;
@@ -286,6 +300,7 @@ int font_convert(const char *name, uint16_t id)
     };
     uint8_t out_font_size = require_fit(uint8_t, font_size);
 
+    write_asset_type(ASSET_Font);
     fwrite(&header, sizeof(header), 1, stdout);
     fwrite(&out_font_size, sizeof(out_font_size), 1, stdout);
 

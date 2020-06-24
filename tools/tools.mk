@@ -5,11 +5,11 @@ TOOLS_SRCDIRS		= asset lib
 
 TOOLS_SRC			= $(foreach dir, $(TOOLS_SRCDIRS), $(wildcard $(TOOLS_DIR)/src/$(dir)/*.c) $(wildcard $(TOOLS_DIR)/src/$(dir)/*.cpp))
 TOOLS_OBJ			= $(filter %.o, $(patsubst %.cpp, %.o, $(TOOLS_SRC)) $(patsubst %.c, %.o, $(TOOLS_SRC)))
-TOOLS_INCLUDE		= $(TOOLS_DIR)/src
+TOOLS_INCLUDE		= -I$(TOOLS_DIR)/src -I$(ENGINE_DIR)/src
 
 TOOLS_CC			= gcc
 TOOLS_CXX			= g++
-TOOLS_CFLAGS		= -I$(TOOLS_INCLUDE) -O0 -Wpedantic -Wall -Werror -Isrc
+TOOLS_CFLAGS		= $(TOOLS_INCLUDE) -O2 -Wpedantic -Wall -Werror -Isrc -Wno-unused-variable
 TOOLS_CXXFLAGS		= $(TOOLS_CFLAGS) -std=c++11
 TOOLS_LDFLAGS		= -lm
 
