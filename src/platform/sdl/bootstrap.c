@@ -134,6 +134,8 @@ bool sdl_handle_events(void) {
         case SDL_KEYDOWN:
             if(e.key.keysym.sym == SDLK_F5)
                 recompile();
+            if(e.key.keysym.sym == SDLK_ESCAPE)
+                return false;
             break;
         }
     }
