@@ -173,15 +173,26 @@ static void game_loop(void)
 
         game_table.input();
         game_table.update();
+
+        uint64_t start = SDL_GetPerformanceCounter();
         game_table.render();
+        uint64_t soft_end = SDL_GetPerformanceCounter();
 
         
         #if !WITH_OPENGL
         SDL_UpdateTexture(texture, NULL, platform.renderer.rgba_buf, 320 * sizeof(uint32_t));
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
+        
+        uint64_t end = SDL_GetPerformanceCounter();
         SDL_RenderPresent(renderer);
         #endif
+
+        #define to_ms(s, e) ((double)(e - s) * 1000.0) / SDL_GetPerformanceFrequency()
+
+        double soft_ms = to_ms(start, soft_end);
+        double copy_ms = to_ms(soft_end, end);
+        printf("%2.2fms <- (render: %2.2fms) (copy/present: %2.2fms)\n", soft_ms + copy_ms, soft_ms, copy_ms);
         //SDL_GL_SwapWindow(platform.window_handle);
     }
 
