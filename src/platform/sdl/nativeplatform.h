@@ -2,7 +2,9 @@
 #define SDL_PLATFORM_H
 
 #include <SDL2/SDL.h>
-#include "engine/sdl/render/internal.h"
+#include "common/platform.h"
+#include "common/mathlib.h"
+#include "engine/sdl/render/soft/internal.h"
 #include "engine/sdl/engine/internal.h"
 
 #define WIDTH   320

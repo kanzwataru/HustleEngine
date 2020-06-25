@@ -175,17 +175,17 @@ int tileset_convert(const char *name, uint16_t id)
     write_asset_type(ASSET_Tileset);
     fwrite(&header, sizeof(header), 1, stdout);
 
-    if(global::platform == "unix") {
+    //if(global::platform == "unix") {
         /* write out directly as atlas texture (to use with opengl) */
-        fwrite(bmp + 0, 1, image_info.width * image_info.height, stdout);
-    }
-    else if(global::platform == "dos") {
+    //    fwrite(bmp + 0, 1, image_info.width * image_info.height, stdout);
+    //}
+    //else if(global::platform == "dos") {
         /* write out in one long strip (like spritesheets) */
         write_as_strip(bmp, image_info.width, image_info.height, set->tile_size);
-    }
-    else {
-        assert(0);
-    }
+    //}
+    //else {
+    //    assert(0);
+    //}
 
     return 0;
 }
@@ -304,17 +304,17 @@ int font_convert(const char *name, uint16_t id)
     fwrite(&header, sizeof(header), 1, stdout);
     fwrite(&out_font_size, sizeof(out_font_size), 1, stdout);
 
-    if(global::platform == "unix") {
+    //if(global::platform == "unix") {
         /* write out directly as atlas texture (to use with opengl) */
-        fwrite(image_buf.get(), 1, image_width * image_height, stdout);
-    }
-    else if(global::platform == "dos") {
+    //    fwrite(image_buf.get(), 1, image_width * image_height, stdout);
+    //}
+    //else if(global::platform == "dos") {
         /* write out in one long strip (like spritesheets) */
         write_as_strip(image_buf.get(), image_width, image_height, font_size);
-    }
-    else {
-        assert(0);
-    }
+    //}
+    //else {
+    //    assert(0);
+    //}
 
     return 0;
 }

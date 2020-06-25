@@ -6,9 +6,7 @@ INCLUDE_DIR	+= $(ENGINE_DIR)/src/extern/glad/include
 EXTERN_SRC  := extern/glad/src/glad.c
 
 ENGINE_SRC  += engine/sdl/engine/engine.c \
- 			   engine/sdl/render/render.c \
-			   engine/sdl/render/gl.c \
-			   engine/sdl/render/gl_shader.c \
+ 			   engine/sdl/render/soft/render.c \
 			   $(EXTERN_SRC)
 
 ifeq ($(OS), Windows_NT)
