@@ -18,7 +18,9 @@ endif
 DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=$(LIB_EXT) HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
 
 CORE_SRC	:= platform/sdl/bootstrap.c \
-			   platform/sdl/render_display_sdl.c \
+			   platform/sdl/render_display_opengl.c \
+			   platform/sdl/gl/gl.c \
+			   platform/sdl/gl/gl_shader.c \
 			   $(EXTERN_SRC)
 
 CORE_TARGET := $(BUILD_DIR)/$(GAME_NAME)

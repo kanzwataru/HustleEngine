@@ -2,6 +2,7 @@
 #include "platform/bootstrap.h"
 #include "engine/init.h"
 #include "nativeplatform.h"
+#include "render_display.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -84,13 +85,6 @@ static void sdl_init(void)
 
     sdl_loaded = true;
 
-#if WITH_OPENGL
-    SDL_GL_LoadLibrary(NULL);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-#endif
-
     platform.window_handle = SDL_CreateWindow(
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
@@ -105,27 +99,12 @@ static void sdl_init(void)
     platform.screen_size = (Rect){0, 0, w, h};
     printf("%d %d\n", platform.screen_size.w, platform.screen_size.h);
 
-#if WITH_OPENGL
-    platform.gl_context = SDL_GL_CreateContext(platform.window_handle);
-    if(!platform.gl_context) {
-        err(SDL_GetError());
-    }
-
-    SDL_GL_SetSwapInterval(1);
-#else
     display_init(&platform);
-#endif
 }
 
 static void sdl_quit(void)
 {
-#if WITH_OPENGL
-    if(platform.gl_context) {
-        SDL_GL_DeleteContext(platform.gl_context);
-    }
-#else
     display_quit(&platform);
-#endif
 
     if(platform.window_handle) {
         SDL_DestroyWindow(platform.window_handle);
@@ -170,18 +149,15 @@ static void game_loop(void)
         game_table.render();
         uint64_t soft_end = SDL_GetPerformanceCounter();
 
-
-        #if !WITH_OPENGL
         display_present(&platform);
         uint64_t end = SDL_GetPerformanceCounter();
-        #endif
+        display_swap_buffers(&platform);
 
         #define to_ms(s, e) ((double)(e - s) * 1000.0) / SDL_GetPerformanceFrequency()
-
         double soft_ms = to_ms(start, soft_end);
         double copy_ms = to_ms(soft_end, end);
+        #undef  to_ms
         printf("%2.2fms <- (render: %2.2fms) (copy/present: %2.2fms)\n", soft_ms + copy_ms, soft_ms, copy_ms);
-        //SDL_GL_SwapWindow(platform.window_handle);
     }
 
     game_table.quit();
