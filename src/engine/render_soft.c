@@ -12,46 +12,6 @@ struct Texture {
 static buffer_t backbuf[320 * 200];
 static const Rect screen_bounds = {0, 0, 320, 200};
 
-/*
-void renderer_init(struct PlatformData *pd)
-{
-    _asm {
-        mov ax, 0x0013
-        int 0x10
-    }
-}
-
-void renderer_quit(struct PlatformData *pd)
-{
-    _asm {
-        mov ax, 0x0003
-        int 0x10
-    }
-}
-
-void renderer_flip(void)
-{
-    while(inp(INPUT_STATUS_0) & 8) {}
-    while(!(inp(INPUT_STATUS_0) & 8)) {}
-
-    memcpy((void *)vga_mem, backbuf, 320 * 200);
-}
-
-void renderer_set_palette(const buffer_t *pal, byte offset, byte count)
-{
-    int i;
-
-    outp(PALETTE_INDEX, 0);
-    for(i = offset; i < count * 3; ++i)
-        outp(PALETTE_INDEX + 1, pal[i] >> 2);
-}
-
-void renderer_get_palette(buffer_t *pal, byte offset, byte count)
-{
-
-}
-*/
-
 void renderer_clear(byte clear_col)
 {
     memset((void *)backbuf, clear_col, 320 * 200);
