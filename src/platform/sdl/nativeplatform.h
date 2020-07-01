@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include "common/platform.h"
 #include "common/mathlib.h"
-#include "engine/sdl/render/soft/internal.h"
+#include "engine/sdl/render/internal.h"
 #include "engine/sdl/engine/internal.h"
 
 #define WIDTH   320
@@ -21,11 +21,6 @@ struct PlatformData {
 
     struct EngineData engine;
     struct RenderData renderer;
-
-#if !WITH_OPENGL
-    SDL_Renderer *sdl_renderer;
-    SDL_Texture *sdl_texture;
-#endif
 };
 
 #endif
