@@ -25,9 +25,9 @@ void renderer_flip(void)
 void renderer_set_palette(const buffer_t *pal, byte offset, byte count)
 {
     for(int i = offset; i < count; ++i) {
-        rd->palette[i] = (0xFF << 24) | 
-                         ((uint32_t)pal[i * 3 + 0] << 16) | 
-                         ((uint32_t)pal[i * 3 + 1] << 8) | 
+        rd->palette[i] = (0xFF << 24) |
+                         ((uint32_t)pal[i * 3 + 0] << 16) |
+                         ((uint32_t)pal[i * 3 + 1] << 8) |
                          ((uint32_t)pal[i * 3 + 2]);
     }
 }
@@ -35,4 +35,3 @@ void renderer_set_palette(const buffer_t *pal, byte offset, byte count)
 void renderer_get_palette(buffer_t *pal, byte offset, byte count)
 {
 }
-

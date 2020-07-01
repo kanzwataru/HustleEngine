@@ -9,18 +9,11 @@
 #define GAME_LIB "./game.running." STRINGIFY(HE_LIB_EXT)
 #define GAME_ORIG_LIB "./game." STRINGIFY(HE_LIB_EXT)
 
-#define WITH_OPENGL 0
-
 static struct PlatformData platform = {0};
 static struct Game game_table;
 static bool sdl_loaded = false;
 static void *lib_handle = NULL;
 static void *memory = NULL;
-
-#if !WITH_OPENGL
-static SDL_Renderer *renderer;
-static SDL_Texture *texture;
-#endif
 
 static void warn(const char *err_msg)
 {
@@ -94,8 +87,8 @@ static void sdl_init(void)
 #if WITH_OPENGL
     SDL_GL_LoadLibrary(NULL);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #endif
 
     platform.window_handle = SDL_CreateWindow(
@@ -120,20 +113,19 @@ static void sdl_init(void)
 
     SDL_GL_SetSwapInterval(1);
 #else
-    renderer = SDL_CreateRenderer(platform.window_handle, SDL_RENDERER_ACCELERATED, SDL_RENDERER_PRESENTVSYNC);
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
-    SDL_RenderSetLogicalSize(renderer, 320, 200);
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
-                                          SDL_TEXTUREACCESS_STREAMING, 320, 200);
+    display_init(&platform);
 #endif
 }
 
 static void sdl_quit(void)
 {
+#if WITH_OPENGL
     if(platform.gl_context) {
         SDL_GL_DeleteContext(platform.gl_context);
     }
+#else
+    display_quit(&platform);
+#endif
 
     if(platform.window_handle) {
         SDL_DestroyWindow(platform.window_handle);
@@ -178,14 +170,10 @@ static void game_loop(void)
         game_table.render();
         uint64_t soft_end = SDL_GetPerformanceCounter();
 
-        
+
         #if !WITH_OPENGL
-        SDL_UpdateTexture(texture, NULL, platform.renderer.rgba_buf, 320 * sizeof(uint32_t));
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        
+        display_present(&platform);
         uint64_t end = SDL_GetPerformanceCounter();
-        SDL_RenderPresent(renderer);
         #endif
 
         #define to_ms(s, e) ((double)(e - s) * 1000.0) / SDL_GetPerformanceFrequency()

@@ -10,15 +10,22 @@
 #define WIDTH   320
 #define HEIGHT  200
 
+#define WITH_OPENGL 0
+
 struct PlatformData {
     SDL_Window   *window_handle;
     SDL_GLContext gl_context;
 
     Rect screen_size;
     Rect target_size;
-    
+
     struct EngineData engine;
     struct RenderData renderer;
+
+#if !WITH_OPENGL
+    SDL_Renderer *sdl_renderer;
+    SDL_Texture *sdl_texture;
+#endif
 };
 
 #endif
