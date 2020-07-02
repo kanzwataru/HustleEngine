@@ -19,12 +19,17 @@ void renderer_clear(byte clear_col)
 
 void renderer_draw_rect(byte color, Rect xform)
 {
-    register buffer_t *buf = backbuf + (xform.y * 320 + xform.x);
+    register buffer_t *buf;
+    Rect clipped;
+    Point offset;
 
-    while(xform.h --> 0) {
-        memset(buf, color, xform.w);
+    if(math_clip_rect(xform, &screen_bounds, &offset, &clipped)) {
+        buf = backbuf + (clipped.y * 320 + clipped.x);
+        while(clipped.h --> 0) {
+            memset(buf, color, clipped.w);
 
-        buf += 320;
+            buf += 320;
+        }
     }
 }
 
@@ -105,7 +110,7 @@ void renderer_draw_line(byte color, const Point *line, size_t count)
         y = dxabs >> 1;
         px = CLAMP(line[ln - 1].x, 0, 320);
         py = CLAMP(line[ln - 1].y, 0, 200);
-        
+
         if(dxabs >= dyabs) {
             for(i = 0; i < dxabs; ++i) {
                 y += dyabs;
@@ -146,7 +151,7 @@ void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *
     blit_buffer(frame, xform);
 }
 
-void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset) 
+void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset)
 {
     int ty, tx;
     Rect rect;
@@ -163,7 +168,7 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
 
             blit_buffer(&tiles->data[(rect.w * rect.h) * ids[ty * map->width + tx]], rect);
         }
-    } 
+    }
 }
 
 void renderer_draw_text(const struct FontAsset *font, const char *str, byte color, Rect bounds)
