@@ -145,18 +145,18 @@ static void game_loop(void)
         game_table.input();
         game_table.update();
 
-        uint64_t start = SDL_GetPerformanceCounter();
+        //uint64_t start = SDL_GetPerformanceCounter();
         game_table.render();
-        uint64_t soft_end = SDL_GetPerformanceCounter();
+        //uint64_t soft_end = SDL_GetPerformanceCounter();
 
         display_present(&platform);
-        uint64_t end = SDL_GetPerformanceCounter();
+        //uint64_t end = SDL_GetPerformanceCounter();
         display_swap_buffers(&platform);
 
-        #define to_ms(s, e) ((double)(e - s) * 1000.0) / SDL_GetPerformanceFrequency()
-        double soft_ms = to_ms(start, soft_end);
-        double copy_ms = to_ms(soft_end, end);
-        #undef  to_ms
+        //#define to_ms(s, e) ((double)(e - s) * 1000.0) / SDL_GetPerformanceFrequency()
+        //double soft_ms = to_ms(start, soft_end);
+        //double copy_ms = to_ms(soft_end, end);
+        //#undef  to_ms
         //printf("%2.2fms <- (render: %2.2fms) (copy/present: %2.2fms)\n", soft_ms + copy_ms, soft_ms, copy_ms);
     }
 
