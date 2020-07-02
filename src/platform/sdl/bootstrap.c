@@ -89,9 +89,9 @@ static void sdl_init(void)
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        platform.screen_size.w * 2, platform.screen_size.h * 2,
+        platform.screen_size.w, platform.screen_size.h,
         //SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP
-        SDL_WINDOW_OPENGL
+        SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
     );
 
     int w, h;
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
     if(!memory)
         err("Could not allocate memory");
 
-    platform.screen_size = (Rect){0, 0, WIDTH * 2, HEIGHT * 2};
+    platform.screen_size = (Rect){0, 0, 1280, 720};
     platform.target_size = (Rect){0, 0, WIDTH, HEIGHT};
 
     sdl_init();
