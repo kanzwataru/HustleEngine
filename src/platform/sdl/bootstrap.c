@@ -157,7 +157,7 @@ static void game_loop(void)
         double soft_ms = to_ms(start, soft_end);
         double copy_ms = to_ms(soft_end, end);
         #undef  to_ms
-        printf("%2.2fms <- (render: %2.2fms) (copy/present: %2.2fms)\n", soft_ms + copy_ms, soft_ms, copy_ms);
+        //printf("%2.2fms <- (render: %2.2fms) (copy/present: %2.2fms)\n", soft_ms + copy_ms, soft_ms, copy_ms);
     }
 
     game_table.quit();
