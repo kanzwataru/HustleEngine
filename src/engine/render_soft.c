@@ -153,16 +153,19 @@ void renderer_draw_sprite(const struct SpritesheetAsset *sheet, const buffer_t *
 
 void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetAsset *tiles, Point offset)
 {
-    int ty, tx;
     Rect rect;
     const uint16_t *ids = (const uint16_t *)map->data;
 
     rect.w = tiles->tile_size;
     rect.h = tiles->tile_size;
 
-    // TODO: do a better job of skipping off-screen tiles
-    for(ty = 0; ty < map->height; ++ty) {
-        for(tx = 0; tx < map->width; ++tx) {
+    int tx_start = offset.x / rect.w;
+    int ty = offset.y / rect.h;
+    const int width  = MIN(map->width,  tx_start + 2 + (320 / rect.w));
+    const int height = MIN(map->height, ty + 2 + (200 / rect.h));
+
+    for(; ty < height; ++ty) {
+        for(int tx = tx_start; tx < width; ++tx) {
             rect.x = (rect.w * tx) - offset.x;
             rect.y = (rect.h * ty) - offset.y;
 
