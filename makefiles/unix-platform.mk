@@ -46,9 +46,10 @@ endif
 ######################################################
 # build settings
 ifeq ($(DEBUG_BUILD), true)
-CFLAGS		+= -O0 -g3 -DDEBUG -Wextra
+CFLAGS		+= -O0 -g3 -DDEBUG -Wextra -fsanitize=address
+LDFLAGS		+= -fsanitize=address
 else
-CFLAGS		+= -O2 -Werror
+CFLAGS		+= -O2 -Werror -Wno-unused-variable
 endif
 ######################################################
 

@@ -166,7 +166,10 @@ void renderer_draw_tilemap(const struct TilemapAsset *map, const struct TilesetA
             rect.x = (rect.w * tx) - offset.x;
             rect.y = (rect.h * ty) - offset.y;
 
-            blit_buffer(&tiles->data[(rect.w * rect.h) * ids[ty * map->width + tx]], rect);
+            uint16_t id = ids[ty * map->width + tx];
+            if(id != 0xFFFF) {
+                blit_buffer(&tiles->data[(rect.w * rect.h) * id], rect);
+            }
         }
     }
 }
