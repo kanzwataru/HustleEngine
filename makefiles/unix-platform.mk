@@ -9,6 +9,9 @@ ENGINE_SRC  += engine/sdl/engine/engine.c \
  			   engine/sdl/render/render.c \
 			   $(EXTERN_SRC)
 
+SHADER_SRC	:= $(wildcard $(ENGINE_DIR)/src/platform/sdl/shaders/*.glsl)
+SHADER_OUT	:= $(subst $(ENGINE_DIR)/src/platform/sdl/,$(BUILD_DIR)/,$(SHADER_SRC))
+
 ifeq ($(OS), Windows_NT)
 LIB_EXT		 = dll
 else
@@ -33,7 +36,7 @@ CORE_OBJ	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CORE_SRC))
 CORE_SRC	:= $(addprefix $(ENGINE_DIR)/src/,$(CORE_SRC))
 
 CFLAGS		:= -Wall -fPIC $(addprefix -I,$(INCLUDE_DIR)) $(addprefix -D,$(DEFINES))
-LDFLAGS		:= -lSDL2 -ldl
+LDFLAGS		:= -lSDL2 -ldl -lm
 
 ######################################################
 # windows (mingw/msys) support
@@ -73,7 +76,12 @@ $(LIB_TARGET): $(OBJ)
 	@rm $(dir $@)/lock
 	@echo "UNIX game library -> $(LIB_TARGET)"
 
-game: $(CORE_TARGET) $(LIB_TARGET)
+$(BUILD_DIR)/shaders/%.glsl: $(ENGINE_DIR)/src/platform/sdl/shaders/%.glsl
+	@mkdir -p `dirname $@`
+	@cp $^ $@
+	@echo Copied shader `basename $@`
+
+game: $(CORE_TARGET) $(LIB_TARGET) $(SHADER_OUT)
 
 run: all
 	@cd $(BUILD_DIR) && exec ./$(GAME_NAME)
