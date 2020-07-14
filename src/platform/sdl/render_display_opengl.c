@@ -85,7 +85,7 @@ void display_init(struct PlatformData *pd)
 
     pd->gl_context = SDL_GL_CreateContext(pd->window_handle);
     if(!pd->gl_context) {
-        fprintf(stderr, SDL_GetError());
+        fputs(SDL_GetError(), stderr);
         exit(1);
     }
 
