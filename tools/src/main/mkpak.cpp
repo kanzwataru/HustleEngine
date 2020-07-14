@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    FILE *out = fopen(out_file, "w");
+    FILE *out = fopen(out_file, "wb");
     assert(out);
 
     /* write out beginning of c header */
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
         assert(bytes_in == size);
         size_t bytes_out = fwrite(data, 1, size, out);
         assert(bytes_out == size);
-        delete data;
+        delete[] data;
 
         size_t padding = 16 - ((top + size) % 16); // pad to 16 bytes
         for(size_t _ = 0; _ < padding; ++_)

@@ -14,6 +14,7 @@ extern "C" {
 }
 
 std::string global::platform;
+FILE *global::out;
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "extern/stb_truetype.h"
@@ -41,7 +42,7 @@ static void write_as_strip(const uint8_t *buf, int width, int height, int tile_s
             assert(line <= (buf + (width * height)));
 
             for(int y = 0; y < tile_size; ++y) {
-                fwrite(line, 1, tile_size, stdout);
+                fwrite(line, 1, tile_size, global::out);
                 line += width;
             }
         }
@@ -50,7 +51,7 @@ static void write_as_strip(const uint8_t *buf, int width, int height, int tile_s
 
 static void write_asset_type(uint16_t asset_type)
 {
-    fwrite(&asset_type, sizeof(asset_type), 1, stdout);
+    fwrite(&asset_type, sizeof(asset_type), 1, global::out);
 }
 
 int texture_convert(const char *name, uint16_t id)
@@ -73,8 +74,8 @@ int texture_convert(const char *name, uint16_t id)
     uint16_t header[5] = {id, uint16_t(tex->width), uint16_t(tex->height), 0, size};
 
     write_asset_type(ASSET_Texture);
-    fwrite(&header, sizeof(header), 1, stdout);
-    fwrite(bmp, 1, size, stdout);
+    fwrite(&header, sizeof(header), 1, global::out);
+    fwrite(bmp, 1, size, global::out);
 
     return 0;
 }
@@ -93,8 +94,8 @@ int palette_convert(const char *name, uint16_t id)
     uint8_t size = 255;     /* assume 256-colour palette */
 
     write_asset_type(ASSET_Palette);
-    fwrite(&size, sizeof(size), 1, stdout);
-    fwrite(pal_data, 1, (size + 1) * 3, stdout);
+    fwrite(&size, sizeof(size), 1, global::out);
+    fwrite(pal_data, 1, (size + 1) * 3, global::out);
 
     return 0;
 }
@@ -137,13 +138,13 @@ int spritesheet_convert(const char *name, uint16_t id)
 
     /* write out spritesheet */
     write_asset_type(ASSET_Spritesheet);
-    fwrite(&id_out, sizeof(id_out), 1, stdout);
-    fwrite(header, sizeof(header), 1, stdout);
-    fwrite(&flags, sizeof(flags), 1, stdout);
-    fwrite(&base_offset, sizeof(base_offset), 1, stdout);
-    fwrite(&offset_table[0], sizeof(uint16_t), offset_table.size(), stdout);
+    fwrite(&id_out, sizeof(id_out), 1, global::out);
+    fwrite(header, sizeof(header), 1, global::out);
+    fwrite(&flags, sizeof(flags), 1, global::out);
+    fwrite(&base_offset, sizeof(base_offset), 1, global::out);
+    fwrite(&offset_table[0], sizeof(uint16_t), offset_table.size(), global::out);
 
-    fwrite(bmp, 1, image_info.width * image_info.height, stdout);
+    fwrite(bmp, 1, image_info.width * image_info.height, global::out);
 
     return 0;
 }
@@ -173,11 +174,11 @@ int tileset_convert(const char *name, uint16_t id)
     };
 
     write_asset_type(ASSET_Tileset);
-    fwrite(&header, sizeof(header), 1, stdout);
+    fwrite(&header, sizeof(header), 1, global::out);
 
     //if(global::platform == "unix") {
         /* write out directly as atlas texture (to use with opengl) */
-    //    fwrite(bmp + 0, 1, image_info.width * image_info.height, stdout);
+    //    fwrite(bmp + 0, 1, image_info.width * image_info.height, global::out);
     //}
     //else if(global::platform == "dos") {
         /* write out in one long strip (like spritesheets) */
@@ -216,8 +217,8 @@ int tilemap_convert(const char *name, uint16_t id)
     };
 
     write_asset_type(ASSET_Tilemap);
-    fwrite(header, sizeof(header), 1, stdout);
-    fwrite(map_data.get(), 1, size, stdout);
+    fwrite(header, sizeof(header), 1, global::out);
+    fwrite(map_data.get(), 1, size, global::out);
     fclose(fp);
 
     return 0;
@@ -301,12 +302,12 @@ int font_convert(const char *name, uint16_t id)
     uint8_t out_font_size = require_fit(uint8_t, font_size);
 
     write_asset_type(ASSET_Font);
-    fwrite(&header, sizeof(header), 1, stdout);
-    fwrite(&out_font_size, sizeof(out_font_size), 1, stdout);
+    fwrite(&header, sizeof(header), 1, global::out);
+    fwrite(&out_font_size, sizeof(out_font_size), 1, global::out);
 
     //if(global::platform == "unix") {
         /* write out directly as atlas texture (to use with opengl) */
-    //    fwrite(image_buf.get(), 1, image_width * image_height, stdout);
+    //    fwrite(image_buf.get(), 1, image_width * image_height, global::out);
     //}
     //else if(global::platform == "dos") {
         /* write out in one long strip (like spritesheets) */
