@@ -185,7 +185,7 @@ int main(int argc, char **argv)
     if(!memory)
         err("Could not allocate memory");
 
-    platform.screen_size = (Rect){0, 0, 1280, 720};
+    platform.screen_size = (Rect){0, 0, WIDTH * 4, HEIGHT * 4};
     platform.target_size = (Rect){0, 0, WIDTH, HEIGHT};
 
     sdl_init();
