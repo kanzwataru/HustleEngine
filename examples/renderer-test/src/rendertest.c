@@ -22,6 +22,7 @@ struct GameData {
     byte test_texture_data[sizeof(struct TextureAsset) + (16 * 16)];
     //byte test_font_atlas[sizeof(struct TextureAsset) + (256 * 128)];
 
+    struct PakMain *main;
     byte asset_pak[512000];
 };
 
@@ -47,10 +48,7 @@ static const char *example_string =
 void init(void)
 {
     int i;
-    struct TextureAsset *roy;
-    struct PaletteAsset *pal;
-
-    roy = asset_get(ROY, Texture, g->asset_pak);
+    struct TextureAsset *roy = &g->main->roy;
 
     /* initialize palette */
     for(i = 0; i < PALETTE_COLORS * 3; i += 3) {
@@ -61,8 +59,7 @@ void init(void)
     }
 
     //renderer_set_palette(g->palette, 0, 255);
-    pal = asset_get(PAL, Palette, g->asset_pak);
-    renderer_set_palette(pal->data, 0, pal->col_count);
+    renderer_set_palette(g->main->pal.data, 0, g->main->pal.col_count);
 
     /* initialize test texture */
     ((struct TextureAsset *)&g->test_texture_data)->width = 16;
@@ -91,13 +88,13 @@ void init(void)
     g->roy_rect.w = roy->width;
     g->roy_rect.h = roy->height;
 
-    g->sprites[0].spritesheet = asset_handle_to(CHAR_RUN, Spritesheet, g->asset_pak);
+    g->sprites[0].spritesheet = asset_handle_to(char_run, g->main, struct PakMain);
     g->sprites[0].current_frame = 0;
     g->sprites[0].rect.y = 64;
     g->sprites[0].rect.w = asset_from_handle_of(g->sprites[0].spritesheet, Spritesheet)->width;
     g->sprites[0].rect.h = asset_from_handle_of(g->sprites[0].spritesheet, Spritesheet)->height;
 
-    g->sprites[1].spritesheet = asset_handle_to(LARGE_RUN, Spritesheet, g->asset_pak);
+    g->sprites[1].spritesheet = asset_handle_to(large_run, g->main, struct PakMain);
     g->sprites[1].current_frame = 2;
     g->sprites[1].rect.x = 64;
     g->sprites[1].rect.y = 128;
@@ -126,7 +123,7 @@ void update(void)
 {
     int t_width;
     int t_height;
-    struct TilemapAsset *map = asset_get(CITY_BG, Tilemap, g->asset_pak);
+    struct TilemapAsset *map = &g->main->city_bg;
 
     t_width = map->tile_size * map->width;
     t_height = map->tile_size * map->height;
@@ -174,10 +171,10 @@ void update(void)
 
 void render(void)
 {
-    struct TextureAsset *roy = asset_get(ROY, Texture, g->asset_pak);
+    struct TextureAsset *roy = &g->main->roy;
     renderer_clear(30);
 
-    renderer_draw_tilemap(asset_get(CITY_BG, Tilemap, g->asset_pak), asset_get(STREET, Tileset, g->asset_pak), g->tile_offset);
+    renderer_draw_tilemap(&g->main->city_bg, &g->main->street, g->tile_offset);
     renderer_draw_texture(roy, g->roy_rect);
     renderer_draw_rect(12, g->bouncing_rect);
     sprite_draw(&g->sprites[0], 2);
@@ -185,7 +182,7 @@ void render(void)
     renderer_draw_texture((struct TextureAsset *)(&g->test_texture_data), g->spinning_rect);
 
     renderer_draw_rect(1, g->text_rect);
-    renderer_draw_text(asset_get(MED_FONT, Font, g->asset_pak), example_string, 4, g->text_rect);
+    renderer_draw_text(&g->main->med_font, example_string, 4, g->text_rect);
     /*
     //NOTE: temp
     renderer_draw_texture((struct TextureAsset *)(&g->test_font_atlas), (Rect){0, 0, 128, 128});
@@ -209,5 +206,6 @@ void HANDSHAKE_FUNCTION_NAME(struct Game *game, void *memory_chunk)
     game->quit = quit;
 
     /* load pak file */
-    asset_load_pak(g->asset_pak, "main.dat");
+    asset_load_pak(g->asset_pak, sizeof(g->asset_pak), "main.dat");
+    g->main = (struct PakMain *)g->asset_pak;
 }

@@ -19,12 +19,12 @@ std::map<std::string, conversion_handler> converters = {
 
 void help(void)
 {
-    fprintf(stderr, "mkasset [platform] [type] [name] [id] > [out file]\n");
+    fprintf(stderr, "mkasset [platform] [type] [name] [id] [out file]\n");
 }
 
 int main(int argc, char **argv)
 {
-    if(argc != 5) {
+    if(argc != 6) {
         help();
         return 1;
     }
@@ -33,6 +33,13 @@ int main(int argc, char **argv)
     const char *type = argv[2];
     const char *name = argv[3];
     int id = std::atoi(argv[4]);
+	const char *path = argv[5];
+
+	global::out = fopen(path, "wb");
+	if(!global::out) {
+		fprintf(stderr, "could not open %s for writing\n", path);
+		return 1;
+	}
 
     if(converters.count(type)) {
         return converters[type](name, id);

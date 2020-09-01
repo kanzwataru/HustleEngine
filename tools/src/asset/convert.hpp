@@ -2,6 +2,7 @@
 
 namespace global {
     extern std::string platform;
+	extern FILE *out;
 }
 
 typedef int (*conversion_handler)(const char *, uint16_t);

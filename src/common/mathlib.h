@@ -15,10 +15,11 @@ typedef struct Rect {
 bool math_clip_rect(Rect rect, const Rect * const bounds, Point *out_offset, Rect *out_rect);
 
 #define ABS(_v)             ((_v) > 0 ? (_v) : -(_v))
-#define CLAMP(_v, _mn, _mx) (((_v) > (_mx)) ? (_mx) : (((_v) < (_mn)) ? (_mn) : (_v))) 
-#define SGN(_a)             ((_a) > 0) - ((_a) < 0) 
+#define CLAMP(_v, _mn, _mx) (((_v) > (_mx)) ? (_mx) : (((_v) < (_mn)) ? (_mn) : (_v)))
+#define MIN(_a, _b)         ((_a) < (_b) ? (_a) : (_b))
+#define MAX(_a, _b)         ((_a) > (_b) ? (_a) : (_b))
+#define SGN(_a)             ((_a) > 0) - ((_a) < 0)
 #define RANDRANGE(_mn, _mx) ((rand() % ((_mx) - (_mn) + 1)) + (_mn))
-#define LERP(_a, _b, _t)	 ((_a) + ((_t) * ((_b) - (_a)))) 
+#define LERP(_a, _b, _t)	 ((_a) + ((_t) * ((_b) - (_a))))
 
 #endif
-

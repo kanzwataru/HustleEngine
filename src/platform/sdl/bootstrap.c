@@ -2,6 +2,7 @@
 #include "platform/bootstrap.h"
 #include "engine/init.h"
 #include "nativeplatform.h"
+#include "render_display.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,7 +29,7 @@ static void err(const char *err_msg)
 {
     warn(err_msg);
 
-    exit(1);
+    abort();
 }
 
 static bool load_game(void)
@@ -79,24 +80,18 @@ static void recompile(void)
 static void sdl_init(void)
 {
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-        SDL_Quit();
         err(SDL_GetError());
     }
 
     sdl_loaded = true;
 
-    SDL_GL_LoadLibrary(NULL);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-
     platform.window_handle = SDL_CreateWindow(
         STRINGIFY(HE_GAME_NAME),
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
-        platform.screen_size.w * 2, platform.screen_size.h * 2,
+        platform.screen_size.w, platform.screen_size.h,
         //SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN_DESKTOP
-        SDL_WINDOW_OPENGL
+        SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
     );
 
     int w, h;
@@ -104,16 +99,12 @@ static void sdl_init(void)
     platform.screen_size = (Rect){0, 0, w, h};
     printf("%d %d\n", platform.screen_size.w, platform.screen_size.h);
 
-    platform.gl_context = SDL_GL_CreateContext(platform.window_handle);
-
-    SDL_GL_SetSwapInterval(1);
+    display_init(&platform);
 }
 
 static void sdl_quit(void)
 {
-    if(platform.gl_context) {
-        SDL_GL_DeleteContext(platform.gl_context);
-    }
+    display_quit(&platform);
 
     if(platform.window_handle) {
         SDL_DestroyWindow(platform.window_handle);
@@ -134,6 +125,8 @@ bool sdl_handle_events(void) {
         case SDL_KEYDOWN:
             if(e.key.keysym.sym == SDLK_F5)
                 recompile();
+            if(e.key.keysym.sym == SDLK_ESCAPE)
+                return false;
             break;
         }
     }
@@ -151,9 +144,20 @@ static void game_loop(void)
 
         game_table.input();
         game_table.update();
-        game_table.render();
 
-        //SDL_GL_SwapWindow(platform.window_handle);
+        //uint64_t start = SDL_GetPerformanceCounter();
+        game_table.render();
+        //uint64_t soft_end = SDL_GetPerformanceCounter();
+
+        display_present(&platform);
+        //uint64_t end = SDL_GetPerformanceCounter();
+        display_swap_buffers(&platform);
+
+        //#define to_ms(s, e) ((double)(e - s) * 1000.0) / SDL_GetPerformanceFrequency()
+        //double soft_ms = to_ms(start, soft_end);
+        //double copy_ms = to_ms(soft_end, end);
+        //#undef  to_ms
+        //printf("%2.2fms <- (render: %2.2fms) (copy/present: %2.2fms)\n", soft_ms + copy_ms, soft_ms, copy_ms);
     }
 
     game_table.quit();
@@ -183,7 +187,7 @@ int main(int argc, char **argv)
     
     srand(((int)argv * (int)memory));
 
-    platform.screen_size = (Rect){0, 0, WIDTH * 2, HEIGHT * 2};
+    platform.screen_size = (Rect){0, 0, WIDTH * 4, HEIGHT * 4};
     platform.target_size = (Rect){0, 0, WIDTH, HEIGHT};
 
     sdl_init();

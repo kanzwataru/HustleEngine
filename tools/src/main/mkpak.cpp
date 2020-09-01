@@ -5,6 +5,7 @@
 #include "asset/util.hpp"
 extern "C" {
     #include "asset_config.h"
+    #include "asset/asset_types.h"
 }
 
 void help(void)
@@ -38,6 +39,17 @@ std::string to_upper(const std::string &str)
     return upper;
 }
 
+std::string to_upper_first(const std::string &str)
+{
+    std::string upper = str;
+
+    if(str.length() >= 1) {
+        upper[0] = std::toupper(upper[0]);
+    }
+
+    return upper;
+}
+
 int main(int argc, char **argv)
 {
     if(argc < 4) {
@@ -55,12 +67,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    FILE *out = fopen(out_file, "w");
+    FILE *out = fopen(out_file, "wb");
     assert(out);
 
     /* write out beginning of c header */
     fprintf(stdout, "#ifndef ASSETS_%s_GEN_H\n", to_upper(name).c_str());
     fprintf(stdout, "#define ASSETS_%s_GEN_H\n\n", to_upper(name).c_str());
+    fprintf(stdout, "#include \"core/asset_structs.h\"\n");
+    fprintf(stdout, "struct Pak%s {\n", to_upper_first(name).c_str());
 
     /* write out empty pak header */
     uint32_t pak_size = 0;
@@ -79,12 +93,30 @@ int main(int argc, char **argv)
             exit(1);
         }
 
+        /*
         size_t size = 0;
         int c;
         while(EOF != (c = fgetc(asset))) {
             fputc(c, out);
             ++size;
         }
+        */
+        fseek(asset, 0, SEEK_END);
+        size_t size = ftell(asset);
+        rewind(asset);
+
+        assert(size > sizeof(uint16_t));
+        uint16_t type;
+        fread(&type, sizeof(type), 1, asset);
+        assert(type >= 0 && type < ASSET_Total);
+        size -= sizeof(uint16_t);
+
+        uint8_t *data = new uint8_t[size];
+        size_t bytes_in = fread(data, 1, size, asset);
+        assert(bytes_in == size);
+        size_t bytes_out = fwrite(data, 1, size, out);
+        assert(bytes_out == size);
+        delete[] data;
 
         size_t padding = 16 - ((top + size) % 16); // pad to 16 bytes
         for(size_t _ = 0; _ < padding; ++_)
@@ -92,13 +124,17 @@ int main(int argc, char **argv)
 
         fclose(asset);
 
-        /* write out offset for header */
-        fprintf(stdout, "#define ASSET_%s\t\t%zu\n", to_upper(asset_name).c_str(), top);
+        //* write out C header for member */
+        size_t data_member_size = (size + padding) - asset_size_table[type];
+        assert(data_member_size > 0);
+        fprintf(stdout, "\tstruct %sAsset %s;\n", asset_name_table[type], asset_name.c_str());
+        fprintf(stdout, "\tbyte %s_data[%zu];\n", asset_name.c_str(), data_member_size);
 
         top += size + padding;
     }
 
     /* end of c header */
+    fprintf(stdout, "};\n");
     fprintf(stdout, "\n#endif\n");
 
     /* go back and rewrite the pak header */

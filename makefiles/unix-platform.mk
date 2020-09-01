@@ -7,9 +7,10 @@ EXTERN_SRC  := extern/glad/src/glad.c
 
 ENGINE_SRC  += engine/sdl/engine/engine.c \
  			   engine/sdl/render/render.c \
-			   engine/sdl/render/gl.c \
-			   engine/sdl/render/gl_shader.c \
 			   $(EXTERN_SRC)
+
+SHADER_SRC	:= $(wildcard $(ENGINE_DIR)/src/platform/sdl/shaders/*.glsl)
+SHADER_OUT	:= $(subst $(ENGINE_DIR)/src/platform/sdl/,$(BUILD_DIR)/,$(SHADER_SRC))
 
 ifeq ($(OS), Windows_NT)
 LIB_EXT		 = dll
@@ -20,6 +21,9 @@ endif
 DEFINES		+= HE_PLATFORM_SDL2 HE_LIB_EXT=$(LIB_EXT) HE_GAME_NAME=$(GAME_NAME) HE_MAKE_DIR=$(PWD)
 
 CORE_SRC	:= platform/sdl/bootstrap.c \
+			   platform/sdl/render_display_opengl.c \
+			   platform/sdl/gl/gl.c \
+			   platform/sdl/gl/gl_shader.c \
 			   $(EXTERN_SRC)
 
 CORE_TARGET := $(BUILD_DIR)/$(GAME_NAME)
@@ -32,7 +36,7 @@ CORE_OBJ	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CORE_SRC))
 CORE_SRC	:= $(addprefix $(ENGINE_DIR)/src/,$(CORE_SRC))
 
 CFLAGS		:= -Wall -fPIC $(addprefix -I,$(INCLUDE_DIR)) $(addprefix -D,$(DEFINES))
-LDFLAGS		:= -lSDL2 -ldl
+LDFLAGS		:= -lSDL2 -ldl -lm
 
 ######################################################
 # windows (mingw/msys) support
@@ -45,9 +49,10 @@ endif
 ######################################################
 # build settings
 ifeq ($(DEBUG_BUILD), true)
-CFLAGS		+= -O0 -g3 -DDEBUG -Wextra
+CFLAGS		+= -O0 -g3 -DDEBUG -Wextra -fsanitize=address
+LDFLAGS		+= -fsanitize=address
 else
-CFLAGS		+= -O2 -Werror
+CFLAGS		+= -O2 -Werror -Wno-unused-variable
 endif
 ######################################################
 
@@ -71,7 +76,12 @@ $(LIB_TARGET): $(OBJ)
 	@rm $(dir $@)/lock
 	@echo "UNIX game library -> $(LIB_TARGET)"
 
-game: $(CORE_TARGET) $(LIB_TARGET)
+$(BUILD_DIR)/shaders/%.glsl: $(ENGINE_DIR)/src/platform/sdl/shaders/%.glsl
+	@mkdir -p `dirname $@`
+	@cp $^ $@
+	@echo Copied shader `basename $@`
+
+game: $(CORE_TARGET) $(LIB_TARGET) $(SHADER_OUT)
 
 run: all
 	@cd $(BUILD_DIR) && exec ./$(GAME_NAME)
