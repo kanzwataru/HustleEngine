@@ -20,7 +20,7 @@ typedef struct AssetHandle assetid_t;
 #define asset_from_handle_of(_handle, _type) \
     ((struct _type##Asset*)(asset_from_handle(_handle)))
 
-struct AssetHandle asset_make_handle(uint32_t offset, byte *pak_file);
+struct AssetHandle asset_make_handle(uint32_t offset, void *pak_file);
 
 /* loading */
 void asset_load_pak(byte *asset_pak, size_t max_size, const char *file_name);
