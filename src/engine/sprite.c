@@ -20,6 +20,9 @@ void sprite_update(struct Sprite *spr, size_t count)
     struct SpritesheetAsset *sheet;
 
     for(i = 0; i < count; ++i) {
+        if(asset_is_empty(spr[i].spritesheet))
+            continue;
+
         sheet = asset_from_handle(spr[i].spritesheet);
         if(spr[i].frameskip-- < 0) {
             if(++spr[i].current_frame == sheet->count) {
@@ -40,6 +43,9 @@ void sprite_draw(struct Sprite *spr, size_t count)
     buffer_t *buf;
 
     for(i = 0; i < count; ++i) {
+        if(asset_is_empty(spr[i].spritesheet))
+            continue;
+
         sheet = asset_from_handle(spr[i].spritesheet);
         buf = get_frame(sheet, spr[i].current_frame);
         renderer_draw_sprite(sheet, buf, spr[i].rect);
