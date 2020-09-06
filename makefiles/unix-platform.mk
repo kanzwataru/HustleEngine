@@ -31,11 +31,12 @@ LIB_TARGET	:= $(BUILD_DIR)/game.$(LIB_EXT)
 
 HEADERS		 = $(foreach dir, $(INCLUDE_DIR), $(shell find $(dir) -name "*.h"))
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
-OBJ     	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC))
+OBJ     	:= $(filter %.o, $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRC)))
 CORE_OBJ	:= $(patsubst %.c,$(OBJ_DIR)/%.o,$(CORE_SRC))
 CORE_SRC	:= $(addprefix $(ENGINE_DIR)/src/,$(CORE_SRC))
 
-CFLAGS		:= -Wall -fPIC $(addprefix -I,$(INCLUDE_DIR)) $(addprefix -D,$(DEFINES))
+CFLAGS		:= -Wall -fPIC $(addprefix -I,$(INCLUDE_DIR)) $(addprefix -D,$(DEFINES)) -Wno-unused
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=c++98
 LDFLAGS		:= -lSDL2 -ldl -lm
 
 ######################################################
@@ -62,6 +63,10 @@ $(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c $(HEADERS)
 $(OBJ_DIR)/%.o: %.c $(ASSETS) $(HEADERS)
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $< -o $@
+
+$(OBJ_DIR)/%.o: %.cpp $(ASSETS) $(HEADERS)
+	@mkdir -p `dirname $@`
+	@$(CXX) -c $(CXXFLAGS) $< -o $@
 
 $(CORE_TARGET): $(CORE_OBJ)
 	@mkdir -p `dirname $@`

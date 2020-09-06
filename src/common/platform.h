@@ -21,6 +21,7 @@
     #include <dos.h>
     #include <conio.h>
     #include <assert.h>
+    #include <stddef.h>
 
     typedef unsigned char   buffer_t;
     typedef unsigned char   byte;
@@ -29,8 +30,10 @@
     typedef unsigned int    uint32_t;
     typedef int             int32_t;
 
-    typedef int             bool;
-    enum bool_vals_t { true = 1, false = 0 };
+    #ifndef __cplusplus
+        typedef int             bool;
+        enum bool_vals_t { true = 1, false = 0 };
+    #endif
 
     typedef void __interrupt (*interrupt_t)(void);
 #endif

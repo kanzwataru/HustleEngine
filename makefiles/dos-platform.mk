@@ -1,5 +1,6 @@
 .PHONY: game run debug
 CC			:= wcl386
+CXX			:= wcl386
 CC_DOS_DIR	:= $(dir $(shell which $(CC)))../binw
 EXTENDER	:= pmodew
 TARGET 		:= $(BUILD_DIR)/$(GAME_NAME).exe
@@ -14,9 +15,11 @@ DEFINES		+= HE_PLATFORM_DOS
 
 HEADERS		 = $(foreach dir, $(INCLUDE_DIR), $(shell find $(dir) -name "*.h"))
 SRC			:= $(GAME_SRC) $(addprefix $(ENGINE_DIR)/src/,$(ENGINE_SRC))
-OBJ     	:= $(filter %.o, $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.s,$(OBJ_DIR)/%.o,$(SRC)))
+OBJ     	:= $(filter %.o, $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.s,$(OBJ_DIR)/%.o,$(SRC)) $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRC)))
 
-CFLAGS		:= -bt=dos -za99 -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(INCLUDE_DIR)) $(addprefix -d,$(DEFINES))
+CFLAGS_COMM := -bt=dos -4s -zq -w4 -e25 -l=$(EXTENDER) $(addprefix -i,$(INCLUDE_DIR)) $(addprefix -d,$(DEFINES))
+CFLAGS		:= $(CFLAGS_COMM) -za99
+CXXFLAGS	:= $(CFLAGS_COMM)
 LDFLAGS		:= -bt=dos -za99 -l=$(EXTENDER) -fe=$(TARGET) -fm=$(BUILD_DIR)/$(GAME_NAME) -4s -mf -zq
 
 ######################################################
@@ -43,6 +46,11 @@ $(OBJ_DIR)/%.o: $(ENGINE_DIR)/src/%.c $(HEADERS)
 $(OBJ_DIR)/%.o: %.c $(ASSETS) $(HEADERS)
 	@mkdir -p `dirname $@`
 	@$(CC) -c $(CFLAGS) $< -fo=$@
+
+
+$(OBJ_DIR)/%.o: %.cpp $(ASSETS) $(HEADERS)
+	@mkdir -p `dirname $@`
+	@$(CXX) -c $(CXXFLAGS) $< -fo=$@
 
 $(OBJ_DIR)/%.o: %.s
 	@mkdir -p `dirname $@`
